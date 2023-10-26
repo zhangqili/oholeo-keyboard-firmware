@@ -11,9 +11,9 @@
 #include "lefl.h"
 #include "keyboard.h"
 
-#define RGB_NUM                 (ADVANCED_KEY_NUM+60+1)
-#define ONE_PULSE               (61)
-#define ZERO_PULSE              (29)
+#define RGB_NUM                 (ADVANCED_KEY_NUM+1)
+#define ONE_PULSE               (60)
+#define ZERO_PULSE              (30)
 #define NONE_PULSE              (90)
 #define RGB_RESET_LENGTH        (400)
 #define RGB_BUFFER_LENGTH       (RGB_RESET_LENGTH+3*8*(RGB_NUM))

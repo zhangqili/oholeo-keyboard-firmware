@@ -19,21 +19,19 @@ rgb_individual_config_t RGB_Configs[RGB_NUM];
 lefl_color_rgb_t RGB_Colors[RGB_NUM];
 uint8_t RGB_TargetConfig;
 lefl_loop_queue_t RGB_Argument_Queues[RGB_NUM];
+const uint8_t RGB_Mapping[ADVANCED_KEY_NUM]={26,25,24,23,9,10,11,12,36,37,38,39,53,52,51,50,
+                                             35,34,33,32,19,20,21,22,46,47,48,49,63,62,61,60,
+                                             3,15,29,42,41,56,28,14,13,27,40,55,54,0,1,2,
+                                             4,5,6,7,8,18,17,31,44,45,59,58,16,30,43,57};
 #define ARGUMENT_BUFFER_LENGTH 16
-static lefl_loop_queue_elm_t RGB0_Argument_Buffer[ARGUMENT_BUFFER_LENGTH];
-static lefl_loop_queue_elm_t RGB1_Argument_Buffer[ARGUMENT_BUFFER_LENGTH];
-static lefl_loop_queue_elm_t RGB2_Argument_Buffer[ARGUMENT_BUFFER_LENGTH];
-static lefl_loop_queue_elm_t RGB3_Argument_Buffer[ARGUMENT_BUFFER_LENGTH];
-static lefl_loop_queue_elm_t RGB4_Argument_Buffer[ARGUMENT_BUFFER_LENGTH];
+static lefl_loop_queue_elm_t RGB_Argument_Buffer[RGB_NUM][ARGUMENT_BUFFER_LENGTH];
 
 #ifdef USE_RGB
 void RGB_Init()
 {
-    lefl_loop_queue_init(RGB_Argument_Queues + 0, RGB0_Argument_Buffer, ARGUMENT_BUFFER_LENGTH);
-    lefl_loop_queue_init(RGB_Argument_Queues + 1, RGB1_Argument_Buffer, ARGUMENT_BUFFER_LENGTH);
-    lefl_loop_queue_init(RGB_Argument_Queues + 2, RGB2_Argument_Buffer, ARGUMENT_BUFFER_LENGTH);
-    lefl_loop_queue_init(RGB_Argument_Queues + 3, RGB3_Argument_Buffer, ARGUMENT_BUFFER_LENGTH);
-    lefl_loop_queue_init(RGB_Argument_Queues + 4, RGB4_Argument_Buffer, ARGUMENT_BUFFER_LENGTH);
+    for (uint8_t i = 0; i < RGB_NUM; i++) {
+        lefl_loop_queue_init(RGB_Argument_Queues + i, RGB_Argument_Buffer[i], ARGUMENT_BUFFER_LENGTH);
+    }
     for (uint16_t i = 0; i < 400; i++) {
         RGB_Buffer[i] = NONE_PULSE;
     }
@@ -51,23 +49,24 @@ void RGB_Update()
         case RGB_GLOBAL_MODE_INDIVIDUAL:
             for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
             {
-                switch (RGB_Configs[i].mode)
+                uint8_t rgb_index = RGB_Mapping[i]?RGB_Mapping[i]-1:0;
+                switch (RGB_Configs[rgb_index].mode)
                 {
                     case RGB_MODE_REACT_LINEAR:
-                        RGB_Colors[i].r=COLOR_INTERVAL(Keyboard_AdvancedKeys[i].value,0,(float)(RGB_Configs[i].rgb.r));
-                        RGB_Colors[i].g=COLOR_INTERVAL(Keyboard_AdvancedKeys[i].value,0,(float)(RGB_Configs[i].rgb.g));
-                        RGB_Colors[i].b=COLOR_INTERVAL(Keyboard_AdvancedKeys[i].value,0,(float)(RGB_Configs[i].rgb.b));
+                        RGB_Colors[rgb_index].r=COLOR_INTERVAL(Keyboard_AdvancedKeys[i].value,0,(float)(RGB_Configs[rgb_index].rgb.r));
+                        RGB_Colors[rgb_index].g=COLOR_INTERVAL(Keyboard_AdvancedKeys[i].value,0,(float)(RGB_Configs[rgb_index].rgb.g));
+                        RGB_Colors[rgb_index].b=COLOR_INTERVAL(Keyboard_AdvancedKeys[i].value,0,(float)(RGB_Configs[rgb_index].rgb.b));
                         break;
                     case RGB_MODE_REACT_TRIGGER:
-                        RGB_Configs[i].argument = Keyboard_AdvancedKeys[i].key.state?1.0:RGB_Configs[i].argument*(1.0-fabsf(RGB_Configs[i].speed));
-                        RGB_Colors[i].r=(uint8_t)((float)(RGB_Configs[i].rgb.r)*RGB_Configs[i].argument);;
-                        RGB_Colors[i].g=(uint8_t)((float)(RGB_Configs[i].rgb.g)*RGB_Configs[i].argument);;
-                        RGB_Colors[i].b=(uint8_t)((float)(RGB_Configs[i].rgb.b)*RGB_Configs[i].argument);;
+                        RGB_Configs[rgb_index].argument = Keyboard_AdvancedKeys[i].key.state?1.0:RGB_Configs[rgb_index].argument*(1.0-fabsf(RGB_Configs[rgb_index].speed));
+                        RGB_Colors[rgb_index].r=(uint8_t)((float)(RGB_Configs[rgb_index].rgb.r)*RGB_Configs[rgb_index].argument);;
+                        RGB_Colors[rgb_index].g=(uint8_t)((float)(RGB_Configs[rgb_index].rgb.g)*RGB_Configs[rgb_index].argument);;
+                        RGB_Colors[rgb_index].b=(uint8_t)((float)(RGB_Configs[rgb_index].rgb.b)*RGB_Configs[rgb_index].argument);;
                         break;
                     case RGB_MODE_STATIC:
-                        RGB_Colors[i].r=RGB_Configs[i].rgb.r;
-                        RGB_Colors[i].g=RGB_Configs[i].rgb.g;
-                        RGB_Colors[i].b=RGB_Configs[i].rgb.b;
+                        RGB_Colors[rgb_index].r=RGB_Configs[rgb_index].rgb.r;
+                        RGB_Colors[rgb_index].g=RGB_Configs[rgb_index].rgb.g;
+                        RGB_Colors[rgb_index].b=RGB_Configs[rgb_index].rgb.b;
                         break;
                     case RGB_MODE_CYCLE:
                         RGB_Configs[i].argument+=RGB_Configs[i].speed;
@@ -100,7 +99,7 @@ void RGB_Update()
             {
                 RGB_GlobalConfig.argument=360;
             }
-            for (uint8_t i = 0; i < ADVANCED_KEY_NUM+60; i++)
+            for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
             {
                 temp_hsv.h = ((uint16_t)RGB_GlobalConfig.argument + i*15)%360;
                 lefl_color_set_hsv(RGB_Colors+i, &temp_hsv);
@@ -180,10 +179,10 @@ void RGB_Update()
             }
             break;
     }
-    RGB_Set(RGB_Colors[0].r,RGB_Colors[0].g,RGB_Colors[0].b,0);
-    RGB_Set(RGB_Colors[1].r,RGB_Colors[1].g,RGB_Colors[1].b,1);
-    RGB_Set(RGB_Colors[2].r,RGB_Colors[2].g,RGB_Colors[2].b,2);
-    RGB_Set(RGB_Colors[3].r,RGB_Colors[3].g,RGB_Colors[3].b,3);
+    for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+    {
+        RGB_Set(RGB_Colors[i].r,RGB_Colors[i].g,RGB_Colors[i].b,i);
+    }
 }
 
 void RGB_Set(uint8_t r,uint8_t g,uint8_t b,uint16_t index)
@@ -198,21 +197,21 @@ void RGB_Set(uint8_t r,uint8_t g,uint8_t b,uint16_t index)
 
 void RGB_Flash()
 {
-    for (uint8_t i=1;i<127;i++)
+    for (uint8_t i=1;i<64;i++)
     {
-      RGB_Set(i,i,i,0);
-      RGB_Set(i,i,i,1);
-      RGB_Set(i,i,i,2);
-      RGB_Set(i,i,i,3);
-      HAL_Delay(2);
+        for (uint8_t j = 0; j < RGB_NUM; j++)
+        {
+            RGB_Set(i,i,i,j);
+        }
+      HAL_Delay(5);
     }
-    for (uint8_t i=128;i>3;i--)
+    for (uint8_t i=64;i>1;i--)
     {
-      RGB_Set(i,i,i,0);
-      RGB_Set(i,i,i,1);
-      RGB_Set(i,i,i,2);
-      RGB_Set(i,i,i,3);
-      HAL_Delay(2);
+        for (uint8_t j = 0; j < RGB_NUM; j++)
+        {
+            RGB_Set(i,i,i,j);
+        }
+      HAL_Delay(5);
     }
     RGB_TurnOff();
 }
@@ -229,6 +228,21 @@ void RGB_TurnOff()
 
 void RGB_Recovery()
 {
+    lefl_color_hsv_t temphsv = {0,0,100};
+    for (uint8_t i=0;i<RGB_NUM;i++)
+    {
+        RGB_Configs[i].mode=RGB_MODE_REACT_LINEAR;
+        RGB_Configs[i].hsv=temphsv;
+        lefl_color_set_hsv(&RGB_Configs[i].rgb, &temphsv);
+
+    }
+    lefl_color_hsv_t hsv = {0,100,10};
+    //RGB_GlobalConfig.mode=RGB_GLOBAL_MODE_WAVE;
+    RGB_GlobalConfig.mode=RGB_GLOBAL_MODE_INDIVIDUAL;
+    RGB_GlobalConfig.speed=0.5;
+    RGB_GlobalConfig.hsv=hsv;
+    lefl_color_set_hsv(&RGB_GlobalConfig.rgb, &hsv);
+
 }
 
 void RGB_Save()

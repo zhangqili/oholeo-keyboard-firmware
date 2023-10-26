@@ -27,7 +27,7 @@ lefl_advanced_key_t Keyboard_AdvancedKeys[ADVANCED_KEY_NUM]=
     ,
     {.key.id=KEY_CAPS_LOCK}
     ,
-    {.key.id=KEY_LEFT_SHIFT}
+    {.key.id=0x0200}//Left Shift
     ,
     {.key.id=KEY_Z}
     ,
@@ -62,7 +62,7 @@ lefl_advanced_key_t Keyboard_AdvancedKeys[ADVANCED_KEY_NUM]=
     ,
     {.key.id=KEY_SLASH}
     ,
-    {.key.id=KEY_RIGHT_SHIFT}
+    {.key.id=0x2000}//Right Shift
     ,
     {.key.id=KEY_UP_ARROW}
     ,
@@ -111,14 +111,14 @@ lefl_advanced_key_t Keyboard_AdvancedKeys[ADVANCED_KEY_NUM]=
     ,
     {.key.id=KEY_4}
     ,
-    {.key.id=KEY_LEFT_CONTROL}
+    {.key.id=0x0100}//Left Control
     ,
-    {.key.id=KEY_LEFT_GUI}
+    {.key.id=0x0800}//Left GUI
     ,
-    {.key.id=KEY_LEFT_ALT}
+    {.key.id=0x0400}//Left Alt
     ,
     //Group 4 Begin
-    {.key.id=KEY_RIGHT_CONTROL}
+    {.key.id=0x1000}//Right Control
     ,
     {.key.id=0}
     ,
@@ -160,8 +160,8 @@ void Keyboard_Init()
     lefl_key_attach(&(Keyboard_AdvancedKeys[3].key), KEY_EVENT_DOWN, LAMBDA(void,(void*k){lefl_loop_queue_enqueue(RGB_Argument_Queues+3, 0.0);}));
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-        lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, 4000, 0);
-        lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, 0.01, 0.1);
+        //lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, 4000, 0);
+        //lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, 0.01, 0.1);
         Keyboard_AdvancedKeys[i].mode=LEFL_KEY_ANALOG_RAPID_MODE;
         Keyboard_AdvancedKeys[i].trigger_distance=0.03;
         Keyboard_AdvancedKeys[i].release_distance=0.03;
@@ -174,18 +174,19 @@ void Keyboard_Scan()
 
 void Keyboard_SendReport()
 {
-    /*
-    lefl_bit_array_set(&Keyboard_KeyArray, KEY1_BINDING, !(rand()%16));
-    lefl_bit_array_set(&Keyboard_KeyArray, KEY2_BINDING, !(rand()%16));
-    lefl_bit_array_set(&Keyboard_KeyArray, KEY3_BINDING, !(rand()%16));
-    lefl_bit_array_set(&Keyboard_KeyArray, KEY4_BINDING, !(rand()%16));
-    */
+
     memset(Keyboard_ReportBuffer,0,USBD_CUSTOMHID_OUTREPORT_BUF_SIZE);
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
         Keyboard_ReportBuffer[0]|= Keyboard_AdvancedKeys[i].key.state?((Keyboard_AdvancedKeys[i].key.id>>8) & 0xFF):0;
         lefl_bit_array_set_or(&Keyboard_KeyArray, Keyboard_AdvancedKeys[i].key.id & 0xFF, Keyboard_AdvancedKeys[i].key.state);
     }
+    /*
+    lefl_bit_array_set(&Keyboard_KeyArray, KEY_Z, !(rand()%16));
+    lefl_bit_array_set(&Keyboard_KeyArray, KEY_X, !(rand()%16));
+    lefl_bit_array_set(&Keyboard_KeyArray, KEY_C, !(rand()%16));
+    lefl_bit_array_set(&Keyboard_KeyArray, KEY_V, !(rand()%16));
+    */
     USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,Keyboard_ReportBuffer,USBD_CUSTOMHID_OUTREPORT_BUF_SIZE);
 }
 

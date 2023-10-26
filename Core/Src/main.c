@@ -70,9 +70,9 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 /**
 * @brief  初始化时间戳
-* @param  �??????????????????
-* @retval �??????????????????
-* @note   使用延时函数前，必须调用本函�??????????????????
+* @param  �?????????????????????
+* @retval �?????????????????????
+* @note   使用延时函数前，必须调用本函�?????????????????????
 */
 int DWT_Init(void)
 {
@@ -114,6 +114,49 @@ void DWT_Delay_us(volatile uint32_t au32_microseconds)
   while ((DWT->CYCCNT - au32_initial_ticks) < au32_microseconds-au32_ticks);
 }
 
+void (*SysMemBootJump)(void); /* 声明�?个函数指�? */
+__IO uint32_t BootAddr = 0x1FFFD800; /*   的系�? BootLoader 地址 */
+
+void JumpToBootloader(void) {
+    uint32_t i=0;
+
+
+         /* 关闭全局中断 */
+         __set_PRIMASK(1);
+
+         /* 关闭滴答定时器，复位到默认�?? */
+         SysTick->CTRL = 0;
+         SysTick->LOAD = 0;
+         SysTick->VAL = 0;
+
+         /* 设置�?有时钟到默认状�?�， 使用 HSI 时钟 */
+         HAL_RCC_DeInit();
+
+         /* 关闭�?有中断，清除�?有中断挂起标�? */
+         for (i = 0; i < 8; i++)
+         {
+             NVIC->ICER[i]=0xFFFFFFFF;
+             NVIC->ICPR[i]=0xFFFFFFFF;
+         }
+
+         /* 使能全局中断 */
+         __set_PRIMASK(0);
+
+         /* 跳转到系�? BootLoader，首地址�? MSP，地�?+4 是复位中断服务程序地�? */
+         SysMemBootJump = (void (*)(void)) (*((uint32_t *) (BootAddr + 4)));
+
+         /* 设置主堆栈指�? */
+         __set_MSP(*(uint32_t *)BootAddr);
+
+         /* 跳转到系�? BootLoader */
+         SysMemBootJump();
+
+         /* 跳转成功的话，不会执行到这里，用户可以在这里添加代码 */
+         while (1)
+         {
+
+         }
+}
 /* USER CODE END 0 */
 
 /**
@@ -175,7 +218,7 @@ int main(void)
   //Analog_Init();
   RGB_Flash();
   RGB_TurnOff();
-  HAL_TIM_Base_Start_IT(&htim7);
+
   //Analog_Start();
   HAL_TIM_Base_Start_IT(&htim2);
   HAL_ADC_Start(&hadc2);
@@ -183,20 +226,34 @@ int main(void)
   HAL_ADC_Start(&hadc4);
   HAL_ADCEx_MultiModeStart_DMA(&hadc3, (uint32_t*)(Analog_Buffer+2), 1);
 
+  HAL_Delay(1000);
+  if(AnalogItems[49].sum/AnalogItems[49].count<16384)
+  {
+      JumpToBootloader();
+  }
+  for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+  {
+      lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, AnalogItems[i].sum/AnalogItems[i].count, 12800);
+      lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, 0.05j, 0.2);
+  }
+  Analog_Clean();
+  HAL_TIM_Base_Start_IT(&htim7);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-      HAL_Delay(100);
+      HAL_Delay(1);
       //sprintf(uart_buf,"/%d=%d\n",AnalogItems[0].count,AnalogItems[0].sum/AnalogItems[0].count);
       //sprintf(uart_buf,"%ld\t%d\t%d\t%d\t%d\n",Analog_Count,Analog_Buffer[0],Analog_Buffer[1],Analog_Buffer[2],Analog_Buffer[3]);
       //sprintf(uart_buf,"%ld\t%ld\t%ld\t%ld\t%ld\n",Analog_Count,AnalogItems[0].count,AnalogItems[16*1].count,AnalogItems[16*2].count,AnalogItems[16*3].count);
       //sprintf(uart_buf,"%ld\t%ld\t%ld\t%ld\t%ld\n",Analog_Count,Analog_Buffer[0],Analog_Buffer[1],Analog_Buffer[2],Analog_Buffer[3]);
       //sprintf(uart_buf,"%ld\t%ld\t%ld\t%ld\t%ld\n",Analog_Count,AnalogItems[0].sum/AnalogItems[0].count,AnalogItems[16*1].sum/AnalogItems[16*1].count,AnalogItems[16*2].sum/AnalogItems[16*2].count,AnalogItems[16*3].sum/AnalogItems[16*3].count);
+      //sprintf(uart_buf,"%f\n",Keyboard_AdvancedKeys[5].value);
       HAL_UART_Transmit(&huart1, (uint8_t*)uart_buf, 32, 0xFF);
-      //RGB_Update();
+      RGB_Update();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -267,8 +324,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     Analog_Check();
     Keyboard_SendReport();
     //debug = AnalogItems[33].sum/AnalogItems[33].count;
-    sprintf(uart_buf,"%ld/%ld/%ld/%ld\n",AnalogItems[0].sum/AnalogItems[0].count,AnalogItems[1].sum/AnalogItems[1].count,AnalogItems[2].sum/AnalogItems[2].count,AnalogItems[3].sum/AnalogItems[3].count);
-    sprintf(uart_buf,"%ld/%ld/%ld/%ld\n",AnalogItems[0].sum/AnalogItems[0].count,AnalogItems[1].sum/AnalogItems[1].count,AnalogItems[2].sum/AnalogItems[2].count,AnalogItems[3].sum/AnalogItems[3].count);
+    //sprintf(uart_buf,"%ld/%ld/%ld/%ld\n",AnalogItems[0].sum/AnalogItems[0].count,AnalogItems[1].sum/AnalogItems[1].count,AnalogItems[2].sum/AnalogItems[2].count,AnalogItems[3].sum/AnalogItems[3].count);
+    //sprintf(uart_buf,"%ld/%ld/%ld/%ld\n",AnalogItems[0].count,AnalogItems[1].count,AnalogItems[2].count,AnalogItems[3].count);
     Analog_Clean();
 
   }

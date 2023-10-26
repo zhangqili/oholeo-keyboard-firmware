@@ -46,8 +46,8 @@ void Analog_Start()
 
 void Analog_Channel_Select(uint8_t x)
 {
-    HAL_GPIO_WritePin(A_GPIO_Port, A_Pin, x&0x02);
-    HAL_GPIO_WritePin(B_GPIO_Port, B_Pin, x&0x01);
+    HAL_GPIO_WritePin(A_GPIO_Port, A_Pin, x&0x01);
+    HAL_GPIO_WritePin(B_GPIO_Port, B_Pin, x&0x02);
     HAL_GPIO_WritePin(C_GPIO_Port, C_Pin, x&0x04);
     HAL_GPIO_WritePin(D_GPIO_Port, D_Pin, x&0x08);
 }
@@ -70,6 +70,11 @@ void Analog_Check()
 {
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
+        if(AnalogItems[i].sum/AnalogItems[i].count<Keyboard_AdvancedKeys[i].lower_bound)
+        {
+            lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, Keyboard_AdvancedKeys[i].upper_bound,AnalogItems[i].sum/AnalogItems[i].count);
+            lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, 0.05, 0.2);
+        }
         if(Keyboard_AdvancedKeys[i].mode!=LEFL_KEY_DIGITAL_MODE)
             lefl_advanced_key_update_raw(Keyboard_AdvancedKeys+i, AnalogItems[i].sum/AnalogItems[i].count);
             //lefl_advanced_key_update_raw(Keyboard_AdvancedKeys+i, (((float)(AnalogItems.sum))/(float)(AnalogItems.count)));
