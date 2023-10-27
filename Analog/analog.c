@@ -16,7 +16,14 @@
 #include "lefl.h"
 
 uint32_t ADC_Buffer[4];
-AnalogItem AnalogItems[ADVANCED_KEY_NUM];
+#define EXTENDED_SAMPLING
+AnalogItem AnalogDatas[ADVANCED_KEY_NUM];
+#ifdef EXTENDED_SAMPLING
+AnalogItem LastAnalogDatas[ADVANCED_KEY_NUM];
+#define ANALOG_AVERAGE(x) ((AnalogDatas[x].sum+LastAnalogDatas[x].sum)/(AnalogDatas[i].count+LastAnalogDatas[i].count))
+#else
+#define ANALOG_AVERAGE(x) ((AnalogDatas[x].sum)/(AnalogDatas[i].count))
+#endif
 
 uint16_t Analog_Buffer[ADVANCED_KEY_NUM];
 
@@ -69,15 +76,24 @@ void Analog_Average()
 
 void Analog_Check()
 {
+    bool state;
+    rgb_argument_t a;
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-        if(AnalogItems[i].sum/AnalogItems[i].count<Keyboard_AdvancedKeys[i].lower_bound)
+        state=Keyboard_AdvancedKeys[i].key.state;
+        if(ANALOG_AVERAGE(i)<Keyboard_AdvancedKeys[i].lower_bound)
         {
-            lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, Keyboard_AdvancedKeys[i].upper_bound,AnalogItems[i].sum/AnalogItems[i].count);
+            lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, Keyboard_AdvancedKeys[i].upper_bound,ANALOG_AVERAGE(i));
             lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, 0.05, 0.2);
         }
         if(Keyboard_AdvancedKeys[i].mode!=LEFL_KEY_DIGITAL_MODE)
-            lefl_advanced_key_update_raw(Keyboard_AdvancedKeys+i, AnalogItems[i].sum/AnalogItems[i].count);
+            lefl_advanced_key_update_raw(Keyboard_AdvancedKeys+i, ANALOG_AVERAGE(i));
+        if(Keyboard_AdvancedKeys[i].key.state&&!state)
+        {
+            a.rgb_ptr = RGB_Mapping[i];
+            a.argument=0.0;
+            rgb_loop_queue_enqueue(&RGB_Argument_Queue, a);
+        }
             //lefl_advanced_key_update_raw(Keyboard_AdvancedKeys+i, (((float)(AnalogItems.sum))/(float)(AnalogItems.count)));
     }
 }
@@ -85,18 +101,15 @@ void Analog_Check()
 
 void Analog_Recovery()
 {
+
 }
 
-void Analog_Clean()
+void Analog_Flush()
 {
-
-    for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
-    {
-        AnalogItems[i].count=0;
-        AnalogItems[i].sum=0;
-
-            //lefl_advanced_key_update_raw(Keyboard_AdvancedKeys+i, (((float)(AnalogItems.sum))/(float)(AnalogItems.count)));
-    }
+#ifdef EXTENDED_SAMPLING
+    memcpy(LastAnalogDatas,AnalogDatas,sizeof(AnalogDatas));
+#endif
+    memset(AnalogDatas,0,sizeof(AnalogDatas));
 }
 
 #define ADDRESS BCD_TO_GRAY(Analog_ActiveChannel)
@@ -119,14 +132,14 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
         Analog_ConvCpltFlag[1]=false;
         Analog_ConvCpltFlag[2]=false;
         Analog_ConvCpltFlag[3]=false;
-        AnalogItems[0*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc1);
-        AnalogItems[0*16+ADDRESS].count++;
-        AnalogItems[1*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc2);
-        AnalogItems[1*16+ADDRESS].count++;
-        AnalogItems[2*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc3);
-        AnalogItems[2*16+ADDRESS].count++;
-        AnalogItems[3*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc4);
-        AnalogItems[3*16+ADDRESS].count++;
+        AnalogDatas[0*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc1);
+        AnalogDatas[0*16+ADDRESS].count++;
+        AnalogDatas[1*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc2);
+        AnalogDatas[1*16+ADDRESS].count++;
+        AnalogDatas[2*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc3);
+        AnalogDatas[2*16+ADDRESS].count++;
+        AnalogDatas[3*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc4);
+        AnalogDatas[3*16+ADDRESS].count++;
         Analog_ActiveChannel++;
         if(Analog_ActiveChannel>=16)
             Analog_ActiveChannel=0;

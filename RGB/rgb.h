@@ -13,8 +13,8 @@
 
 #define RGB_NUM                 (ADVANCED_KEY_NUM+1)
 #define ONE_PULSE               (60)
-#define ZERO_PULSE              (30)
-#define NONE_PULSE              (90)
+#define ZERO_PULSE              (29)
+#define NONE_PULSE              (0)
 #define RGB_RESET_LENGTH        (400)
 #define RGB_BUFFER_LENGTH       (RGB_RESET_LENGTH+3*8*(RGB_NUM))
 
@@ -36,7 +36,11 @@ typedef enum __rgb_global_mode_t
     RGB_GLOBAL_MODE_OFF,
     RGB_GLOBAL_MODE_INDIVIDUAL,
     RGB_GLOBAL_MODE_WAVE,
-    RGB_GLOBAL_MODE_RIPPLE,
+    RGB_GLOBAL_MODE_STRING,
+    RGB_GLOBAL_MODE_FADING_STRING,
+    RGB_GLOBAL_MODE_DIAMOND_RIPPLE,
+    RGB_GLOBAL_MODE_FADING_DIAMOND_RIPPLE,
+    RGB_GLOBAL_MODE_JELLY,
 
 } rgb_global_mode_t;
 
@@ -58,7 +62,36 @@ typedef struct __rgb_global_config_t
     float argument;
 } rgb_global_config_t;
 
+typedef struct __rgb_location_t
+{
+    uint8_t row;
+    float x;
+}rgb_location_t;
 
+typedef struct __rgb_argument_t
+{
+    uint8_t rgb_ptr;
+    float argument;
+}rgb_argument_t;
+
+
+
+typedef rgb_argument_t rgb_loop_queue_elm_t;
+
+typedef struct __rgb_loop_queue_t
+{
+    rgb_loop_queue_elm_t *data;
+    int16_t front;
+    int16_t rear;
+    int16_t len;
+} rgb_loop_queue_t;
+
+void rgb_loop_queue_init(rgb_loop_queue_t* q, rgb_loop_queue_elm_t*data, uint16_t len);
+rgb_loop_queue_elm_t rgb_loop_queue_dequeue(rgb_loop_queue_t* q);
+void rgb_loop_queue_enqueue(rgb_loop_queue_t* q, rgb_loop_queue_elm_t t);
+//#define lefl_loop_queue_foreach(q,i) for(uint16_t (i)=(q)->front;(i)!=(q)->rear;(i)=(i+1)%(q)->len)
+
+#define ARGUMENT_BUFFER_LENGTH 64
 #ifdef USE_RGB
 extern uint8_t RGB_Buffer[RGB_BUFFER_LENGTH];
 #endif
@@ -66,7 +99,8 @@ extern lefl_color_rgb_t RGB_Colors[RGB_NUM];
 extern rgb_individual_config_t RGB_Configs[RGB_NUM];
 extern rgb_global_config_t RGB_GlobalConfig;
 extern uint8_t RGB_TargetConfig;
-extern lefl_loop_queue_t RGB_Argument_Queues[RGB_NUM];
+extern rgb_loop_queue_t RGB_Argument_Queue;
+extern const uint8_t RGB_Mapping[ADVANCED_KEY_NUM];
 
 #ifdef USE_RGB
 void RGB_Init();

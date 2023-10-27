@@ -24,4 +24,6 @@
 
 #define CONVERGE_TO(x,y,m) (x)=(x)+(m)*((y)-(x))
 
+#define SQUARE(x) ((x)*(x))
+
 #endif /* LEFL_MACRO_H_ */

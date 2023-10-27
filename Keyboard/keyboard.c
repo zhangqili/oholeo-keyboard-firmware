@@ -16,6 +16,7 @@
 
 uint8_t Keyboard_ReportBuffer[USBD_CUSTOMHID_OUTREPORT_BUF_SIZE];
 lefl_bit_array_t Keyboard_KeyArray;
+bool Keybaord_SendReport_Enable;
 lefl_advanced_key_t Keyboard_AdvancedKeys[ADVANCED_KEY_NUM]=
 {
     //Group 1 Begin
@@ -154,10 +155,6 @@ lefl_advanced_key_t Keyboard_AdvancedKeys[ADVANCED_KEY_NUM]=
 
 void Keyboard_Init()
 {
-    lefl_key_attach(&(Keyboard_AdvancedKeys[0].key), KEY_EVENT_DOWN, LAMBDA(void,(void*k){lefl_loop_queue_enqueue(RGB_Argument_Queues+0, 0.0);}));
-    lefl_key_attach(&(Keyboard_AdvancedKeys[1].key), KEY_EVENT_DOWN, LAMBDA(void,(void*k){lefl_loop_queue_enqueue(RGB_Argument_Queues+1, 0.0);}));
-    lefl_key_attach(&(Keyboard_AdvancedKeys[2].key), KEY_EVENT_DOWN, LAMBDA(void,(void*k){lefl_loop_queue_enqueue(RGB_Argument_Queues+2, 0.0);}));
-    lefl_key_attach(&(Keyboard_AdvancedKeys[3].key), KEY_EVENT_DOWN, LAMBDA(void,(void*k){lefl_loop_queue_enqueue(RGB_Argument_Queues+3, 0.0);}));
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
         //lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, 4000, 0);

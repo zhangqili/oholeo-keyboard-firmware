@@ -10,6 +10,8 @@
 #ifndef ANALOG_H_
 #define ANALOG_H_
 
+//#define EXTENDED_SAMPLING
+
 typedef struct
 {
      uint32_t sum;
@@ -17,7 +19,11 @@ typedef struct
 } AnalogItem;
 
 extern uint32_t ADC_Buffer[4];
-extern AnalogItem AnalogItems[ADVANCED_KEY_NUM];
+extern AnalogItem AnalogDatas[ADVANCED_KEY_NUM];
+
+#ifdef EXTENDED_SAMPLING
+extern AnalogItem LastAnalogDatas[ADVANCED_KEY_NUM];
+#endif
 
 extern uint16_t Analog_Buffer[ADVANCED_KEY_NUM];
 
@@ -32,7 +38,7 @@ void Analog_Init();
 void Analog_Average();
 void Analog_Check();
 void Analog_Recovery();
-void Analog_Clean();
+void Analog_Flush();
 void Analog_Start();
 void Analog_Save();
 
