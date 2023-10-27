@@ -203,7 +203,7 @@ void RGB_Flash()
         {
             RGB_Set(i,i,i,j);
         }
-      HAL_Delay(5);
+      HAL_Delay(8);
     }
     for (uint8_t i=64;i>1;i--)
     {
@@ -211,7 +211,7 @@ void RGB_Flash()
         {
             RGB_Set(i,i,i,j);
         }
-      HAL_Delay(5);
+      HAL_Delay(8);
     }
     RGB_TurnOff();
 }

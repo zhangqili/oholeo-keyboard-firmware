@@ -23,7 +23,7 @@ uint16_t Analog_Buffer[ADVANCED_KEY_NUM];
 uint8_t Analog_ActiveChannel;
 uint32_t Analog_Count;
 bool Analog_ConvCpltFlag[4];
-
+#define BCD_TO_GRAY(x) (x^(x>>1))
 
 void Analog_Init()
 {
@@ -46,6 +46,7 @@ void Analog_Start()
 
 void Analog_Channel_Select(uint8_t x)
 {
+    x=BCD_TO_GRAY(x);
     HAL_GPIO_WritePin(A_GPIO_Port, A_Pin, x&0x01);
     HAL_GPIO_WritePin(B_GPIO_Port, B_Pin, x&0x02);
     HAL_GPIO_WritePin(C_GPIO_Port, C_Pin, x&0x04);
@@ -98,25 +99,18 @@ void Analog_Clean()
     }
 }
 
+#define ADDRESS BCD_TO_GRAY(Analog_ActiveChannel)
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
     if (hadc==&hadc1)
     {
         Analog_ConvCpltFlag[0]=true;
-        AnalogItems[0*16+Analog_ActiveChannel].sum+=Analog_Buffer[0];
-        AnalogItems[0*16+Analog_ActiveChannel].count++;
         Analog_ConvCpltFlag[1]=true;
-        AnalogItems[1*16+Analog_ActiveChannel].sum+=Analog_Buffer[1];
-        AnalogItems[1*16+Analog_ActiveChannel].count++;
     }
     if (hadc==&hadc3)
     {
         Analog_ConvCpltFlag[2]=true;
-        AnalogItems[2*16+Analog_ActiveChannel].sum+=Analog_Buffer[2];
-        AnalogItems[2*16+Analog_ActiveChannel].count++;
         Analog_ConvCpltFlag[3]=true;
-        AnalogItems[3*16+Analog_ActiveChannel].sum+=Analog_Buffer[3];
-        AnalogItems[3*16+Analog_ActiveChannel].count++;
         //HAL_ADC_Stop_DMA(&hadc3);
     }
     if (Analog_ConvCpltFlag[0]&&Analog_ConvCpltFlag[2])
@@ -125,6 +119,14 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
         Analog_ConvCpltFlag[1]=false;
         Analog_ConvCpltFlag[2]=false;
         Analog_ConvCpltFlag[3]=false;
+        AnalogItems[0*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc1);
+        AnalogItems[0*16+ADDRESS].count++;
+        AnalogItems[1*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc2);
+        AnalogItems[1*16+ADDRESS].count++;
+        AnalogItems[2*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc3);
+        AnalogItems[2*16+ADDRESS].count++;
+        AnalogItems[3*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc4);
+        AnalogItems[3*16+ADDRESS].count++;
         Analog_ActiveChannel++;
         if(Analog_ActiveChannel>=16)
             Analog_ActiveChannel=0;

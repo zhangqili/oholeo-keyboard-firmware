@@ -163,8 +163,8 @@ void Keyboard_Init()
         //lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, 4000, 0);
         //lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, 0.01, 0.1);
         Keyboard_AdvancedKeys[i].mode=LEFL_KEY_ANALOG_RAPID_MODE;
-        Keyboard_AdvancedKeys[i].trigger_distance=0.03;
-        Keyboard_AdvancedKeys[i].release_distance=0.03;
+        Keyboard_AdvancedKeys[i].trigger_distance=0.08;
+        Keyboard_AdvancedKeys[i].release_distance=0.08;
     }
 }
 
