@@ -58,6 +58,8 @@
 /* USER CODE BEGIN PV */
 char uart_buf[64];
 uint32_t debug;
+uint32_t max32;
+uint32_t min32=0xFFFFFFFF;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -70,9 +72,9 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 /**
 * @brief  初始化时间戳
-* @param  �?????????????????????
-* @retval �?????????????????????
-* @note   使用延时函数前，必须调用本函�?????????????????????
+* @param  �?????????????????????????
+* @retval �?????????????????????????
+* @note   使用延时函数前，必须调用本函�?????????????????????????
 */
 int DWT_Init(void)
 {
@@ -114,8 +116,8 @@ void DWT_Delay_us(volatile uint32_t au32_microseconds)
   while ((DWT->CYCCNT - au32_initial_ticks) < au32_microseconds-au32_ticks);
 }
 
-void (*SysMemBootJump)(void); /* 声明�?个函数指�? */
-__IO uint32_t BootAddr = 0x1FFFD800; /*   的系�? BootLoader 地址 */
+void (*SysMemBootJump)(void); /* 声明�?????个函数指�????? */
+__IO uint32_t BootAddr = 0x1FFFD800; /*   的系�????? BootLoader 地址 */
 
 void JumpToBootloader(void) {
     uint32_t i=0;
@@ -129,10 +131,10 @@ void JumpToBootloader(void) {
          SysTick->LOAD = 0;
          SysTick->VAL = 0;
 
-         /* 设置�?有时钟到默认状�?�， 使用 HSI 时钟 */
+         /* 设置�?????有时钟到默认状�?�， 使用 HSI 时钟 */
          HAL_RCC_DeInit();
 
-         /* 关闭�?有中断，清除�?有中断挂起标�? */
+         /* 关闭�?????有中断，清除�?????有中断挂起标�????? */
          for (i = 0; i < 8; i++)
          {
              NVIC->ICER[i]=0xFFFFFFFF;
@@ -142,13 +144,13 @@ void JumpToBootloader(void) {
          /* 使能全局中断 */
          __set_PRIMASK(0);
 
-         /* 跳转到系�? BootLoader，首地址�? MSP，地�?+4 是复位中断服务程序地�? */
+         /* 跳转到系�????? BootLoader，首地址�????? MSP，地�?????+4 是复位中断服务程序地�????? */
          SysMemBootJump = (void (*)(void)) (*((uint32_t *) (BootAddr + 4)));
 
-         /* 设置主堆栈指�? */
+         /* 设置主堆栈指�????? */
          __set_MSP(*(uint32_t *)BootAddr);
 
-         /* 跳转到系�? BootLoader */
+         /* 跳转到系�????? BootLoader */
          SysMemBootJump();
 
          /* 跳转成功的话，不会执行到这里，用户可以在这里添加代码 */
@@ -233,11 +235,13 @@ int main(void)
   }
   for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
   {
-      lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, AnalogItems[i].sum/AnalogItems[i].count, 12800);
+      lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, AnalogItems[i].sum/AnalogItems[i].count, 7200);
       lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, 0.05j, 0.2);
   }
   Analog_Clean();
   HAL_TIM_Base_Start_IT(&htim7);
+  sprintf(uart_buf,"%f\n",Keyboard_AdvancedKeys[0].upper_bound);
+  HAL_UART_Transmit(&huart1, (uint8_t*)uart_buf, 64, 0xFF);
 
   /* USER CODE END 2 */
 
@@ -251,8 +255,9 @@ int main(void)
       //sprintf(uart_buf,"%ld\t%ld\t%ld\t%ld\t%ld\n",Analog_Count,AnalogItems[0].count,AnalogItems[16*1].count,AnalogItems[16*2].count,AnalogItems[16*3].count);
       //sprintf(uart_buf,"%ld\t%ld\t%ld\t%ld\t%ld\n",Analog_Count,Analog_Buffer[0],Analog_Buffer[1],Analog_Buffer[2],Analog_Buffer[3]);
       //sprintf(uart_buf,"%ld\t%ld\t%ld\t%ld\t%ld\n",Analog_Count,AnalogItems[0].sum/AnalogItems[0].count,AnalogItems[16*1].sum/AnalogItems[16*1].count,AnalogItems[16*2].sum/AnalogItems[16*2].count,AnalogItems[16*3].sum/AnalogItems[16*3].count);
-      //sprintf(uart_buf,"%f\n",Keyboard_AdvancedKeys[5].value);
-      HAL_UART_Transmit(&huart1, (uint8_t*)uart_buf, 32, 0xFF);
+      //sprintf(uart_buf,"max:%ld\tmin:%ld\n",max32,min32);
+      //sprintf(uart_buf,"%f\n",Keyboard_AdvancedKeys[0].value);
+      HAL_UART_Transmit(&huart1, (uint8_t*)uart_buf, 64, 0xFF);
       RGB_Update();
     /* USER CODE END WHILE */
 
@@ -325,7 +330,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     Keyboard_SendReport();
     //debug = AnalogItems[33].sum/AnalogItems[33].count;
     //sprintf(uart_buf,"%ld/%ld/%ld/%ld\n",AnalogItems[0].sum/AnalogItems[0].count,AnalogItems[1].sum/AnalogItems[1].count,AnalogItems[2].sum/AnalogItems[2].count,AnalogItems[3].sum/AnalogItems[3].count);
-    //sprintf(uart_buf,"%ld/%ld/%ld/%ld\n",AnalogItems[0].count,AnalogItems[1].count,AnalogItems[2].count,AnalogItems[3].count);
+    sprintf(uart_buf,"====\n0:%ld\t%ld\n5:%ld\t%ld\n6:%ld\t%ld\n7:%ld\t%ld\n",AnalogItems[0].count,AnalogItems[0].sum/AnalogItems[0].count/16,
+            AnalogItems[5].count,AnalogItems[5].sum/AnalogItems[5].count/16,
+            AnalogItems[6].count,AnalogItems[6].sum/AnalogItems[6].count/16,
+            AnalogItems[7].count,AnalogItems[7].sum/AnalogItems[7].count/16);
+    //debug=AnalogItems[4].count;
+    if(AnalogItems[1].count<min32)
+        min32 = AnalogItems[1].count;
+    if(AnalogItems[1].count>max32)
+        max32 = AnalogItems[1].count;
     Analog_Clean();
 
   }
