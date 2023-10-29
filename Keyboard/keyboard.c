@@ -13,6 +13,7 @@
 #include "gpio.h"
 #include "rgb.h"
 #include "keyboard.h"
+#include "keyboard_conf.h"
 
 uint8_t Keyboard_ReportBuffer[USBD_CUSTOMHID_OUTREPORT_BUF_SIZE];
 lefl_bit_array_t Keyboard_KeyArray;
@@ -159,9 +160,9 @@ void Keyboard_Init()
     {
         //lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, 4000, 0);
         //lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, 0.01, 0.1);
-        Keyboard_AdvancedKeys[i].mode=LEFL_KEY_ANALOG_RAPID_MODE;
-        Keyboard_AdvancedKeys[i].trigger_distance=0.08;
-        Keyboard_AdvancedKeys[i].release_distance=0.08;
+        Keyboard_AdvancedKeys[i].mode=DEFAULT_ADVANCED_KEY_MODE;
+        Keyboard_AdvancedKeys[i].trigger_distance=DEFAULT_TRIGGER_DISTANCE;
+        Keyboard_AdvancedKeys[i].release_distance=DEFAULT_RELEASE_DISTANCE;
     }
 }
 

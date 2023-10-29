@@ -5,6 +5,7 @@
  *      Author: xq123
  */
 #include "keyboard.h"
+#include "keyboard_conf.h"
 #include "lefl.h"
 
 #ifndef ANALOG_H_

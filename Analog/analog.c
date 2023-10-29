@@ -14,6 +14,7 @@
 #include "analog.h"
 #include "rgb.h"
 #include "lefl.h"
+#include "keyboard_conf.h"
 
 uint32_t ADC_Buffer[4];
 #define EXTENDED_SAMPLING
@@ -84,7 +85,7 @@ void Analog_Check()
         if(ANALOG_AVERAGE(i)<Keyboard_AdvancedKeys[i].lower_bound)
         {
             lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, Keyboard_AdvancedKeys[i].upper_bound,ANALOG_AVERAGE(i));
-            lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, 0.05, 0.2);
+            lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, DEFAULT_UPPER_DEADZONE, DEFAULT_LOWER_DEADZONE);
         }
         if(Keyboard_AdvancedKeys[i].mode!=LEFL_KEY_DIGITAL_MODE)
         lefl_advanced_key_update_raw(Keyboard_AdvancedKeys+i, ANALOG_AVERAGE(i));
@@ -124,12 +125,10 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
     if (hadc==&hadc1)
     {
         Analog_ConvCpltFlag[0]=true;
-        Analog_ConvCpltFlag[1]=true;
     }
     if (hadc==&hadc3)
     {
         Analog_ConvCpltFlag[2]=true;
-        Analog_ConvCpltFlag[3]=true;
         //HAL_ADC_Stop_DMA(&hadc3);
     }
     if (Analog_ConvCpltFlag[0]&&Analog_ConvCpltFlag[2])
@@ -138,18 +137,22 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
         Analog_ConvCpltFlag[1]=false;
         Analog_ConvCpltFlag[2]=false;
         Analog_ConvCpltFlag[3]=false;
-        AnalogDatas[0*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc1);
+        //AnalogDatas[0*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc1);
+        AnalogDatas[0*16+ADDRESS].sum+=Analog_Buffer[0];
         AnalogDatas[0*16+ADDRESS].count++;
-        AnalogDatas[1*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc2);
+        //AnalogDatas[1*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc2);
+        AnalogDatas[1*16+ADDRESS].sum+=Analog_Buffer[1];
         AnalogDatas[1*16+ADDRESS].count++;
-        AnalogDatas[2*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc3);
+        //AnalogDatas[2*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc3);
+        AnalogDatas[2*16+ADDRESS].sum+=Analog_Buffer[2];
         AnalogDatas[2*16+ADDRESS].count++;
-        AnalogDatas[3*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc4);
+        //AnalogDatas[3*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc4);
+        AnalogDatas[3*16+ADDRESS].sum+=Analog_Buffer[3];
         AnalogDatas[3*16+ADDRESS].count++;
-        Analog_ActiveChannel++;
-        if(Analog_ActiveChannel>=16)
-            Analog_ActiveChannel=0;
-        Analog_Channel_Select(Analog_ActiveChannel);
+      Analog_ActiveChannel++;
+      if(Analog_ActiveChannel>=16)
+          Analog_ActiveChannel=0;
+      Analog_Channel_Select(Analog_ActiveChannel);
     }
     Analog_Count++;
 }
