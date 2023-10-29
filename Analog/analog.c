@@ -124,10 +124,22 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
     if (hadc==&hadc1)
     {
+        AnalogDatas[0*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc1);
+        //AnalogDatas[0*16+ADDRESS].sum+=Analog_Buffer[0];
+        AnalogDatas[0*16+ADDRESS].count++;
+        AnalogDatas[1*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc2);
+        //AnalogDatas[1*16+ADDRESS].sum+=Analog_Buffer[1];
+        AnalogDatas[1*16+ADDRESS].count++;
         Analog_ConvCpltFlag[0]=true;
     }
     if (hadc==&hadc3)
     {
+        AnalogDatas[2*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc3);
+        //AnalogDatas[2*16+ADDRESS].sum+=Analog_Buffer[2];
+        AnalogDatas[2*16+ADDRESS].count++;
+        AnalogDatas[3*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc4);
+        //AnalogDatas[3*16+ADDRESS].sum+=Analog_Buffer[3];
+        AnalogDatas[3*16+ADDRESS].count++;
         Analog_ConvCpltFlag[2]=true;
         //HAL_ADC_Stop_DMA(&hadc3);
     }
@@ -137,22 +149,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
         Analog_ConvCpltFlag[1]=false;
         Analog_ConvCpltFlag[2]=false;
         Analog_ConvCpltFlag[3]=false;
-        //AnalogDatas[0*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc1);
-        AnalogDatas[0*16+ADDRESS].sum+=Analog_Buffer[0];
-        AnalogDatas[0*16+ADDRESS].count++;
-        //AnalogDatas[1*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc2);
-        AnalogDatas[1*16+ADDRESS].sum+=Analog_Buffer[1];
-        AnalogDatas[1*16+ADDRESS].count++;
-        //AnalogDatas[2*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc3);
-        AnalogDatas[2*16+ADDRESS].sum+=Analog_Buffer[2];
-        AnalogDatas[2*16+ADDRESS].count++;
-        //AnalogDatas[3*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc4);
-        AnalogDatas[3*16+ADDRESS].sum+=Analog_Buffer[3];
-        AnalogDatas[3*16+ADDRESS].count++;
-      Analog_ActiveChannel++;
-      if(Analog_ActiveChannel>=16)
-          Analog_ActiveChannel=0;
-      Analog_Channel_Select(Analog_ActiveChannel);
     }
     Analog_Count++;
 }
