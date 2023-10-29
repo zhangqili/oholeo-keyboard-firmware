@@ -212,7 +212,7 @@ void RGB_Update()
             {
                 for (int8_t j = 0; j < ADVANCED_KEY_NUM; j++)
                 {
-                    tempf = (5.0f*Keyboard_AdvancedKeys[i].value-fabsf(RGB_Locations[j].row-RGB_Locations[RGB_Mapping[i]].row)-fabsf(RGB_Locations[j].x-RGB_Locations[RGB_Mapping[i]].x));
+                    tempf = (10.0f*Keyboard_AdvancedKeys[i].value-fabsf(RGB_Locations[j].row-RGB_Locations[RGB_Mapping[i]].row)-fabsf(RGB_Locations[j].x-RGB_Locations[RGB_Mapping[i]].x));
                     tempf = tempf > 0 ? tempf > 1 ? 1: tempf : 0;
                     //printf("%f\n",1.0 - fabsf(i+RGB_Configs[i].argument-j));
                     //printf("%.2f\t",tempf*((float)(RGB_Configs[i].rgb.r)));
@@ -294,7 +294,7 @@ void RGB_Recovery()
     lefl_color_hsv_t temphsv = {0,0,50};
     for (uint8_t i=0;i<RGB_NUM;i++)
     {
-        RGB_Configs[i].mode=RGB_MODE_REACT_TRIGGER;
+        RGB_Configs[i].mode=RGB_MODE_REACT_LINEAR;
         RGB_Configs[i].hsv=temphsv;
         RGB_Configs[i].speed=0.15;
         lefl_color_set_hsv(&RGB_Configs[i].rgb, &temphsv);

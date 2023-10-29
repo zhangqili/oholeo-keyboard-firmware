@@ -20,9 +20,9 @@ uint32_t ADC_Buffer[4];
 AnalogItem AnalogDatas[ADVANCED_KEY_NUM];
 #ifdef EXTENDED_SAMPLING
 AnalogItem LastAnalogDatas[ADVANCED_KEY_NUM];
-#define ANALOG_AVERAGE(x) ((AnalogDatas[x].sum+LastAnalogDatas[x].sum)/(AnalogDatas[i].count+LastAnalogDatas[i].count))
+#define ANALOG_AVERAGE(x) ((AnalogDatas[x].sum+LastAnalogDatas[x].sum)/(AnalogDatas[x].count+LastAnalogDatas[x].count))
 #else
-#define ANALOG_AVERAGE(x) ((AnalogDatas[x].sum)/(AnalogDatas[i].count))
+#define ANALOG_AVERAGE(x) ((AnalogDatas[x].sum)/(AnalogDatas[x].count))
 #endif
 
 uint16_t Analog_Buffer[ADVANCED_KEY_NUM];
@@ -87,8 +87,8 @@ void Analog_Check()
             lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, 0.05, 0.2);
         }
         if(Keyboard_AdvancedKeys[i].mode!=LEFL_KEY_DIGITAL_MODE)
-            lefl_advanced_key_update_raw(Keyboard_AdvancedKeys+i, ANALOG_AVERAGE(i));
-        if(Keyboard_AdvancedKeys[i].key.state&&!state)
+        lefl_advanced_key_update_raw(Keyboard_AdvancedKeys+i, ANALOG_AVERAGE(i));
+                if(Keyboard_AdvancedKeys[i].key.state&&!state)
         {
             a.rgb_ptr = RGB_Mapping[i];
             a.argument=0.0;
@@ -113,6 +113,12 @@ void Analog_Flush()
 }
 
 #define ADDRESS BCD_TO_GRAY(Analog_ActiveChannel)
+
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
+{
+
+}
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
     if (hadc==&hadc1)

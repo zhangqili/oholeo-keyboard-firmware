@@ -110,10 +110,22 @@ void lefl_advanced_key_update_state(lefl_advanced_key_t* advanced_key, bool stat
     lefl_key_update(&(advanced_key->key), state);
 }
 
+float q_rsqrt(float number)
+{
+    union {
+      float    f;
+      uint32_t i;
+    } conv = { .f = number };
+    conv.i  = 0x5f3759df - (conv.i >> 1);
+    conv.f *= 1.5F - (number * 0.5F * conv.f * conv.f);
+    return conv.f;
+}
+
 float lefl_advanced_key_normalize(lefl_advanced_key_t* key, float value)
 {
     float x;
     x=(key->upper_bound-(key->upper_bound - key->lower_bound)*key->upper_deadzone -value)/(key->range);
+    //x=x>0?q_rsqrt(x):x;
     return x;
 }
 
