@@ -22,10 +22,13 @@ typedef struct
 extern uint32_t ADC_Buffer[4];
 extern AnalogItem AnalogDatas[ADVANCED_KEY_NUM];
 
+
 #ifdef EXTENDED_SAMPLING
 extern AnalogItem LastAnalogDatas[ADVANCED_KEY_NUM];
+#define ANALOG_AVERAGE(x) ((AnalogDatas[x].sum+LastAnalogDatas[x].sum)/(AnalogDatas[x].count+LastAnalogDatas[x].count))
+#else
+#define ANALOG_AVERAGE(x) ((AnalogDatas[x].sum)/(AnalogDatas[x].count))
 #endif
-
 extern uint16_t Analog_Buffer[ADVANCED_KEY_NUM];
 
 extern uint8_t Analog_ActiveChannel;
