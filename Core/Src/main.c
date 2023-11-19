@@ -1,4 +1,3 @@
-
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -67,6 +66,7 @@ uint32_t min32=0xFFFFFFFF;
 uint8_t USB_Recive_Buffer[USBD_CUSTOMHID_OUTREPORT_BUF_SIZE]; //USB接收缓存
 uint8_t USB_Received_Count;//USB接收数据计数
 
+uint32_t usb_adc_send_idx = 0;
 uint32_t err_cnt=0;
 enum state_t {
 	NORMAL,
@@ -357,17 +357,27 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   {
 	    Analog_Check();
 
+	    if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[0].key.state){
+	    	global_state=DEBUG;
+	    }
+		if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[33].key.state){
+			global_state=NORMAL;
+		}
+
 	    switch(global_state) {
 	    case NORMAL:
 	    	Keyboard_SendReport();
 	    	break;
 	    case DEBUG:
 	    	Keyboard_ReportBuffer[0] = 2;
-		    for(int i=0;i<32; i++) {
-		    	Keyboard_ReportBuffer[i+1] = i%2?(uint32_t)RingBuf_Avg(&adc_ringbuf[i/2]):((uint32_t)RingBuf_Avg(&adc_ringbuf[i/2]))>>8;
+	    	Keyboard_ReportBuffer[1] = usb_adc_send_idx;
+		    for(int i=0;i<16; i++) {
+		    	Keyboard_ReportBuffer[i+2] = i%2?(uint32_t)RingBuf_Avg(&adc_ringbuf[i/2 + usb_adc_send_idx*8]):((uint32_t)RingBuf_Avg(&adc_ringbuf[i/2 + usb_adc_send_idx*8]))>>8;
 		    }
 
-			USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,Keyboard_ReportBuffer,33);
+		    usb_adc_send_idx++;
+		    if(usb_adc_send_idx>=8)usb_adc_send_idx=0;
+		    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,Keyboard_ReportBuffer,17+1);
 			break;
 	    }
 

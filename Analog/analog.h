@@ -15,7 +15,7 @@
 #define ADDRESS BCD_TO_GRAY(Analog_ActiveChannel)
 #define BCD_TO_GRAY(x) (x^(x>>1))
 
-#define RING_BUF_LEN 4
+#define RING_BUF_LEN 6
 //#define EXTENDED_SAMPLING
 
 typedef struct

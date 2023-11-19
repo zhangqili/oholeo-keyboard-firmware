@@ -31,6 +31,8 @@ extern uint8_t Keyboard_TargetAdvancedKey;
 extern lefl_key_t Keyboard_Keys[KEY_NUM];
 extern lefl_advanced_key_t Keyboard_AdvancedKeys[ADVANCED_KEY_NUM];
 
+
+
 #define KEY_SHIFT               Keyboard_Keys[0]
 #define KEY_ALPHA               Keyboard_Keys[1]
 #define KEY_KNOB                Keyboard_Keys[2]

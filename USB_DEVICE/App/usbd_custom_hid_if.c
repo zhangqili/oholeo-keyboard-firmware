@@ -22,7 +22,7 @@
 #include "usbd_custom_hid_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+#include "keyboard.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,7 +31,7 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+uint32_t api_lut[64] = {15, 14, 13, 12, 44, 43, 37, 63, 59, 58, 31, 30, 29, 28, 8, 9, 10, 11, 42, 36, 35, 62, 56, 57, 24, 25, 26, 27, 3, 2, 1, 0, 41, 38, 34, 61, 55, 19, 18, 17, 16, 4, 5, 6, 7, 40, 39, 33, 60, 54, 53, 20, 21, 22, 23, 45, 46, 47, 32, 48, 49, 50, 51, 52};
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -166,11 +166,11 @@ __ALIGN_BEGIN static uint8_t CUSTOM_HID_ReportDesc_FS[USBD_CUSTOM_HID_REPORT_DES
 		0x15, 0x00,				// logical minimum = 0
 		0x26, 0xFF, 0x00,		// logical maximum = 255
 
-		0x95, 32,				// report count TX
+		0x95, 17,				// report count TX
 		0x09, 0x01,				// usage
 		0x81, 0x02,				// Input (array)
 
-		0x95, 32,				// report count RX
+		0x95, 17,				// report count RX
 		0x09, 0x02,				// usage
 		0x91, 0x02,				// Output (array)
   /* USER CODE END 0 */
@@ -267,6 +267,21 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
    hhid = (USBD_CUSTOM_HID_HandleTypeDef*)hUsbDeviceFS.pClassData;//得到USB接收数据的储存地址
 
    memcpy(USB_Recive_Buffer, hhid->Report_buf, sizeof(USB_Recive_Buffer));
+   if(USB_Recive_Buffer[0]==2) {
+	   uint8_t page_num = USB_Recive_Buffer[1];
+	   for(int i=0;i<4;i++) {
+		   if(USB_Recive_Buffer[2+i*4+0]&0x80){
+			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].mode = LEFL_KEY_ANALOG_RAPID_MODE;
+			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].trigger_distance = (float_t)USB_Recive_Buffer[2+i*4+1]/100.0;
+			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].release_distance = (float_t)USB_Recive_Buffer[2+i*4+2]/100.0;
+			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].lower_deadzone = (float_t)USB_Recive_Buffer[2+i*4+3]/100.0;
+		   } else {
+			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].mode = LEFL_KEY_ANALOG_NORMAL_MODE;
+			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].trigger_distance = (float_t)USB_Recive_Buffer[2+i*4+0]/100.0;
+		   }
+	   }
+   }
+//   if(USB_Recive_Buffer[0]==2)USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,USB_Recive_Buffer,33);
 //   for(i=0;i<USB_Received_Count;i++)
 //   {
 //       USB_Recive_Buffer[i]=hhid->Report_buf[i];  //把接收到的数据送到自定义的缓存区保存（Report_buf[i]为USB的接收缓存区）
