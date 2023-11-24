@@ -11,7 +11,18 @@
 #ifndef ANALOG_H_
 #define ANALOG_H_
 
+
+#define ADDRESS BCD_TO_GRAY(Analog_ActiveChannel)
+#define BCD_TO_GRAY(x) (x^(x>>1))
+
+#define RING_BUF_LEN 4
 //#define EXTENDED_SAMPLING
+
+typedef struct
+{
+     uint32_t Datas[RING_BUF_LEN];
+     uint32_t Pointer;
+}RingBuf;
 
 typedef struct
 {
@@ -50,5 +61,8 @@ void Analog_Flush();
 void Analog_Start();
 void Analog_Push(AnalogItem*a,uint16_t v);
 void Analog_Save();
+
+void RingBuf_Push(RingBuf *ringbuf, uint32_t data);
+float_t RingBuf_Avg(RingBuf *ringbuf);
 
 #endif /* ANALOG_H_ */

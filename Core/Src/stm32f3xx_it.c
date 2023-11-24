@@ -265,8 +265,6 @@ void ADC1_2_IRQHandler(void)
   HAL_ADC_IRQHandler(&hadc1);
   HAL_ADC_IRQHandler(&hadc2);
   /* USER CODE BEGIN ADC1_2_IRQn 1 */
-  //HAL_ADC_ConvCpltCallback(&hadc1);
-  //HAL_ADC_ConvCpltCallback(&hadc2);
 
   /* USER CODE END ADC1_2_IRQn 1 */
 }
@@ -309,7 +307,6 @@ void ADC3_IRQHandler(void)
   /* USER CODE END ADC3_IRQn 0 */
   HAL_ADC_IRQHandler(&hadc3);
   /* USER CODE BEGIN ADC3_IRQn 1 */
-  //HAL_ADC_ConvCpltCallback(&hadc3);
 
   /* USER CODE END ADC3_IRQn 1 */
 }
@@ -394,7 +391,7 @@ void ADC4_IRQHandler(void)
   /* USER CODE END ADC4_IRQn 0 */
   HAL_ADC_IRQHandler(&hadc4);
   /* USER CODE BEGIN ADC4_IRQn 1 */
-  //HAL_ADC_ConvCpltCallback(&hadc4);
+
   /* USER CODE END ADC4_IRQn 1 */
 }
 
