@@ -21,11 +21,11 @@ AnalogItem AnalogDatas[ADVANCED_KEY_NUM];
 
 #ifdef EXTENDED_SAMPLING
 AnalogItem LastAnalogDatas[ADVANCED_KEY_NUM];
-//#define ANALOG_AVERAGE(x) ((AnalogDatas[x].sum+LastAnalogDatas[x].sum)/(AnalogDatas[x].count+LastAnalogDatas[x].count))
-#define ANALOG_AVERAGE(x) (RingBuf_Avg(&adc_ringbuf[x]))
+#define ANALOG_AVERAGE(x) ((AnalogDatas[x].sum+LastAnalogDatas[x].sum)/(AnalogDatas[x].count+LastAnalogDatas[x].count))
+//#define ANALOG_AVERAGE(x) (RingBuf_Avg(&adc_ringbuf[x]))
 #else
-//#define ANALOG_AVERAGE(x) ((AnalogDatas[x].sum)/(AnalogDatas[x].count))
-#define ANALOG_AVERAGE(x) (RingBuf_Avg(&adc_ringbuf[x]))
+#define ANALOG_AVERAGE(x) ((AnalogDatas[x].sum)/(AnalogDatas[x].count))
+//#define ANALOG_AVERAGE(x) (RingBuf_Avg(&adc_ringbuf[x]))
 #endif
 
 uint16_t Analog_Buffer[ADVANCED_KEY_NUM];
