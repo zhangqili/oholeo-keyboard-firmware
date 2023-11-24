@@ -21,7 +21,8 @@
 #include "adc.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "keyboard_conf.h"
+#pragma GCC diagnostic ignored "-Wredundant-decls"
 /* USER CODE END 0 */
 
 ADC_HandleTypeDef hadc1;

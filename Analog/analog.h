@@ -17,10 +17,13 @@ typedef struct
 {
      uint32_t sum;
      uint32_t count;
+     uint16_t ring_buf[RING_BUFFER_LENGTH];
+     uint8_t head;
 } AnalogItem;
 
 extern uint32_t ADC_Buffer[4];
 extern AnalogItem AnalogDatas[ADVANCED_KEY_NUM];
+extern uint8_t Analog_Sampling_Count;
 
 
 #ifdef EXTENDED_SAMPLING
@@ -33,6 +36,7 @@ extern uint16_t Analog_Buffer[ADVANCED_KEY_NUM];
 
 extern uint8_t Analog_ActiveChannel;
 extern bool Analog_ConvCpltFlag[4];
+extern volatile bool Analog_Flag[4];
 
 extern uint32_t Analog_Count;
 
@@ -44,6 +48,7 @@ void Analog_Check();
 void Analog_Recovery();
 void Analog_Flush();
 void Analog_Start();
+void Analog_Push(AnalogItem*a,uint16_t v);
 void Analog_Save();
 
 #endif /* ANALOG_H_ */

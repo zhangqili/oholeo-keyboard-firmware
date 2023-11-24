@@ -253,16 +253,20 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+#define TARGET 9
       HAL_Delay(1);
       //sprintf(uart_buf,"/%d=%d\n",AnalogItems[0].count,AnalogItems[0].sum/AnalogItems[0].count);
       //sprintf(uart_buf,"%ld\t%d\t%d\t%d\t%d\n",Analog_Count,Analog_Buffer[0],Analog_Buffer[1],Analog_Buffer[2],Analog_Buffer[3]);
       //sprintf(uart_buf,"%ld\t%ld\t%ld\t%ld\t%ld\n",Analog_Count,AnalogItems[0].count,AnalogItems[16*1].count,AnalogItems[16*2].count,AnalogItems[16*3].count);
       //sprintf(uart_buf,"%ld\t%ld\t%ld\t%ld\t%ld\n",Analog_Count,Analog_Buffer[0],Analog_Buffer[1],Analog_Buffer[2],Analog_Buffer[3]);
-      //sprintf(uart_buf,"%ld\t%ld\t%ld\t%ld\t%ld\n",Analog_Count,AnalogItems[0].sum/AnalogItems[0].count,AnalogItems[16*1].sum/AnalogItems[16*1].count,AnalogItems[16*2].sum/AnalogItems[16*2].count,AnalogItems[16*3].sum/AnalogItems[16*3].count);
+      //sprintf(uart_buf,"%ld\t%ld\t%ld\t%ld\t%ld\n",Analog_Count,AnalogDatas[0].sum/AnalogDatas[0].count,AnalogDatas[16*1].sum/AnalogDatas[16*1].count,AnalogDatas[16*2].sum/AnalogDatas[16*2].count,AnalogDatas[16*3].sum/AnalogDatas[16*3].count);
       //sprintf(uart_buf,"max:%ld\tmin:%ld\n",max32,min32);
       //sprintf(uart_buf,"%f\n",Keyboard_AdvancedKeys[5].value);
       //sprintf(uart_buf,"%d\n",(uint8_t)((Keyboard_AdvancedKeys[5].value)<0?(0):((Keyboard_AdvancedKeys[5].value)>1.0?((float)(RGB_Configs[10].rgb.r)):(Keyboard_AdvancedKeys[5].value)*((float)(RGB_Configs[10].rgb.r)))));
-      //HAL_UART_Transmit(&huart1, (uint8_t*)uart_buf, 64, 0xFF);
+
+      //sprintf(uart_buf,"%d\n",ANALOG_AVERAGE(9));
+      sprintf(uart_buf,"%d\t%d\t%d\t%d\t%d\t\n",AnalogDatas[TARGET].ring_buf[0],AnalogDatas[TARGET].ring_buf[1],AnalogDatas[TARGET].ring_buf[2],AnalogDatas[TARGET].ring_buf[3],AnalogDatas[TARGET].ring_buf[4]);
+      HAL_UART_Transmit(&huart1, (uint8_t*)uart_buf, 64, 0xFF);
       if(RGB_Update_Flag)
       {
           RGB_Update_Flag=false;
@@ -367,10 +371,20 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
   if (htim->Instance==TIM2)
   {
-      Analog_ActiveChannel++;
-      if(Analog_ActiveChannel>=16)
-          Analog_ActiveChannel=0;
-      Analog_Channel_Select(Analog_ActiveChannel);
+      Analog_Sampling_Count++;
+      if(Analog_Sampling_Count==THE_CHOSEN_ONE)
+      {
+          Analog_Flag[0]=true;
+          Analog_Flag[2]=true;
+      }
+      if(Analog_Sampling_Count>=(MAX_SAMPLING_COUNT-1))
+      {
+          Analog_Sampling_Count=0;
+          Analog_ActiveChannel++;
+          if(Analog_ActiveChannel>=16)
+              Analog_ActiveChannel=0;
+          Analog_Channel_Select(Analog_ActiveChannel);
+      }
   }
 }
 /* USER CODE END 4 */
