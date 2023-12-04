@@ -251,13 +251,13 @@ int main(void)
 
 
   HAL_Delay(500);
-  if(RingBuf_Avg(&adc_ringbuf[49])<1000)
+  if(RingBuf_Avg(&adc_ringbuf[49])<1500)
   {
-//      JumpToBootloader();
+      JumpToBootloader();
   }
   for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
   {
-      lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, RingBuf_Avg(&adc_ringbuf[i]), 800);
+      lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, RingBuf_Avg(&adc_ringbuf[i]), 1200);
       lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, DEFAULT_UPPER_DEADZONE, DEFAULT_LOWER_DEADZONE);
   }
   HAL_TIM_Base_Start_IT(&htim7);
