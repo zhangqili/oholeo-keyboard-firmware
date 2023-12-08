@@ -248,9 +248,9 @@ int main(void)
 //	HAL_ADC_Start(&hadc4);
 
   HAL_ADC_Start(&hadc2);
-  HAL_ADCEx_MultiModeStart_DMA(&hadc1, &ADC_Buffer[0], 1);
+  HAL_ADCEx_MultiModeStart_DMA(&hadc1, &DMA_Buffer[0], DMA_BUF_LEN);
   HAL_ADC_Start(&hadc4);
-  HAL_ADCEx_MultiModeStart_DMA(&hadc3, &ADC_Buffer[2], 1);
+  HAL_ADCEx_MultiModeStart_DMA(&hadc3, &DMA_Buffer[DMA_BUF_LEN], DMA_BUF_LEN);
 
   //Analog_Start();
   /* Analog Calibration BEGIN */
@@ -259,13 +259,15 @@ int main(void)
 
 
   HAL_Delay(500);
-  if(RingBuf_Avg(&adc_ringbuf[49])<1500)
-  {
-	  JumpToBootloader();
-  }
+//  if(ANALOG_AVERAGE(49)<1500)
+//  {
+//	  JumpToBootloader();
+//  }
   for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
   {
       lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, RingBuf_Avg(&adc_ringbuf[i]), 1200);
+//	  lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i,(ADC_Buffer[i]), 1200);
+
       lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, DEFAULT_UPPER_DEADZONE, DEFAULT_LOWER_DEADZONE);
   }
   HAL_TIM_Base_Start_IT(&htim7);
@@ -404,23 +406,69 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 //		AnalogDatas[2*16+ADDRESS].count++;
 //		AnalogDatas[3*16+ADDRESS].sum+=((ADC_Buffer[2]>>16)&0x0fff)<<4;
 //		AnalogDatas[3*16+ADDRESS].count++;
+//	  HAL_ADCEx_MultiModeStop_DMA(&hadc1);
+//	  HAL_ADCEx_MultiModeStop_DMA(&hadc3);
+//	  HAL_ADC_Stop(&hadc2);
+//	  HAL_ADC_Stop(&hadc4);
 
-	  if (htim->Instance->CNT < 200) {
-			RingBuf_Push(&adc_ringbuf[0*16+ADDRESS], ADC_Buffer[0]&0x0fff);
-			RingBuf_Push(&adc_ringbuf[1*16+ADDRESS], (ADC_Buffer[0]>>16)&0x0fff);
-			RingBuf_Push(&adc_ringbuf[2*16+ADDRESS], ADC_Buffer[2]&0x0fff);
-			RingBuf_Push(&adc_ringbuf[3*16+ADDRESS], (ADC_Buffer[2]>>16)&0x0fff);
-	  }
+
+//		RingBuf_Push(&adc_ringbuf[0*16+ADDRESS], ADC_Buffer[0]&0x0fff);
+//		RingBuf_Push(&adc_ringbuf[1*16+ADDRESS], (ADC_Buffer[0]>>16)&0x0fff);
+//		RingBuf_Push(&adc_ringbuf[2*16+ADDRESS], ADC_Buffer[2]&0x0fff);
+//		RingBuf_Push(&adc_ringbuf[3*16+ADDRESS], (ADC_Buffer[2]>>16)&0x0fff);
+
+
+
+
+		uint32_t adc1=0;
+		uint32_t adc2=0;
+		uint32_t adc3=0;
+		uint32_t adc4=0;
+
+		for(int i=0;i<DMA_BUF_LEN;i++) {
+		 adc1+=DMA_Buffer[i]&0x0fff;
+		 adc2+=(DMA_Buffer[i]>>16)&0x0fff;
+		 adc3+=DMA_Buffer[i+DMA_BUF_LEN]&0x0fff;
+		 adc4+=(DMA_Buffer[i+DMA_BUF_LEN]>>16)&0x0fff;
+		}
+
+//		ADC_Buffer[0*16+ADDRESS] = (float_t)adc1/DMA_BUF_LEN;
+//		ADC_Buffer[1*16+ADDRESS] = (float_t)adc2/DMA_BUF_LEN;
+//		ADC_Buffer[2*16+ADDRESS] = (float_t)adc3/DMA_BUF_LEN;
+//		ADC_Buffer[3*16+ADDRESS] = (float_t)adc4/DMA_BUF_LEN;
+
+		RingBuf_Push(&adc_ringbuf[0*16+ADDRESS] , (float_t)adc1/DMA_BUF_LEN);
+		RingBuf_Push(&adc_ringbuf[1*16+ADDRESS] , (float_t)adc2/DMA_BUF_LEN);
+		RingBuf_Push(&adc_ringbuf[2*16+ADDRESS] , (float_t)adc3/DMA_BUF_LEN);
+		RingBuf_Push(&adc_ringbuf[3*16+ADDRESS] , (float_t)adc4/DMA_BUF_LEN);
+
+	if (htim->Instance->CNT < 600) {
+		Analog_Count++;
+		Analog_ActiveChannel++;
+		if(Analog_ActiveChannel>=16)Analog_ActiveChannel=0;
+		Analog_Channel_Select(Analog_ActiveChannel);
+	}
+//	  if (htim->Instance->CNT < 200) {
+//			RingBuf_Push(&adc_ringbuf[0*16+ADDRESS], ADC_Buffer[0]&0x0fff);
+//			RingBuf_Push(&adc_ringbuf[1*16+ADDRESS], (ADC_Buffer[0]>>16)&0x0fff);
+//			RingBuf_Push(&adc_ringbuf[2*16+ADDRESS], ADC_Buffer[2]&0x0fff);
+//			RingBuf_Push(&adc_ringbuf[3*16+ADDRESS], (ADC_Buffer[2]>>16)&0x0fff);
+//	  }
 //	  RingBuf_Push(&adc_ringbuf[0*16+ADDRESS], HAL_ADC_GetValue(&hadc1));
 //	  RingBuf_Push(&adc_ringbuf[1*16+ADDRESS], HAL_ADC_GetValue(&hadc2));
 //	  RingBuf_Push(&adc_ringbuf[2*16+ADDRESS], HAL_ADC_GetValue(&hadc3));
 //	  RingBuf_Push(&adc_ringbuf[3*16+ADDRESS], HAL_ADC_GetValue(&hadc4));
 
 
-		Analog_Count++;
-		Analog_ActiveChannel++;
-		if(Analog_ActiveChannel>=16)Analog_ActiveChannel=0;
-	    Analog_Channel_Select(Analog_ActiveChannel);
+//	    MX_ADC1_Init();
+//	    MX_ADC2_Init();
+//	    MX_ADC3_Init();
+//	    MX_ADC4_Init();
+//		HAL_ADC_Start(&hadc2);
+//		HAL_ADC_Start(&hadc4);
+//		HAL_ADCEx_MultiModeStart_DMA(&hadc1, &DMA_Buffer[0], RING_BUF_LEN);
+//		HAL_ADCEx_MultiModeStart_DMA(&hadc3, &DMA_Buffer[RING_BUF_LEN], RING_BUF_LEN);
+
   }
 }
 /* USER CODE END 4 */

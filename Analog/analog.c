@@ -16,7 +16,8 @@
 #include "lefl.h"
 #include "keyboard_conf.h"
 
-uint32_t ADC_Buffer[4];
+uint32_t DMA_Buffer[DMA_BUF_LEN*2];
+float_t ADC_Buffer[ADVANCED_KEY_NUM];
 //#define EXTENDED_SAMPLING
 //AnalogItem AnalogDatas[ADVANCED_KEY_NUM];
 RingBuf adc_ringbuf[ADVANCED_KEY_NUM];
@@ -28,6 +29,8 @@ AnalogItem LastAnalogDatas[ADVANCED_KEY_NUM];
 #else
 //#define ANALOG_AVERAGE(x) ((AnalogDatas[x].sum)/(AnalogDatas[x].count))
 #define ANALOG_AVERAGE(x) (RingBuf_Avg(&adc_ringbuf[x]))
+//#define ANALOG_AVERAGE(x) (ADC_Buffer[x])
+
 #endif
 
 uint16_t Analog_Buffer[ADVANCED_KEY_NUM];

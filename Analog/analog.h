@@ -15,7 +15,8 @@
 #define ADDRESS BCD_TO_GRAY(Analog_ActiveChannel)
 #define BCD_TO_GRAY(x) (x^(x>>1))
 
-#define RING_BUF_LEN 40
+#define RING_BUF_LEN 4
+#define DMA_BUF_LEN 16
 //#define EXTENDED_SAMPLING
 
 typedef struct
@@ -30,7 +31,10 @@ typedef struct
      uint32_t count;
 } AnalogItem;
 
-extern uint32_t ADC_Buffer[4];
+
+
+extern uint32_t DMA_Buffer[DMA_BUF_LEN*2];
+extern float_t ADC_Buffer[ADVANCED_KEY_NUM];
 //extern AnalogItem AnalogDatas[ADVANCED_KEY_NUM];
 extern RingBuf adc_ringbuf[ADVANCED_KEY_NUM];
 
