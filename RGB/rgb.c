@@ -302,7 +302,7 @@ void RGB_Recovery()
     }
     lefl_color_hsv_t hsv = {273,78,99};
     //RGB_GlobalConfig.mode=RGB_GLOBAL_MODE_WAVE;
-    RGB_GlobalConfig.mode=RGB_GLOBAL_MODE_DIAMOND_RIPPLE;
+    RGB_GlobalConfig.mode=RGB_GLOBAL_MODE_INDIVIDUAL;
     RGB_GlobalConfig.speed=0.5;
     RGB_GlobalConfig.hsv=hsv;
     lefl_color_set_hsv(&RGB_GlobalConfig.rgb, &hsv);

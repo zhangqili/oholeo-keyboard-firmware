@@ -96,14 +96,15 @@ void Analog_Check()
     rgb_argument_t a;
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
+    	float_t analog_avg = ANALOG_AVERAGE(i);
         state=Keyboard_AdvancedKeys[i].key.state;
-        if(ANALOG_AVERAGE(i)<Keyboard_AdvancedKeys[i].lower_bound)
+        if(analog_avg<Keyboard_AdvancedKeys[i].lower_bound)
         {
-            lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, Keyboard_AdvancedKeys[i].upper_bound,ANALOG_AVERAGE(i));
+            lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, Keyboard_AdvancedKeys[i].upper_bound,analog_avg);
             lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, DEFAULT_UPPER_DEADZONE, DEFAULT_LOWER_DEADZONE);
         }
         if(Keyboard_AdvancedKeys[i].mode!=LEFL_KEY_DIGITAL_MODE)
-        lefl_advanced_key_update_raw(Keyboard_AdvancedKeys+i, (float_t)ANALOG_AVERAGE(i));
+        lefl_advanced_key_update_raw(Keyboard_AdvancedKeys+i, analog_avg);
         if(Keyboard_AdvancedKeys[i].key.state&&!state)
         {
             a.rgb_ptr = RGB_Mapping[i];
@@ -137,6 +138,11 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
+//	if (hadc==&hadc1){RingBuf_Push(&adc_ringbuf[0*16+ADDRESS], HAL_ADC_GetValue(&hadc1));}
+//	if (hadc==&hadc2){RingBuf_Push(&adc_ringbuf[1*16+ADDRESS], HAL_ADC_GetValue(&hadc2));}
+//	if (hadc==&hadc3){RingBuf_Push(&adc_ringbuf[2*16+ADDRESS], HAL_ADC_GetValue(&hadc3));}
+//	if (hadc==&hadc4){RingBuf_Push(&adc_ringbuf[3*16+ADDRESS], HAL_ADC_GetValue(&hadc4));}
+
 //    if (hadc==&hadc1)
 //    {
 //        AnalogDatas[0*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc1);

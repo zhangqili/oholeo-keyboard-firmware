@@ -238,6 +238,14 @@ int main(void)
   RGB_TurnOff();
 
 
+//	HAL_ADC_Start_IT(&hadc1);
+//	HAL_ADC_Start_IT(&hadc2);
+//	HAL_ADC_Start_IT(&hadc3);
+//	HAL_ADC_Start_IT(&hadc4);
+//	HAL_ADC_Start(&hadc1);
+//	HAL_ADC_Start(&hadc2);
+//	HAL_ADC_Start(&hadc3);
+//	HAL_ADC_Start(&hadc4);
 
   HAL_ADC_Start(&hadc2);
   HAL_ADCEx_MultiModeStart_DMA(&hadc1, &ADC_Buffer[0], 1);
@@ -253,7 +261,7 @@ int main(void)
   HAL_Delay(500);
   if(RingBuf_Avg(&adc_ringbuf[49])<1500)
   {
-      JumpToBootloader();
+//      JumpToBootloader();
   }
   for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
   {
@@ -336,11 +344,8 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB|RCC_PERIPHCLK_USART1
-                              |RCC_PERIPHCLK_TIM1|RCC_PERIPHCLK_ADC12
-                              |RCC_PERIPHCLK_ADC34;
+                              |RCC_PERIPHCLK_TIM1;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
-  PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
-  PeriphClkInit.Adc34ClockSelection = RCC_ADC34PLLCLK_DIV1;
   PeriphClkInit.USBClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
   PeriphClkInit.Tim1ClockSelection = RCC_TIM1CLK_HCLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
@@ -372,7 +377,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	    	Keyboard_ReportBuffer[0] = 2;
 	    	Keyboard_ReportBuffer[1] = usb_adc_send_idx;
 		    for(int i=0;i<16; i++) {
-		    	Keyboard_ReportBuffer[i+2] = i%2?(uint32_t)RingBuf_Avg(&adc_ringbuf[i/2 + usb_adc_send_idx*8]):((uint32_t)RingBuf_Avg(&adc_ringbuf[i/2 + usb_adc_send_idx*8]))>>8;
+//		    	Keyboard_ReportBuffer[i+2] = i%2?(uint32_t)RingBuf_Avg(&adc_ringbuf[i/2 + usb_adc_send_idx*8]):((uint32_t)RingBuf_Avg(&adc_ringbuf[i/2 + usb_adc_send_idx*8]))>>8;
+		    	Keyboard_ReportBuffer[i+2] = i%2?(uint32_t)Keyboard_AdvancedKeys[i/2 + usb_adc_send_idx*8].raw:((uint32_t)Keyboard_AdvancedKeys[i/2 + usb_adc_send_idx*8].raw)>>8;
+
 		    }
 
 		    usb_adc_send_idx++;
@@ -403,7 +410,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		RingBuf_Push(&adc_ringbuf[1*16+ADDRESS], (ADC_Buffer[0]>>16)&0x0fff);
 		RingBuf_Push(&adc_ringbuf[2*16+ADDRESS], ADC_Buffer[2]&0x0fff);
 		RingBuf_Push(&adc_ringbuf[3*16+ADDRESS], (ADC_Buffer[2]>>16)&0x0fff);
-
+//	  RingBuf_Push(&adc_ringbuf[0*16+ADDRESS], HAL_ADC_GetValue(&hadc1));
+//	  RingBuf_Push(&adc_ringbuf[1*16+ADDRESS], HAL_ADC_GetValue(&hadc2));
+//	  RingBuf_Push(&adc_ringbuf[2*16+ADDRESS], HAL_ADC_GetValue(&hadc3));
+//	  RingBuf_Push(&adc_ringbuf[3*16+ADDRESS], HAL_ADC_GetValue(&hadc4));
 
 
 		Analog_Count++;
