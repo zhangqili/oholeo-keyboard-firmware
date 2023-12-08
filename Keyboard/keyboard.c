@@ -219,6 +219,8 @@ void Keyboard_SendReport()
             continue;
         if(Keyboard_AdvancedKeys[i].key.state)Keyboard_ReportBuffer[index + 1] |= 1 << (bitIndex); // +1 for Report-ID
     }
+    //debug
+//    memset(Keyboard_ReportBuffer, 0, USBD_CUSTOMHID_OUTREPORT_BUF_SIZE);
     USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,Keyboard_ReportBuffer,16+1);
 }
 
