@@ -261,7 +261,7 @@ int main(void)
   HAL_Delay(500);
   if(RingBuf_Avg(&adc_ringbuf[49])<1500)
   {
-//      JumpToBootloader();
+	  JumpToBootloader();
   }
   for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
   {
@@ -405,11 +405,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 //		AnalogDatas[3*16+ADDRESS].sum+=((ADC_Buffer[2]>>16)&0x0fff)<<4;
 //		AnalogDatas[3*16+ADDRESS].count++;
 
-
-		RingBuf_Push(&adc_ringbuf[0*16+ADDRESS], ADC_Buffer[0]&0x0fff);
-		RingBuf_Push(&adc_ringbuf[1*16+ADDRESS], (ADC_Buffer[0]>>16)&0x0fff);
-		RingBuf_Push(&adc_ringbuf[2*16+ADDRESS], ADC_Buffer[2]&0x0fff);
-		RingBuf_Push(&adc_ringbuf[3*16+ADDRESS], (ADC_Buffer[2]>>16)&0x0fff);
+	  if (htim->Instance->CNT < 200) {
+			RingBuf_Push(&adc_ringbuf[0*16+ADDRESS], ADC_Buffer[0]&0x0fff);
+			RingBuf_Push(&adc_ringbuf[1*16+ADDRESS], (ADC_Buffer[0]>>16)&0x0fff);
+			RingBuf_Push(&adc_ringbuf[2*16+ADDRESS], ADC_Buffer[2]&0x0fff);
+			RingBuf_Push(&adc_ringbuf[3*16+ADDRESS], (ADC_Buffer[2]>>16)&0x0fff);
+	  }
 //	  RingBuf_Push(&adc_ringbuf[0*16+ADDRESS], HAL_ADC_GetValue(&hadc1));
 //	  RingBuf_Push(&adc_ringbuf[1*16+ADDRESS], HAL_ADC_GetValue(&hadc2));
 //	  RingBuf_Push(&adc_ringbuf[2*16+ADDRESS], HAL_ADC_GetValue(&hadc3));
