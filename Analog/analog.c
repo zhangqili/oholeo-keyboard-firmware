@@ -16,7 +16,7 @@
 #include "lefl.h"
 #include "keyboard_conf.h"
 #include "math.h"
-uint32_t DMA_Buffer[DMA_BUF_LEN*2];
+uint16_t DMA_Buffer[DMA_BUF_LEN*4];
 float_t ADC_Buffer[ADVANCED_KEY_NUM];
 //#define EXTENDED_SAMPLING
 //AnalogItem AnalogDatas[ADVANCED_KEY_NUM];

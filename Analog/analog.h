@@ -33,7 +33,7 @@ typedef struct
 
 
 
-extern uint32_t DMA_Buffer[DMA_BUF_LEN*2];
+extern uint16_t DMA_Buffer[DMA_BUF_LEN*4];
 extern float_t ADC_Buffer[ADVANCED_KEY_NUM];
 //extern AnalogItem AnalogDatas[ADVANCED_KEY_NUM];
 extern RingBuf adc_ringbuf[ADVANCED_KEY_NUM];
