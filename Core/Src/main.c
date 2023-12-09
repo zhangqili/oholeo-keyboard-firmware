@@ -304,9 +304,7 @@ int main(void)
           RGB_Update_Flag=false;
 
           RGB_Update();
-  		if(LED_Report&0x02) {
-  		   RGB_Set(164,56,252,RGB_Mapping[3]);
-  		}
+
       }
     /* USER CODE END WHILE */
 
