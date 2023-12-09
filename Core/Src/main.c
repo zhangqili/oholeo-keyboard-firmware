@@ -71,9 +71,13 @@ uint32_t err_cnt=0;
 enum state_t {
 	NORMAL,
 	DEBUG,
+	JOYSTICK,
 };
 
 enum state_t global_state = NORMAL;
+
+
+uint8_t LED_Report = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -298,7 +302,11 @@ int main(void)
       if(RGB_Update_Flag)
       {
           RGB_Update_Flag=false;
+
           RGB_Update();
+  		if(LED_Report&0x02) {
+  		   RGB_Set(164,56,252,RGB_Mapping[3]);
+  		}
       }
     /* USER CODE END WHILE */
 
@@ -370,6 +378,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[33].key.state){
 			global_state=NORMAL;
 		}
+		if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[61].key.state){
+			global_state=JOYSTICK;
+		}
 
 	    switch(global_state) {
 	    case NORMAL:
@@ -388,6 +399,23 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		    if(usb_adc_send_idx>=8)usb_adc_send_idx=0;
 		    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,Keyboard_ReportBuffer,17+1);
 			break;
+	    case JOYSTICK:
+	    	int8_t Ry,Rx,y,x;
+	    	y = (Keyboard_AdvancedKeys[1].upper_bound-Keyboard_AdvancedKeys[1].raw)/(Keyboard_AdvancedKeys[1].upper_bound-Keyboard_AdvancedKeys[1].lower_bound)*127.0
+	    			- (Keyboard_AdvancedKeys[10].upper_bound-Keyboard_AdvancedKeys[10].raw)/(Keyboard_AdvancedKeys[10].upper_bound-Keyboard_AdvancedKeys[10].lower_bound)*127.0;
+	    	x = (Keyboard_AdvancedKeys[0].upper_bound-Keyboard_AdvancedKeys[0].raw)/(Keyboard_AdvancedKeys[0].upper_bound-Keyboard_AdvancedKeys[0].lower_bound)*127.0
+	    			- (Keyboard_AdvancedKeys[2].upper_bound-Keyboard_AdvancedKeys[2].raw)/(Keyboard_AdvancedKeys[2].upper_bound-Keyboard_AdvancedKeys[2].lower_bound)*127.0;
+
+	    	Keyboard_ReportBuffer[0] = 3;
+	    	//Ry,Rx,y,x
+	    	Keyboard_ReportBuffer[1] = 128;
+	    	Keyboard_ReportBuffer[2] = 0;
+	    	Keyboard_ReportBuffer[3] = y-128;
+	    	Keyboard_ReportBuffer[4] = x-128;
+	    	Keyboard_ReportBuffer[5] = 0;
+		    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,Keyboard_ReportBuffer,5+1);
+
+	    	break;
 	    }
 
 
