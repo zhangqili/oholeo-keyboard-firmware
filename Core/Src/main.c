@@ -259,10 +259,10 @@ int main(void)
 
 
   HAL_Delay(500);
-//  if(ANALOG_AVERAGE(49)<1500)
-//  {
-//	  JumpToBootloader();
-//  }
+  if(RingBuf_Avg(&adc_ringbuf[49])<1400)
+  {
+	  JumpToBootloader();
+  }
   for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
   {
       lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, RingBuf_Avg(&adc_ringbuf[i]), 1200);
@@ -410,7 +410,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 //	  HAL_ADCEx_MultiModeStop_DMA(&hadc3);
 //	  HAL_ADC_Stop(&hadc2);
 //	  HAL_ADC_Stop(&hadc4);
-
+//		HAL_ADC_MspDeInit(&hadc1);
+//		HAL_ADC_MspDeInit(&hadc2);
+//		HAL_ADC_MspDeInit(&hadc3);
+//		HAL_ADC_MspDeInit(&hadc4);
 
 //		RingBuf_Push(&adc_ringbuf[0*16+ADDRESS], ADC_Buffer[0]&0x0fff);
 //		RingBuf_Push(&adc_ringbuf[1*16+ADDRESS], (ADC_Buffer[0]>>16)&0x0fff);
@@ -459,11 +462,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 //	  RingBuf_Push(&adc_ringbuf[2*16+ADDRESS], HAL_ADC_GetValue(&hadc3));
 //	  RingBuf_Push(&adc_ringbuf[3*16+ADDRESS], HAL_ADC_GetValue(&hadc4));
 
-
-//	    MX_ADC1_Init();
-//	    MX_ADC2_Init();
-//	    MX_ADC3_Init();
-//	    MX_ADC4_Init();
+//	HAL_ADC_MspInit(&hadc1);
+//	HAL_ADC_MspInit(&hadc2);
+//	HAL_ADC_MspInit(&hadc3);
+//	HAL_ADC_MspInit(&hadc4);
+//
+////	    MX_ADC1_Init();
+////	    MX_ADC2_Init();n
+////	    MX_ADC3_Init();
+////	    MX_ADC4_Init();
 //		HAL_ADC_Start(&hadc2);
 //		HAL_ADC_Start(&hadc4);
 //		HAL_ADCEx_MultiModeStart_DMA(&hadc1, &DMA_Buffer[0], RING_BUF_LEN);
