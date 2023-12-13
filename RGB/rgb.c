@@ -300,9 +300,9 @@ void RGB_Recovery()
         lefl_color_set_hsv(&RGB_Configs[i].rgb, &temphsv);
 
     }
-    lefl_color_hsv_t hsv = {0,100,30};
+    lefl_color_hsv_t hsv = {0,50,100};
     //RGB_GlobalConfig.mode=RGB_GLOBAL_MODE_WAVE;
-    RGB_GlobalConfig.mode=RGB_GLOBAL_MODE_WAVE;
+    RGB_GlobalConfig.mode=RGB_GLOBAL_MODE_INDIVIDUAL;
     RGB_GlobalConfig.speed=0.5;
     RGB_GlobalConfig.hsv=hsv;
     lefl_color_set_hsv(&RGB_GlobalConfig.rgb, &hsv);
