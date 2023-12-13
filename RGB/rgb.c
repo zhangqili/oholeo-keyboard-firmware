@@ -242,6 +242,12 @@ void RGB_Update()
             }
             break;
     }
+extern uint8_t LED_Report;
+	if(LED_Report&0x02) {
+	    RGB_Colors[RGB_Mapping[3]].r = 164;
+	    RGB_Colors[RGB_Mapping[3]].g = 56;
+		RGB_Colors[RGB_Mapping[3]].b = 252;
+	}
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
         RGB_Set(RGB_Colors[i].r,RGB_Colors[i].g,RGB_Colors[i].b,i);
