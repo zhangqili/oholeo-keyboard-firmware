@@ -32,26 +32,11 @@ extern lefl_key_t Keyboard_Keys[KEY_NUM];
 extern lefl_advanced_key_t Keyboard_AdvancedKeys[ADVANCED_KEY_NUM];
 
 
-
-#define KEY_SHIFT               Keyboard_Keys[0]
-#define KEY_ALPHA               Keyboard_Keys[1]
-#define KEY_KNOB                Keyboard_Keys[2]
-#define KEY_WHEEL               Keyboard_Keys[3]
-#define KEY_KNOB_CLOCKWISE      Keyboard_Keys[4]
-#define KEY_KNOB_ANTICLOCKWISE  Keyboard_Keys[5]
-#define KEY_WHEEL_CLOCKWISE     Keyboard_Keys[6]
-#define KEY_WHEEL_ANTICLOCKWISE Keyboard_Keys[7]
-
-
-#define KEY_SHIFT_INDEX               0
-#define KEY_ALPHA_INDEX               1
-#define KEY_KNOB_INDEX                2
-#define KEY_WHEEL_INDEX               3
-#define KEY_KNOB_CLOCKWISE_INDEX      4
-#define KEY_KNOB_ANTICLOCKWISE_INDEX  5
-#define KEY_WHEEL_CLOCKWISE_INDEX     6
-#define KEY_WHEEL_ANTICLOCKWISE_INDEX 7
-
+typedef struct
+{
+    uint8_t keycode;
+    uint8_t modifier;
+} key_binding_t;
 
 
 void Keyboard_Init();

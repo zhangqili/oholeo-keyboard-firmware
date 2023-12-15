@@ -8,13 +8,15 @@
 #ifndef USB_HID_KEYS_H_
 #define USB_HID_KEYS_H_
 
+
+
 enum KEY_CODE
 {
     /*------------------------- HID report data -------------------------*/
-    LEFT_CTRL = -8,LEFT_SHIFT = -7,LEFT_ALT = -6,LEFT_GUI = -5,
-    RIGHT_CTRL = -4,RIGHT_SHIFT = -3,RIGHT_ALT = -2,RIGHT_GUI = -1,
+    //LEFT_CTRL = -8,LEFT_SHIFT = -7,LEFT_ALT = -6,LEFT_GUI = -5,
+    //RIGHT_CTRL = -4,RIGHT_SHIFT = -3,RIGHT_ALT = -2,RIGHT_GUI = -1,
 
-    RESERVED = 0,ERROR_ROLL_OVER,POST_FAIL,ERROR_UNDEFINED,
+    NO_EVENT = 0,ERROR_ROLL_OVER,POST_FAIL,ERROR_UNDEFINED,
     A,B,C,D,E,F,G,H,I,J,K,L,M,
     N,O,P,Q,R,S,T,U,V,W,X,Y,Z,
     NUM_1/*1!*/,NUM_2/*2@*/,NUM_3/*3#*/,NUM_4/*4$*/,NUM_5/*5%*/,
@@ -32,9 +34,20 @@ enum KEY_CODE
     PAD_PERIOD , NONUS_BACKSLASH,APPLICATION,POWER,PAD_EQUAL,
     F13,F14,F15,F16,F17,F18,F19,F20,F21,F22,F23,F24, EXECUTE,
     HELP,MENU,SELECT,STOP,AGAIN,UNDO,CUT,COPY,PASTE,FIND,MUTE,VOLUME_UP,VOLUME_DOWN,
-    FN = 1000
+    //Reserved A5-DF
+    FN = 0xA5,
     /*------------------------- HID report data -------------------------*/
 };
+
+enum MODIFIER
+{
+    /*------------------------- HID report data -------------------------*/
+    NO_MODIFIER=0,
+    LEFT_CTRL = 0x01,LEFT_SHIFT = 0x02,LEFT_ALT = 0x04,LEFT_GUI = 0x08,
+    RIGHT_CTRL = 0x10,RIGHT_SHIFT = 0x20,RIGHT_ALT = 0x40,RIGHT_GUI = 0x80,
+    /*------------------------- HID report data -------------------------*/
+};
+
 
 //enum USB_HID_KEYBOARD_SCAN_CODES {
 //  KEY_NO_EVENT                 = 0x00,   // Keyboard ErrorRollOver

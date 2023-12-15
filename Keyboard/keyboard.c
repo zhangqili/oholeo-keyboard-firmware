@@ -20,21 +20,21 @@ lefl_bit_array_t Keyboard_KeyArray;
 bool Keybaord_SendReport_Enable;
 
 
-int16_t keymap[5][64] = {
+key_binding_t keymap[5][64] = {
 	{
-		ESC/*0*/, NUM_1/*1*/, NUM_2/*2*/, NUM_3/*3*/, NUM_4/*4*/, NUM_5/*5*/, NUM_6/*6*/, NUM_7/*7*/, NUM_8/*8*/, NUM_9/*9*/, NUM_0/*10*/, MINUS/*11*/, EQUAL/*12*/, BACKSPACE/*13*/,
-		TAB/*14*/, Q/*15*/, W/*16*/, E/*17*/, R/*18*/, T/*19*/, Y/*20*/, U/*21*/, I/*22*/, O/*23*/, P/*24*/, LEFT_U_BRACE/*25*/, RIGHT_U_BRACE/*26*/, BACKSLASH/*27*/,
-		CAP_LOCK/*28*/, A/*29*/, S/*30*/, D/*31*/, F/*32*/, G/*33*/, H/*34*/, J/*35*/, K/*36*/, L/*37*/, SEMI_COLON/*38*/, QUOTE/*39*/, ENTER/*40*/,
-		LEFT_SHIFT/*41*/, Z/*42*/, X/*43*/, C/*44*/, V/*45*/, B/*46*/, N/*47*/, M/*48*/, COMMA/*49*/, PERIOD/*50*/, SLASH/*51*/, RIGHT_SHIFT/*52*/, UP_ARROW/*53*/, DELETE/*54*/,
-		LEFT_CTRL/*55*/, LEFT_GUI/*56*/, LEFT_ALT/*57*/, SPACE/*58*/, RIGHT_ALT/*59*/, FN/*60*/, LEFT_ARROW/*61*/, DOWN_ARROW/*62*/, RIGHT_ARROW/*63*/,
+		{ESC, NO_MODIFIER}/*0*/, {NUM_1, NO_MODIFIER}/*1*/, {NUM_2, NO_MODIFIER}/*2*/, {NUM_3, NO_MODIFIER}/*3*/, {NUM_4, NO_MODIFIER}/*4*/, {NUM_5, NO_MODIFIER}/*5*/, {NUM_6, NO_MODIFIER}/*6*/, {NUM_7, NO_MODIFIER}/*7*/, {NUM_8, NO_MODIFIER}/*8*/, {NUM_9, NO_MODIFIER}/*9*/, {NUM_0, NO_MODIFIER}/*10*/, {MINUS, NO_MODIFIER}/*11*/, {EQUAL, NO_MODIFIER}/*12*/, {BACKSPACE, NO_MODIFIER}/*13*/,
+		{TAB, NO_MODIFIER}/*14*/, {Q, NO_MODIFIER}/*15*/, {W, NO_MODIFIER}/*16*/, {E, NO_MODIFIER}/*17*/, {R, NO_MODIFIER}/*18*/, {T, NO_MODIFIER}/*19*/, {Y, NO_MODIFIER}/*20*/, {U, NO_MODIFIER}/*21*/, {I, NO_MODIFIER}/*22*/, {O, NO_MODIFIER}/*23*/, {P, NO_MODIFIER}/*24*/, {LEFT_U_BRACE, NO_MODIFIER}/*25*/, {RIGHT_U_BRACE, NO_MODIFIER}/*26*/, {BACKSLASH, NO_MODIFIER}/*27*/,
+		{CAP_LOCK, NO_MODIFIER}/*28*/, {A, NO_MODIFIER}/*29*/, {S, NO_MODIFIER}/*30*/, {D, NO_MODIFIER}/*31*/, {F, NO_MODIFIER}/*32*/, {G, NO_MODIFIER}/*33*/, {H, NO_MODIFIER}/*34*/, {J, NO_MODIFIER}/*35*/, {K, NO_MODIFIER}/*36*/, {L, NO_MODIFIER}/*37*/, {SEMI_COLON, NO_MODIFIER}/*38*/, {QUOTE, NO_MODIFIER}/*39*/, {ENTER, NO_MODIFIER}/*40*/,
+		{NO_EVENT, LEFT_SHIFT}/*41*/, {Z, NO_MODIFIER}/*42*/, {X, NO_MODIFIER}/*43*/, {C, NO_MODIFIER}/*44*/, {V, NO_MODIFIER}/*45*/, {B, NO_MODIFIER}/*46*/, {N, NO_MODIFIER}/*47*/, {M, NO_MODIFIER}/*48*/, {COMMA, NO_MODIFIER}/*49*/, {PERIOD, NO_MODIFIER}/*50*/, {SLASH, NO_MODIFIER}/*51*/, {NO_EVENT, RIGHT_SHIFT}/*52*/, {UP_ARROW, NO_MODIFIER}/*53*/, {DELETE, NO_MODIFIER}/*54*/,
+		{NO_EVENT, LEFT_CTRL}/*55*/, {NO_EVENT, LEFT_GUI}/*56*/, {NO_EVENT, LEFT_ALT}/*57*/, {SPACE, NO_MODIFIER}/*58*/, {NO_EVENT, RIGHT_ALT}/*59*/, {FN, NO_MODIFIER}/*60*/, {LEFT_ARROW, NO_MODIFIER}/*61*/, {DOWN_ARROW, NO_MODIFIER}/*62*/, {RIGHT_ARROW, NO_MODIFIER}/*63*/,
 	},
 
 	{
-		GRAVE_ACCENT, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, BACKSPACE,
-		TAB, Q, W, E, R, T, Y, U, I, O, P, LEFT_U_BRACE, RIGHT_U_BRACE, BACKSLASH,
-		CAP_LOCK, A, S, D, F, G, H, J, K, L, SEMI_COLON, QUOTE, ENTER,
-		LEFT_SHIFT, Z, X, C, V, B, N, M, COMMA, PERIOD, SLASH, RIGHT_SHIFT, UP_ARROW, DELETE,
-		LEFT_CTRL, LEFT_GUI, LEFT_ALT, SPACE, RIGHT_ALT, FN, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW,
+		{GRAVE_ACCENT, NO_MODIFIER}, {F1, NO_MODIFIER}, {F2, NO_MODIFIER}, {F3, NO_MODIFIER}, {F4, NO_MODIFIER}, {F5, NO_MODIFIER}, {F6, NO_MODIFIER}, {F7, NO_MODIFIER}, {F8, NO_MODIFIER}, {F9, NO_MODIFIER}, {F10, NO_MODIFIER}, {F11, NO_MODIFIER}, {F12, NO_MODIFIER}, {BACKSPACE, NO_MODIFIER},
+		{TAB, NO_MODIFIER}, {Q, NO_MODIFIER}, {W, NO_MODIFIER}, {E, NO_MODIFIER}, {R, NO_MODIFIER}, {T, NO_MODIFIER}, {Y, NO_MODIFIER}, {U, NO_MODIFIER}, {I, NO_MODIFIER}, {O, NO_MODIFIER}, {P, NO_MODIFIER}, {LEFT_U_BRACE, NO_MODIFIER}, {RIGHT_U_BRACE, NO_MODIFIER}, {BACKSLASH, NO_MODIFIER},
+		{CAP_LOCK, NO_MODIFIER}, {A, NO_MODIFIER}, {S, NO_MODIFIER}, {D, NO_MODIFIER}, {F, NO_MODIFIER}, {G, NO_MODIFIER}, {H, NO_MODIFIER}, {J, NO_MODIFIER}, {K, NO_MODIFIER}, {L, NO_MODIFIER}, {SEMI_COLON, NO_MODIFIER}, {QUOTE, NO_MODIFIER}, {ENTER, NO_MODIFIER},
+		{NO_EVENT, LEFT_SHIFT}, {Z, NO_MODIFIER}, {X, NO_MODIFIER}, {C, NO_MODIFIER}, {V, NO_MODIFIER}, {B, NO_MODIFIER}, {N, NO_MODIFIER}, {M, NO_MODIFIER}, {COMMA, NO_MODIFIER}, {PERIOD, NO_MODIFIER}, {SLASH, NO_MODIFIER}, {NO_EVENT, RIGHT_SHIFT}, {UP_ARROW, NO_MODIFIER}, {DELETE, NO_MODIFIER},
+		{NO_EVENT, LEFT_CTRL}, {NO_EVENT, LEFT_GUI}, {NO_EVENT, LEFT_ALT}, {SPACE, NO_MODIFIER}, {NO_EVENT, RIGHT_ALT}, {FN, NO_MODIFIER}, {LEFT_ARROW, NO_MODIFIER}, {DOWN_ARROW, NO_MODIFIER}, {RIGHT_ARROW, NO_MODIFIER}
 	}
 
 };
@@ -174,7 +174,6 @@ lefl_advanced_key_t Keyboard_AdvancedKeys[ADVANCED_KEY_NUM]=
     {.key.id=7}
 };
 
-
 void Keyboard_Init()
 {
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
@@ -202,23 +201,20 @@ void Keyboard_SendReport()
 //
 //    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,Keyboard_ReportBuffer,USBD_CUSTOMHID_OUTREPORT_BUF_SIZE);
 
-    int16_t index, bitIndex, keycode, layer;
+    uint8_t layer;
+    key_binding_t key_binding;
     layer = Keyboard_AdvancedKeys[49].key.state?1:0; //Fn key
 
     memset(Keyboard_ReportBuffer, 0, USBD_CUSTOMHID_OUTREPORT_BUF_SIZE);
     Keyboard_ReportBuffer[0] = 1;
     for (int i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-    	keycode = keymap[layer][Keyboard_AdvancedKeys[i].key.id];
-    	index = (int16_t)(keycode/8 + 1);// +1 for modifier
-    	bitIndex = (int16_t)(keycode%8);
-        if (bitIndex < 0)
+        if(Keyboard_AdvancedKeys[i].key.state)
         {
-            index -= 1;
-            bitIndex += 8;
-        } else if (keycode > 100)
-            continue;
-        if(Keyboard_AdvancedKeys[i].key.state)Keyboard_ReportBuffer[index + 1] |= 1 << (bitIndex); // +1 for Report-ID
+    	    key_binding = keymap[layer][Keyboard_AdvancedKeys[i].key.id];
+            Keyboard_ReportBuffer[key_binding.keycode/8 + 2] |= 1 << (key_binding.keycode%8); // +1 for Report-ID
+            Keyboard_ReportBuffer[1] |= key_binding.modifier; // +1 for Report-ID
+        }
     }
     //debug
 //    memset(Keyboard_ReportBuffer, 0, USBD_CUSTOMHID_OUTREPORT_BUF_SIZE);
