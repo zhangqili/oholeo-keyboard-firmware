@@ -293,8 +293,10 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 		   for(int i=0;i<4;i++) {
 			   RGB_GlobalConfig.mode = USB_Recive_Buffer[2+i*4+0]>>4;
 			   RGB_GlobalConfig.rgb = *(lefl_color_rgb_t *)&USB_Recive_Buffer[2+i*4+1];
+			   lefl_rgb_to_hsv(&RGB_GlobalConfig.hsv, &RGB_GlobalConfig.rgb);
 			   RGB_Configs[RGB_Mapping[api_lut[page_num*4+i]]].mode = USB_Recive_Buffer[2+i*4+0]&0x0f;
 			   RGB_Configs[RGB_Mapping[api_lut[page_num*4+i]]].rgb = *(lefl_color_rgb_t *)&USB_Recive_Buffer[2+i*4+1];
+               lefl_rgb_to_hsv(&RGB_Configs[RGB_Mapping[api_lut[page_num*4+i]]].hsv, &RGB_Configs[RGB_Mapping[api_lut[page_num*4+i]]].rgb);
 
 		   }
 	   }
