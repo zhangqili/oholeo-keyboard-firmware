@@ -184,6 +184,7 @@ void Keyboard_Init()
         Keyboard_AdvancedKeys[i].mode=DEFAULT_ADVANCED_KEY_MODE;
         Keyboard_AdvancedKeys[i].trigger_distance=DEFAULT_TRIGGER_DISTANCE;
         Keyboard_AdvancedKeys[i].release_distance=DEFAULT_RELEASE_DISTANCE;
+        Keyboard_AdvancedKeys[i].schmitt_parameter=DEFAULT_SCHMITT_PARAM;
     }
 }
 

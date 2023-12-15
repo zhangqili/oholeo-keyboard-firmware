@@ -148,35 +148,35 @@ __ALIGN_BEGIN static uint8_t CUSTOM_HID_ReportDesc_FS[USBD_CUSTOM_HID_REPORT_DES
 		0x91, 0x02,				// Output (array)
 		0xC0,    /*     END_COLLECTION	       89 Bytes      */
 		// joystick
-		0x05, 0x01,   //Usage Page (Generic Desktop)
-		0x09, 0x05,   //Usage (Game Pad)
-		0xA1, 0x01,   //Collection (Application)
-		0x85, 0x03,   //REPORT_ID (3)
-		0x05, 0x01,   //Usage Page (Generic Desktop)
-		0x09, 0x01,   //Usage (Pointer)
-		0xA0,         //Collection (Physical)
-		0x14,         //Logical Minimum (0)
-		0x25, 0xFF,   //Logical Maximum (255)
-		0x75, 0x08,   //Report Size (8)
-		0x95, 0x04,   //Report Count (4)
-		0x09, 0x34,   //Usage (Ry)
-		0x09, 0x33,   //Usage (Rx)
-		0x09, 0x31,   //Usage (Y)
-		0x09, 0x30,   //Usage (X)
-		0x81, 0x02,   //Input (Data, Variable, Absolute)
-		0x14,         //Logical Minimum (0)
-		0x25, 0x01,   //Logical Maximum (1)
-		0x75, 0x01,   //Report Size (1)
-		0x95, 0x02,   //Report Count (2)
-		0x05, 0x09,   //Usage Page (Button)
-		0x19, 0x01,   //Usage Minimum (Button 1)
-		0x29, 0x02,   //Usage Maximum (Button 2)
-		0x81, 0x02,   //Input (Data, Variable, Absolute)
-		0x75, 0x06,   //Report Size (6)
-		0x95, 0x01,   //Report Count (1)
-		0x81, 0x03,   //Input (Constant, Variable, Absolute)
-		0xC0,         //END Collection
-		0xC0,         //END Collection 142
+//		0x05, 0x01,   //Usage Page (Generic Desktop)
+//		0x09, 0x05,   //Usage (Game Pad)
+//		0xA1, 0x01,   //Collection (Application)
+//		0x85, 0x03,   //REPORT_ID (3)
+//		0x05, 0x01,   //Usage Page (Generic Desktop)
+//		0x09, 0x01,   //Usage (Pointer)
+//		0xA0,         //Collection (Physical)
+//		0x14,         //Logical Minimum (0)
+//		0x25, 0xFF,   //Logical Maximum (255)
+//		0x75, 0x08,   //Report Size (8)
+//		0x95, 0x04,   //Report Count (4)
+//		0x09, 0x34,   //Usage (Ry)
+//		0x09, 0x33,   //Usage (Rx)
+//		0x09, 0x31,   //Usage (Y)
+//		0x09, 0x30,   //Usage (X)
+//		0x81, 0x02,   //Input (Data, Variable, Absolute)
+//		0x14,         //Logical Minimum (0)
+//		0x25, 0x01,   //Logical Maximum (1)
+//		0x75, 0x01,   //Report Size (1)
+//		0x95, 0x02,   //Report Count (2)
+//		0x05, 0x09,   //Usage Page (Button)
+//		0x19, 0x01,   //Usage Minimum (Button 1)
+//		0x29, 0x02,   //Usage Maximum (Button 2)
+//		0x81, 0x02,   //Input (Data, Variable, Absolute)
+//		0x75, 0x06,   //Report Size (6)
+//		0x95, 0x01,   //Report Count (1)
+//		0x81, 0x03,   //Input (Constant, Variable, Absolute)
+//		0xC0,         //END Collection
+//		0xC0,         //END Collection 142
   /* USER CODE END 0 */
 };
 
@@ -275,16 +275,27 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
    }
    if(USB_Recive_Buffer[0]==2) {
 	   uint8_t page_num = USB_Recive_Buffer[1];
-	   for(int i=0;i<4;i++) {
-		   if(USB_Recive_Buffer[2+i*4+0]&0x80){
-			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].mode = LEFL_KEY_ANALOG_RAPID_MODE;
-			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].trigger_distance = (float_t)USB_Recive_Buffer[2+i*4+1]/100.0;
-			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].release_distance = (float_t)USB_Recive_Buffer[2+i*4+2]/100.0;
-			   lefl_advanced_key_set_deadzone(&Keyboard_AdvancedKeys[api_lut[page_num*4+i]], 0.02, (float_t)USB_Recive_Buffer[2+i*4+3]/100.0);
-//			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].lower_deadzone = (float_t)USB_Recive_Buffer[2+i*4+3]/100.0;
-		   } else {
-			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].mode = LEFL_KEY_ANALOG_NORMAL_MODE;
-			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].trigger_distance = (float_t)USB_Recive_Buffer[2+i*4+0]/100.0;
+	   if(page_num<16) {  ///performance
+		   for(int i=0;i<4;i++) {
+			   if(USB_Recive_Buffer[2+i*4+0]&0x80){
+				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].mode = LEFL_KEY_ANALOG_RAPID_MODE;
+				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].trigger_distance = (float_t)USB_Recive_Buffer[2+i*4+1]/100.0;
+				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].release_distance = (float_t)USB_Recive_Buffer[2+i*4+2]/100.0;
+				   lefl_advanced_key_set_deadzone(&Keyboard_AdvancedKeys[api_lut[page_num*4+i]], 0.02, (float_t)USB_Recive_Buffer[2+i*4+3]/100.0);
+	//			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].lower_deadzone = (float_t)USB_Recive_Buffer[2+i*4+3]/100.0;
+			   } else {
+				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].mode = LEFL_KEY_ANALOG_NORMAL_MODE;
+				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].trigger_distance = (float_t)USB_Recive_Buffer[2+i*4+0]/100.0;
+			   }
+		   }
+	   } else if(page_num<32) {  ///rgb
+		   page_num -= 16; // needed
+		   for(int i=0;i<4;i++) {
+			   RGB_GlobalConfig.mode = USB_Recive_Buffer[2+i*4+0]>>4;
+			   RGB_GlobalConfig.rgb = *(lefl_color_rgb_t *)&USB_Recive_Buffer[2+i*4+1];
+			   RGB_Configs[api_lut[page_num*4+i]].mode = USB_Recive_Buffer[2+i*4+0]&0x0f;
+			   RGB_Configs[api_lut[page_num*4+i]].rgb = *(lefl_color_rgb_t *)&USB_Recive_Buffer[2+i*4+1];
+
 		   }
 	   }
    }
