@@ -14,13 +14,14 @@
 #include "rgb.h"
 #include "keyboard.h"
 #include "keyboard_conf.h"
+#include "lfs.h"
+#include "stdio.h"
 
 uint8_t Keyboard_ReportBuffer[USBD_CUSTOMHID_OUTREPORT_BUF_SIZE];
 lefl_bit_array_t Keyboard_KeyArray;
 bool Keybaord_SendReport_Enable;
 
-
-key_binding_t keymap[5][64] = {
+const key_binding_t default_keymap[5][64] = {
 	{
 		{ESC, NO_MODIFIER}/*0*/, {NUM_1, NO_MODIFIER}/*1*/, {NUM_2, NO_MODIFIER}/*2*/, {NUM_3, NO_MODIFIER}/*3*/, {NUM_4, NO_MODIFIER}/*4*/, {NUM_5, NO_MODIFIER}/*5*/, {NUM_6, NO_MODIFIER}/*6*/, {NUM_7, NO_MODIFIER}/*7*/, {NUM_8, NO_MODIFIER}/*8*/, {NUM_9, NO_MODIFIER}/*9*/, {NUM_0, NO_MODIFIER}/*10*/, {MINUS, NO_MODIFIER}/*11*/, {EQUAL, NO_MODIFIER}/*12*/, {BACKSPACE, NO_MODIFIER}/*13*/,
 		{TAB, NO_MODIFIER}/*14*/, {Q, NO_MODIFIER}/*15*/, {W, NO_MODIFIER}/*16*/, {E, NO_MODIFIER}/*17*/, {R, NO_MODIFIER}/*18*/, {T, NO_MODIFIER}/*19*/, {Y, NO_MODIFIER}/*20*/, {U, NO_MODIFIER}/*21*/, {I, NO_MODIFIER}/*22*/, {O, NO_MODIFIER}/*23*/, {P, NO_MODIFIER}/*24*/, {LEFT_U_BRACE, NO_MODIFIER}/*25*/, {RIGHT_U_BRACE, NO_MODIFIER}/*26*/, {BACKSLASH, NO_MODIFIER}/*27*/,
@@ -38,6 +39,8 @@ key_binding_t keymap[5][64] = {
 	}
 
 };
+
+key_binding_t keymap[5][64];
 
 lefl_advanced_key_t Keyboard_AdvancedKeys[ADVANCED_KEY_NUM]=
 {
@@ -176,6 +179,12 @@ lefl_advanced_key_t Keyboard_AdvancedKeys[ADVANCED_KEY_NUM]=
 
 void Keyboard_Init()
 {
+    Keyboard_FactoryReset();
+}
+
+void Keyboard_FactoryReset()
+{
+    memcpy(keymap,default_keymap,sizeof(keymap));
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
         //lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, 4000, 0);
@@ -185,10 +194,70 @@ void Keyboard_Init()
         Keyboard_AdvancedKeys[i].release_distance=DEFAULT_RELEASE_DISTANCE;
         Keyboard_AdvancedKeys[i].schmitt_parameter=DEFAULT_SCHMITT_PARAMETER;
     }
+    RGB_Recovery();
+    Keyboard_Save();
+}
+void Keyboard_SystemReset()
+{
+    __set_FAULTMASK(1);
+    HAL_NVIC_SystemReset();
 }
 
 void Keyboard_Scan()
 {
+}
+void Keyboard_Recovery()
+{
+    
+  // mount the filesystem
+  int err = lfs_mount(&lfs_w25qxx, &cfg);
+  // reformat if we can't mount the filesystem
+  // this should only happen on the first boot
+  if (err)
+  {
+      lfs_format(&lfs_w25qxx, &cfg);
+      lfs_mount(&lfs_w25qxx, &cfg);
+  }
+  lfs_file_open(&lfs_w25qxx, &lfs_file_w25qxx, "config1.dat", LFS_O_RDWR | LFS_O_CREAT);
+  lfs_file_rewind(&lfs_w25qxx, &lfs_file_w25qxx);
+  lfs_file_read(&lfs_w25qxx, &lfs_file_w25qxx, Keyboard_AdvancedKeys, sizeof(Keyboard_AdvancedKeys));
+  lfs_file_read(&lfs_w25qxx, &lfs_file_w25qxx, keymap, sizeof(keymap));
+  lfs_file_read(&lfs_w25qxx, &lfs_file_w25qxx, &RGB_GlobalConfig, sizeof(RGB_GlobalConfig));
+  lfs_file_read(&lfs_w25qxx, &lfs_file_w25qxx, &RGB_Configs, sizeof(RGB_Configs));
+  // remember the storage is not updated until the file is closed successfully
+  lfs_file_close(&lfs_w25qxx, &lfs_file_w25qxx);
+  printf("recovery = %d",err);
+  // release any resources we were using
+  lfs_unmount(&lfs_w25qxx);
+  // print the boot count
+}
+
+
+void Keyboard_Save()
+{
+    
+  // mount the filesystem
+  int err = lfs_mount(&lfs_w25qxx, &cfg);
+  // reformat if we can't mount the filesystem
+  // this should only happen on the first boot
+  if (err)
+  {
+      lfs_format(&lfs_w25qxx, &cfg);
+      lfs_mount(&lfs_w25qxx, &cfg);
+  }
+  // read current count
+  lfs_file_open(&lfs_w25qxx, &lfs_file_w25qxx, "config1.dat", LFS_O_RDWR | LFS_O_CREAT);
+  lfs_file_rewind(&lfs_w25qxx, &lfs_file_w25qxx);
+  lfs_file_write(&lfs_w25qxx, &lfs_file_w25qxx, Keyboard_AdvancedKeys, sizeof(Keyboard_AdvancedKeys));
+  lfs_file_write(&lfs_w25qxx, &lfs_file_w25qxx, keymap, sizeof(keymap));
+  lfs_file_write(&lfs_w25qxx, &lfs_file_w25qxx, &RGB_GlobalConfig, sizeof(RGB_GlobalConfig));
+  lfs_file_write(&lfs_w25qxx, &lfs_file_w25qxx, &RGB_Configs, sizeof(RGB_Configs));
+  // remember the storage is not updated until the file is closed successfully
+  err = lfs_file_close(&lfs_w25qxx, &lfs_file_w25qxx);
+  printf("save = %d",err);
+  // release any resources we were using
+  lfs_unmount(&lfs_w25qxx);
+  // print the boot count
 }
 
 void Keyboard_SendReport()
@@ -211,7 +280,9 @@ void Keyboard_SendReport()
     {
         if(Keyboard_AdvancedKeys[i].key.state)
         {
-    	    key_binding = keymap[layer][Keyboard_AdvancedKeys[i].key.id];
+            key_binding = keymap[layer][Keyboard_AdvancedKeys[i].key.id];
+            if(key_binding.keycode>=120)
+                continue;
             Keyboard_ReportBuffer[key_binding.keycode/8 + 2] |= 1 << (key_binding.keycode%8); // +1 for Report-ID
             Keyboard_ReportBuffer[1] |= key_binding.modifier; // +1 for Report-ID
         }

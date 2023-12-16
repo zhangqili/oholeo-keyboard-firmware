@@ -59,7 +59,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-bool RGB_Update_Flag=false;
+volatile bool RGB_Update_Flag=false;
 char uart_buf[64];
 uint32_t debug;
 uint32_t max32;
@@ -70,7 +70,6 @@ uint8_t USB_Received_Count;//USB接收数据计数
 
 uint32_t usb_adc_send_idx = 0;
 uint32_t err_cnt=0;
-uint8_t rs;
 
 sfud_flash sfud_norflash0 = {
         .name = "norflash0",
@@ -249,10 +248,10 @@ int main(void)
 //  lefl_bit_array_init(&Keyboard_KeyArray, (size_t*)(&Keyboard_ReportBuffer[1]), 128);
 
   HAL_GPIO_WritePin(INHIBIT_GPIO_Port, INHIBIT_Pin, GPIO_PIN_RESET);
-  Keyboard_Init();
+  //Keyboard_Init();
   RGB_Init();
-  Analog_Recovery();
-  RGB_Recovery();
+  //RGB_Recovery();
+  Keyboard_Recovery();
 
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
@@ -265,14 +264,6 @@ int main(void)
   RGB_Flash();
   RGB_TurnOff();
 
-//	HAL_ADC_Start_IT(&hadc1);
-//	HAL_ADC_Start_IT(&hadc2);
-//	HAL_ADC_Start_IT(&hadc3);
-//	HAL_ADC_Start_IT(&hadc4);
-//	HAL_ADC_Start(&hadc1);
-//	HAL_ADC_Start(&hadc2);
-//	HAL_ADC_Start(&hadc3);
-//	HAL_ADC_Start(&hadc4);
 
   HAL_ADC_Start(&hadc2);
   HAL_ADCEx_MultiModeStart_DMA(&hadc1, (uint32_t*)&DMA_Buffer[0], DMA_BUF_LEN);
@@ -302,15 +293,13 @@ int main(void)
   //sprintf(uart_buf,"%f\n",Keyboard_AdvancedKeys[0].upper_bound);
   //HAL_UART_Transmit(&huart1, (uint8_t*)uart_buf, 64, 0xFF);
   memset(USB_Recive_Buffer, 0, sizeof(USB_Recive_Buffer));
+  //Keyboard_Save();
 
-  /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-      HAL_Delay(1);
-
       if(RGB_Update_Flag)
       {
           RGB_Update_Flag=false;
@@ -318,8 +307,6 @@ int main(void)
           RGB_Update();
 
       }
-      if(rs)
-          RGB_Set(255,255,255,10);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

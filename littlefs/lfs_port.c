@@ -1,5 +1,6 @@
 #include "lfs.h"
 #include "sfud.h"
+#include "main.h"
 
 extern sfud_flash sfud_norflash0;
 /**
