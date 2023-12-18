@@ -231,6 +231,7 @@ extern "C" {
     typedef struct __lefl_key_t
     {
         int16_t id;
+        int16_t keycode;
         bool state;
         lefl_key_cb_t key_cb[EVENT_NUM];
     } lefl_key_t;

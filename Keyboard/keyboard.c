@@ -185,6 +185,7 @@ void Keyboard_Init()
         Keyboard_AdvancedKeys[i].trigger_distance=DEFAULT_TRIGGER_DISTANCE;
         Keyboard_AdvancedKeys[i].release_distance=DEFAULT_RELEASE_DISTANCE;
         Keyboard_AdvancedKeys[i].schmitt_parameter=DEFAULT_SCHMITT_PARAM;
+        Keyboard_AdvancedKeys[i].key.keycode = keymap[0][Keyboard_AdvancedKeys[i].key.id];
     }
 }
 
@@ -209,7 +210,7 @@ void Keyboard_SendReport()
     Keyboard_ReportBuffer[0] = 1;
     for (int i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-    	keycode = keymap[layer][Keyboard_AdvancedKeys[i].key.id];
+    	keycode =Keyboard_AdvancedKeys[i].key.keycode;
     	index = (int16_t)(keycode/8 + 1);// +1 for modifier
     	bitIndex = (int16_t)(keycode%8);
         if (bitIndex < 0)

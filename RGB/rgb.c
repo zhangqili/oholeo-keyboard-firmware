@@ -244,9 +244,10 @@ void RGB_Update()
     }
 extern uint8_t LED_Report;
 	if(LED_Report&0x02) {
-	    RGB_Colors[RGB_Mapping[3]].r = 164;
-	    RGB_Colors[RGB_Mapping[3]].g = 56;
-		RGB_Colors[RGB_Mapping[3]].b = 252;
+	    RGB_Colors[RGB_Mapping[3]] = RGB_Configs[RGB_Mapping[3]].rgb;//cap lock
+	}
+	if(Keyboard_AdvancedKeys[49].key.state) {
+		RGB_Colors[RGB_Mapping[9]] = RGB_Configs[RGB_Mapping[9]].rgb;//q
 	}
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {

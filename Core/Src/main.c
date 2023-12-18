@@ -36,7 +36,7 @@
 #include "keyboard_conf.h"
 #include "lefl.h"
 #include "usbd_custom_hid_if.h"
-
+#include "math.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -72,8 +72,9 @@ enum state_t {
 	NORMAL,
 	DEBUG,
 	JOYSTICK,
+	REQUEST_PROFILE,
 };
-
+int32_t state_counter = 0;
 enum state_t global_state = NORMAL;
 
 
@@ -414,7 +415,55 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,Keyboard_ReportBuffer,5+1);
 
 	    	break;
+
+	    case REQUEST_PROFILE:
+	    	state_counter--;
+	    	if(state_counter<=0)global_state=NORMAL;
+
+	    	if(state_counter/32 == 0) {
+				//sent performance data
+				Keyboard_ReportBuffer[0] = 2;
+				Keyboard_ReportBuffer[1] = (state_counter%16) + 16;
+				for(int i=0;i<4;i++) {
+					uint32_t index = i + (state_counter%16)*4;
+					Keyboard_ReportBuffer[2 + i*4+0] = (uint8_t)(roundf(Keyboard_AdvancedKeys[index].trigger_distance*100.0)) |
+							((Keyboard_AdvancedKeys[index].mode - 1) << 7);
+					Keyboard_ReportBuffer[2 + i*4+1] = (uint8_t)(roundf(Keyboard_AdvancedKeys[index].trigger_distance*100.0));
+					Keyboard_ReportBuffer[2 + i*4+2] = (uint8_t)(roundf(Keyboard_AdvancedKeys[index].release_distance*100.0));
+					Keyboard_ReportBuffer[2 + i*4+3] = (uint8_t)(roundf(Keyboard_AdvancedKeys[index].lower_deadzone*100.0));
+				}
+	    	}
+	    	if(state_counter/32 == 1) {
+		    	//sent rgb data
+		    	Keyboard_ReportBuffer[0] = 2;
+		    	Keyboard_ReportBuffer[1] = (state_counter%16) + 32;
+		    	for(int i=0;i<4;i++) {
+		    		uint32_t index = i + (state_counter%16)*4;
+		    		Keyboard_ReportBuffer[2 + i*4+0] = (uint8_t)(RGB_GlobalConfig.mode<<4) | RGB_Configs[RGB_Mapping[index]].mode;
+		    		Keyboard_ReportBuffer[2 + i*4+1] = RGB_Configs[RGB_Mapping[index]].rgb.r;
+		    		Keyboard_ReportBuffer[2 + i*4+2] = RGB_Configs[RGB_Mapping[index]].rgb.g;
+		    		Keyboard_ReportBuffer[2 + i*4+3] = RGB_Configs[RGB_Mapping[index]].rgb.b;
+		    	}
+	    	}
+	    	if(state_counter/32 == 2) {
+		    	//sent keymap data
+		    	Keyboard_ReportBuffer[0] = 2;
+		    	Keyboard_ReportBuffer[1] = (state_counter%16) + 48;
+		    	for(int i=0;i<4;i++) {
+		    		uint32_t index = i + (state_counter%16)*4;
+		    		Keyboard_ReportBuffer[2 + i*4+0] = Keyboard_AdvancedKeys[index].key.keycode>>8;
+		    		Keyboard_ReportBuffer[2 + i*4+1] = Keyboard_AdvancedKeys[index].key.keycode&0xff;
+		    		Keyboard_ReportBuffer[2 + i*4+2] = Keyboard_AdvancedKeys[index].key.keycode>>8;
+		    		Keyboard_ReportBuffer[2 + i*4+3] = Keyboard_AdvancedKeys[index].key.keycode&0xff;
+		    	}
+	    	}
+		    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,Keyboard_ReportBuffer,17+1);
+	    	break;
+
+	    default:
+	    	break;
 	    }
+
 
 
   }

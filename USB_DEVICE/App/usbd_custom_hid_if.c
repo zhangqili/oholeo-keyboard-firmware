@@ -275,6 +275,19 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
    }
    if(USB_Recive_Buffer[0]==2) {
 	   uint8_t page_num = USB_Recive_Buffer[1];
+	   enum state_t {
+			NORMAL,
+			DEBUG,
+			JOYSTICK,
+			REQUEST_PROFILE,
+		};
+	   extern enum state_t global_state;
+	   extern int32_t state_counter;
+	   if(page_num == 255) {
+		   //request profile
+		   state_counter = 96;// send twice for safety
+		   global_state = REQUEST_PROFILE;
+	   }
 	   if(page_num<16) {  ///performance
 		   for(int i=0;i<4;i++) {
 			   if(USB_Recive_Buffer[2+i*4+0]&0x80){
@@ -289,13 +302,18 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 			   }
 		   }
 	   } else if(page_num<32) {  ///rgb
-		   page_num -= 16; // needed
+		   page_num %= 16; // needed
 		   for(int i=0;i<4;i++) {
 			   RGB_GlobalConfig.mode = USB_Recive_Buffer[2+i*4+0]>>4;
 			   RGB_GlobalConfig.rgb = *(lefl_color_rgb_t *)&USB_Recive_Buffer[2+i*4+1];
-			   RGB_Configs[api_lut[page_num*4+i]].mode = USB_Recive_Buffer[2+i*4+0]&0x0f;
-			   RGB_Configs[api_lut[page_num*4+i]].rgb = *(lefl_color_rgb_t *)&USB_Recive_Buffer[2+i*4+1];
+			   RGB_Configs[RGB_Mapping[api_lut[page_num*4+i]]].mode = USB_Recive_Buffer[2+i*4+0]&0x0f;
+			   RGB_Configs[RGB_Mapping[api_lut[page_num*4+i]]].rgb = *(lefl_color_rgb_t *)&USB_Recive_Buffer[2+i*4+1];
 
+		   }
+	   } else if(page_num<48) {  ///keycode
+		   page_num %= 16; // needed
+		   for(int i=0;i<4;i++) {
+			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].key.keycode = USB_Recive_Buffer[2+i*4+0] << 8 | USB_Recive_Buffer[2+i*4+1];
 		   }
 	   }
    }
