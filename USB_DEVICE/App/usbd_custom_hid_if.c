@@ -315,7 +315,7 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 	   } else if(page_num<48) {  ///keycode
 		   page_num %= 16; // needed
 		   for(int i=0;i<4;i++) {
-			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].key.keycode = USB_Recive_Buffer[2+i*4+0] << 8 | USB_Recive_Buffer[2+i*4+1];
+			   keymap[0][Keyboard_AdvancedKeys[api_lut[page_num*4+i]].key.id] = USB_Recive_Buffer[2+i*4+0] << 8 | USB_Recive_Buffer[2+i*4+1];
 		   }
 	   }
    }

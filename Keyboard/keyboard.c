@@ -33,7 +33,7 @@ const int16_t default_keymap[5][64] = {
 
 	{
 		GRAVE_ACCENT, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, BACKSPACE,
-		TAB, Q, W, E, R, T, Y, U, I, O, P, LEFT_U_BRACE, RIGHT_U_BRACE, BACKSLASH,
+		TAB, PROFILE1, PROFILE2, PROFILE3, PROFILE4, T, Y, U, I, O, P, LEFT_U_BRACE, RIGHT_U_BRACE, BACKSLASH,
 		CAP_LOCK, A, S, D, F, G, H, J, K, L, SEMI_COLON, QUOTE, ENTER,
 		LEFT_SHIFT, Z, X, C, V, B, N, M, COMMA, PERIOD, SLASH, RIGHT_SHIFT, UP_ARROW, DELETE,
 		LEFT_CTRL, LEFT_GUI, LEFT_ALT, SPACE, RIGHT_ALT, FN, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW,
@@ -195,6 +195,7 @@ void Keyboard_FactoryReset()
         Keyboard_AdvancedKeys[i].trigger_distance=DEFAULT_TRIGGER_DISTANCE;
         Keyboard_AdvancedKeys[i].release_distance=DEFAULT_RELEASE_DISTANCE;
         Keyboard_AdvancedKeys[i].schmitt_parameter=DEFAULT_SCHMITT_PARAMETER;
+        Keyboard_AdvancedKeys[i].key.keycode = default_keymap[0][Keyboard_AdvancedKeys[i].key.id];
     }
     RGB_Recovery();
     Keyboard_Save();
@@ -279,7 +280,7 @@ void Keyboard_SendReport()
     Keyboard_ReportBuffer[0] = 1;
     for (int i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-    	keycode =Keyboard_AdvancedKeys[i].key.keycode;
+    	keycode = keymap[layer][Keyboard_AdvancedKeys[i].key.id];
     	index = (int16_t)(keycode/8 + 1);// +1 for modifier
     	bitIndex = (int16_t)(keycode%8);
         if (bitIndex < 0)

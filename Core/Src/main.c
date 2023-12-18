@@ -250,7 +250,7 @@ int main(void)
 //  lefl_bit_array_init(&Keyboard_KeyArray, (size_t*)(&Keyboard_ReportBuffer[1]), 128);
 
   HAL_GPIO_WritePin(INHIBIT_GPIO_Port, INHIBIT_Pin, GPIO_PIN_RESET);
-  //Keyboard_Init();
+//  Keyboard_Init();
   RGB_Init();
   //RGB_Recovery();
   Keyboard_Recovery();
@@ -295,7 +295,7 @@ int main(void)
   //sprintf(uart_buf,"%f\n",Keyboard_AdvancedKeys[0].upper_bound);
   //HAL_UART_Transmit(&huart1, (uint8_t*)uart_buf, 64, 0xFF);
   memset(USB_Recive_Buffer, 0, sizeof(USB_Recive_Buffer));
-  //Keyboard_Save();
+//  Keyboard_Save();
 
 
   /* Infinite loop */
@@ -453,10 +453,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		    	Keyboard_ReportBuffer[1] = (state_counter%16) + 48;
 		    	for(int i=0;i<4;i++) {
 		    		uint32_t index = i + (state_counter%16)*4;
-		    		Keyboard_ReportBuffer[2 + i*4+0] = Keyboard_AdvancedKeys[index].key.keycode>>8;
-		    		Keyboard_ReportBuffer[2 + i*4+1] = Keyboard_AdvancedKeys[index].key.keycode&0xff;
-		    		Keyboard_ReportBuffer[2 + i*4+2] = Keyboard_AdvancedKeys[index].key.keycode>>8;
-		    		Keyboard_ReportBuffer[2 + i*4+3] = Keyboard_AdvancedKeys[index].key.keycode&0xff;
+		    		Keyboard_ReportBuffer[2 + i*4+0] = keymap[0][Keyboard_AdvancedKeys[index].key.id] >>8;
+		    		Keyboard_ReportBuffer[2 + i*4+1] = keymap[0][Keyboard_AdvancedKeys[index].key.id]&0xff;
+		    		Keyboard_ReportBuffer[2 + i*4+2] = keymap[1][Keyboard_AdvancedKeys[index].key.id]>>8;
+		    		Keyboard_ReportBuffer[2 + i*4+3] = keymap[1][Keyboard_AdvancedKeys[index].key.id]&0xff;
 		    	}
 	    	}
 		    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,Keyboard_ReportBuffer,17+1);
