@@ -472,31 +472,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       RGB_Update_Flag=true;
   }
   if (htim->Instance==TIM2) {
-//		AnalogDatas[0*16+ADDRESS].sum+=(ADC_Buffer[0]&0x0fff)<<4;
-//		AnalogDatas[0*16+ADDRESS].count++;
-//		AnalogDatas[1*16+ADDRESS].sum+=((ADC_Buffer[0]>>16)&0x0fff)<<4;
-//		AnalogDatas[1*16+ADDRESS].count++;
-//
-//		AnalogDatas[2*16+ADDRESS].sum+=(ADC_Buffer[2]&0x0fff)<<4;
-//		AnalogDatas[2*16+ADDRESS].count++;
-//		AnalogDatas[3*16+ADDRESS].sum+=((ADC_Buffer[2]>>16)&0x0fff)<<4;
-//		AnalogDatas[3*16+ADDRESS].count++;
-//	  HAL_ADCEx_MultiModeStop_DMA(&hadc1);
-//	  HAL_ADCEx_MultiModeStop_DMA(&hadc3);
-//	  HAL_ADC_Stop(&hadc2);
-//	  HAL_ADC_Stop(&hadc4);
-//		HAL_ADC_MspDeInit(&hadc1);
-//		HAL_ADC_MspDeInit(&hadc2);
-//		HAL_ADC_MspDeInit(&hadc3);
-//		HAL_ADC_MspDeInit(&hadc4);
-
-//		RingBuf_Push(&adc_ringbuf[0*16+ADDRESS], ADC_Buffer[0]&0x0fff);
-//		RingBuf_Push(&adc_ringbuf[1*16+ADDRESS], (ADC_Buffer[0]>>16)&0x0fff);
-//		RingBuf_Push(&adc_ringbuf[2*16+ADDRESS], ADC_Buffer[2]&0x0fff);
-//		RingBuf_Push(&adc_ringbuf[3*16+ADDRESS], (ADC_Buffer[2]>>16)&0x0fff);
-
-
-
 
 		uint32_t adc1=0;
 		uint32_t adc2=0;
@@ -510,11 +485,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		 adc4+=(DMA_Buffer[i+DMA_BUF_LEN]>>16)&0x0fff;
 		}
 
-//		ADC_Buffer[0*16+ADDRESS] = (float_t)adc1/DMA_BUF_LEN;
-//		ADC_Buffer[1*16+ADDRESS] = (float_t)adc2/DMA_BUF_LEN;
-//		ADC_Buffer[2*16+ADDRESS] = (float_t)adc3/DMA_BUF_LEN;
-//		ADC_Buffer[3*16+ADDRESS] = (float_t)adc4/DMA_BUF_LEN;
-
 		RingBuf_Push(&adc_ringbuf[0*16+ADDRESS] , (float_t)adc1/DMA_BUF_LEN);
 		RingBuf_Push(&adc_ringbuf[1*16+ADDRESS] , (float_t)adc2/DMA_BUF_LEN);
 		RingBuf_Push(&adc_ringbuf[2*16+ADDRESS] , (float_t)adc3/DMA_BUF_LEN);
@@ -526,30 +496,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(Analog_ActiveChannel>=16)Analog_ActiveChannel=0;
 		Analog_Channel_Select(Analog_ActiveChannel);
 	}
-//	  if (htim->Instance->CNT < 200) {
-//			RingBuf_Push(&adc_ringbuf[0*16+ADDRESS], ADC_Buffer[0]&0x0fff);
-//			RingBuf_Push(&adc_ringbuf[1*16+ADDRESS], (ADC_Buffer[0]>>16)&0x0fff);
-//			RingBuf_Push(&adc_ringbuf[2*16+ADDRESS], ADC_Buffer[2]&0x0fff);
-//			RingBuf_Push(&adc_ringbuf[3*16+ADDRESS], (ADC_Buffer[2]>>16)&0x0fff);
-//	  }
-//	  RingBuf_Push(&adc_ringbuf[0*16+ADDRESS], HAL_ADC_GetValue(&hadc1));
-//	  RingBuf_Push(&adc_ringbuf[1*16+ADDRESS], HAL_ADC_GetValue(&hadc2));
-//	  RingBuf_Push(&adc_ringbuf[2*16+ADDRESS], HAL_ADC_GetValue(&hadc3));
-//	  RingBuf_Push(&adc_ringbuf[3*16+ADDRESS], HAL_ADC_GetValue(&hadc4));
-
-//	HAL_ADC_MspInit(&hadc1);
-//	HAL_ADC_MspInit(&hadc2);
-//	HAL_ADC_MspInit(&hadc3);
-//	HAL_ADC_MspInit(&hadc4);
-//
-////	    MX_ADC1_Init();
-////	    MX_ADC2_Init();n
-////	    MX_ADC3_Init();
-////	    MX_ADC4_Init();
-//		HAL_ADC_Start(&hadc2);
-//		HAL_ADC_Start(&hadc4);
-//		HAL_ADCEx_MultiModeStart_DMA(&hadc1, &DMA_Buffer[0], RING_BUF_LEN);
-//		HAL_ADCEx_MultiModeStart_DMA(&hadc3, &DMA_Buffer[RING_BUF_LEN], RING_BUF_LEN);
 
   }
 }
