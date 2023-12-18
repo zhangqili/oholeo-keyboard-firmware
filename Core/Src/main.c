@@ -37,6 +37,9 @@
 #include "lefl.h"
 #include "usbd_custom_hid_if.h"
 #include "math.h"
+#include "lfs.h"
+#include "sfud.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,7 +60,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-bool RGB_Update_Flag=false;
+volatile bool RGB_Update_Flag=false;
 char uart_buf[64];
 uint32_t debug;
 uint32_t max32;
@@ -68,6 +71,15 @@ uint8_t USB_Received_Count;//USB接收数据计数
 
 uint32_t usb_adc_send_idx = 0;
 uint32_t err_cnt=0;
+
+sfud_flash sfud_norflash0 = {
+        .name = "norflash0",
+        .spi.name = "SPI1",
+        .chip = {"W25Q128JV", SFUD_MF_ID_WINBOND, 0x40, 0x18, 16L*1024L*1024L, SFUD_WM_PAGE_256B, 4096, 0x20},
+};
+
+
+
 enum state_t {
 	NORMAL,
 	DEBUG,
@@ -89,11 +101,21 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+// 重定向print start
+// 重定向printf start
+//_write函數在syscalls.c中， 使用__weak定义以可以直接在其他文件中定义_write函數
+__attribute__((weak)) int _write(int file, char *ptr, int len)
+{
+     if(HAL_UART_Transmit(&huart1,ptr,len,0xffff) != HAL_OK)
+     {
+         Error_Handler();
+     }
+}
+// 重定向print end
+
 /**
 * @brief  初始化时间戳
-* @param  �???????????????????????????????????????
-* @retval �???????????????????????????????????????
-* @note   使用延时函数前，必须调用本函�???????????????????????????????????????
+* @note   使用延时函数前，必须调用本函数
 */
 int DWT_Init(void)
 {
@@ -135,8 +157,8 @@ void DWT_Delay_us(volatile uint32_t au32_microseconds)
   while ((DWT->CYCCNT - au32_initial_ticks) < au32_microseconds-au32_ticks);
 }
 
-void (*SysMemBootJump)(void); /* 声明�???????????????????个函数指�??????????????????? */
-__IO uint32_t BootAddr = 0x1FFFD800; /*   的系�??????????????????? BootLoader 地址 */
+void (*SysMemBootJump)(void);
+__IO uint32_t BootAddr = 0x1FFFD800; /* BootLoader 地址 */
 
 void JumpToBootloader(void) {
   uint32_t i=0;
@@ -144,15 +166,15 @@ void JumpToBootloader(void) {
   /* 关闭全局中断 */
   __set_PRIMASK(1);
 
-  /* 关闭滴答定时器，复位到默认�?? */
+  /* 关闭滴答定时器，复位到默认值 */
   SysTick->CTRL = 0;
   SysTick->LOAD = 0;
   SysTick->VAL = 0;
 
-  /* 设置�???????????????????有时钟到默认状�?�， 使用 HSI 时钟 */
+  /* 设置所有时钟到默认状态，使用HSI时钟 */
   HAL_RCC_DeInit();
 
-  /* 关闭�???????????????????有中断，清除�???????????????????有中断挂起标�??????????????????? */
+  /* 关闭所有中断，清除所有中断挂起标志 */
   for (i = 0; i < 8; i++)
   {
       NVIC->ICER[i]=0xFFFFFFFF;
@@ -162,13 +184,13 @@ void JumpToBootloader(void) {
   /* 使能全局中断 */
   __set_PRIMASK(0);
 
-  /* 跳转到系�??????????????????? BootLoader，首地址�??????????????????? MSP，地�???????????????????+4 是复位中断服务程序地�??????????????????? */
+  /* 跳转到系统BootLoader，首地址是MSP，地址+4是复位中断服务程序地址 */
   SysMemBootJump = (void (*)(void)) (*((uint32_t *) (BootAddr + 4)));
 
-  /* 设置主堆栈指�??????????????????? */
+  /* 设置主堆栈指针 */
   __set_MSP(*(uint32_t *)BootAddr);
 
-  /* 跳转到系�??????????????????? BootLoader */
+  /* 跳转到系统BootLoader */
   SysMemBootJump();
 
   /* 跳转成功的话，不会执行到这里，用户可以在这里添加代码 */
@@ -222,14 +244,16 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   DWT_Init();
+  sfud_device_init(&sfud_norflash0);
+
 //  lefl_bit_array_init(&Keyboard_KeyArray, (size_t*)(Keyboard_ReportBuffer+2), 168);
 //  lefl_bit_array_init(&Keyboard_KeyArray, (size_t*)(&Keyboard_ReportBuffer[1]), 128);
 
   HAL_GPIO_WritePin(INHIBIT_GPIO_Port, INHIBIT_Pin, GPIO_PIN_RESET);
-  Keyboard_Init();
+  //Keyboard_Init();
   RGB_Init();
-  Analog_Recovery();
-  RGB_Recovery();
+  //RGB_Recovery();
+  Keyboard_Recovery();
 
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
@@ -242,15 +266,6 @@ int main(void)
   RGB_Flash();
   RGB_TurnOff();
 
-
-//	HAL_ADC_Start_IT(&hadc1);
-//	HAL_ADC_Start_IT(&hadc2);
-//	HAL_ADC_Start_IT(&hadc3);
-//	HAL_ADC_Start_IT(&hadc4);
-//	HAL_ADC_Start(&hadc1);
-//	HAL_ADC_Start(&hadc2);
-//	HAL_ADC_Start(&hadc3);
-//	HAL_ADC_Start(&hadc4);
 
   HAL_ADC_Start(&hadc2);
   HAL_ADCEx_MultiModeStart_DMA(&hadc1, &DMA_Buffer[0], DMA_BUF_LEN);
@@ -280,26 +295,13 @@ int main(void)
   //sprintf(uart_buf,"%f\n",Keyboard_AdvancedKeys[0].upper_bound);
   //HAL_UART_Transmit(&huart1, (uint8_t*)uart_buf, 64, 0xFF);
   memset(USB_Recive_Buffer, 0, sizeof(USB_Recive_Buffer));
+  //Keyboard_Save();
 
-  /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//		if(USB_Recive_Buffer[1]==1) {
-//			USB_Recive_Buffer[0]=0;
-//			global_state = DEBUG;
-//		}
-
-
-
-
-
-
-      HAL_Delay(1);
-
-
       if(RGB_Update_Flag)
       {
           RGB_Update_Flag=false;
