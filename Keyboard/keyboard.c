@@ -20,7 +20,7 @@ lefl_bit_array_t Keyboard_KeyArray;
 bool Keybaord_SendReport_Enable;
 
 
-int16_t keymap[5][64] = {
+const int16_t default_keymap[5][64] = {
 	{
 		ESC/*0*/, NUM_1/*1*/, NUM_2/*2*/, NUM_3/*3*/, NUM_4/*4*/, NUM_5/*5*/, NUM_6/*6*/, NUM_7/*7*/, NUM_8/*8*/, NUM_9/*9*/, NUM_0/*10*/, MINUS/*11*/, EQUAL/*12*/, BACKSPACE/*13*/,
 		TAB/*14*/, Q/*15*/, W/*16*/, E/*17*/, R/*18*/, T/*19*/, Y/*20*/, U/*21*/, I/*22*/, O/*23*/, P/*24*/, LEFT_U_BRACE/*25*/, RIGHT_U_BRACE/*26*/, BACKSLASH/*27*/,
@@ -38,6 +38,10 @@ int16_t keymap[5][64] = {
 	}
 
 };
+
+
+int16_t keymap[5][64];
+
 
 lefl_advanced_key_t Keyboard_AdvancedKeys[ADVANCED_KEY_NUM]=
 {
@@ -177,6 +181,8 @@ lefl_advanced_key_t Keyboard_AdvancedKeys[ADVANCED_KEY_NUM]=
 
 void Keyboard_Init()
 {
+    memcpy(keymap,default_keymap,sizeof(keymap));
+
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
         //lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, 4000, 0);
@@ -210,7 +216,7 @@ void Keyboard_SendReport()
     Keyboard_ReportBuffer[0] = 1;
     for (int i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-    	keycode =Keyboard_AdvancedKeys[i].key.keycode;
+    	keycode = keymap[layer][Keyboard_AdvancedKeys[i].key.id];
     	index = (int16_t)(keycode/8 + 1);// +1 for modifier
     	bitIndex = (int16_t)(keycode%8);
         if (bitIndex < 0)

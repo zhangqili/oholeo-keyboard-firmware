@@ -446,16 +446,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		    	}
 	    	}
 	    	if(state_counter/32 == 2) {
-		    	//sent keymap data
-		    	Keyboard_ReportBuffer[0] = 2;
-		    	Keyboard_ReportBuffer[1] = (state_counter%16) + 48;
-		    	for(int i=0;i<4;i++) {
-		    		uint32_t index = i + (state_counter%16)*4;
-		    		Keyboard_ReportBuffer[2 + i*4+0] = Keyboard_AdvancedKeys[index].key.keycode>>8;
-		    		Keyboard_ReportBuffer[2 + i*4+1] = Keyboard_AdvancedKeys[index].key.keycode&0xff;
-		    		Keyboard_ReportBuffer[2 + i*4+2] = Keyboard_AdvancedKeys[index].key.keycode>>8;
-		    		Keyboard_ReportBuffer[2 + i*4+3] = Keyboard_AdvancedKeys[index].key.keycode&0xff;
-		    	}
+	    		//sent keymap data
+				Keyboard_ReportBuffer[0] = 2;
+				Keyboard_ReportBuffer[1] = (state_counter%16) + 48;
+				for(int i=0;i<4;i++) {
+					uint32_t index = i + (state_counter%16)*4;
+					Keyboard_ReportBuffer[2 + i*4+0] = keymap[0][Keyboard_AdvancedKeys[index].key.id] >>8;
+					Keyboard_ReportBuffer[2 + i*4+1] = keymap[0][Keyboard_AdvancedKeys[index].key.id]&0xff;
+					Keyboard_ReportBuffer[2 + i*4+2] = keymap[1][Keyboard_AdvancedKeys[index].key.id]>>8;
+					Keyboard_ReportBuffer[2 + i*4+3] = keymap[1][Keyboard_AdvancedKeys[index].key.id]&0xff;
+				}
 	    	}
 		    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,Keyboard_ReportBuffer,17+1);
 	    	break;
