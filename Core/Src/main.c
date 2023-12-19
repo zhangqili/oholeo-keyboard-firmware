@@ -77,6 +77,7 @@ enum state_t {
 int32_t state_counter = 0;
 enum state_t global_state = NORMAL;
 
+uint32_t test_dma[4][DMA_BUF_LEN];
 
 uint8_t LED_Report = 0;
 /* USER CODE END PV */
@@ -252,10 +253,16 @@ int main(void)
 //	HAL_ADC_Start(&hadc3);
 //	HAL_ADC_Start(&hadc4);
 
-  HAL_ADC_Start(&hadc2);
-  HAL_ADCEx_MultiModeStart_DMA(&hadc1, &DMA_Buffer[0], DMA_BUF_LEN);
-  HAL_ADC_Start(&hadc4);
-  HAL_ADCEx_MultiModeStart_DMA(&hadc3, &DMA_Buffer[DMA_BUF_LEN], DMA_BUF_LEN);
+//  HAL_ADC_Start(&hadc2);
+//  HAL_ADCEx_MultiModeStart_DMA(&hadc1, &DMA_Buffer[0], DMA_BUF_LEN);
+//  HAL_ADC_Start(&hadc4);
+//  HAL_ADCEx_MultiModeStart_DMA(&hadc3, &DMA_Buffer[DMA_BUF_LEN], DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc1, test_dma[0], DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc2, test_dma[1], DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc3, test_dma[2], DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc4, test_dma[3], DMA_BUF_LEN);
+
+
 
   //Analog_Start();
   /* Analog Calibration BEGIN */
@@ -479,10 +486,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		uint32_t adc4=0;
 
 		for(int i=0;i<DMA_BUF_LEN;i++) {
-		 adc1+=DMA_Buffer[i]&0x0fff;
-		 adc2+=(DMA_Buffer[i]>>16)&0x0fff;
-		 adc3+=DMA_Buffer[i+DMA_BUF_LEN]&0x0fff;
-		 adc4+=(DMA_Buffer[i+DMA_BUF_LEN]>>16)&0x0fff;
+//		 adc1+=DMA_Buffer[i]&0x0fff;
+//		 adc2+=(DMA_Buffer[i]>>16)&0x0fff;
+//		 adc3+=DMA_Buffer[i+DMA_BUF_LEN]&0x0fff;
+//		 adc4+=(DMA_Buffer[i+DMA_BUF_LEN]>>16)&0x0fff;
+		  adc1+=test_dma[0][i];
+		  adc2+=test_dma[1][i];
+		  adc3+=test_dma[2][i];
+		  adc4+=test_dma[3][i];
+
 		}
 
 		RingBuf_Push(&adc_ringbuf[0*16+ADDRESS] , (float_t)adc1/DMA_BUF_LEN);
@@ -490,7 +502,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		RingBuf_Push(&adc_ringbuf[2*16+ADDRESS] , (float_t)adc3/DMA_BUF_LEN);
 		RingBuf_Push(&adc_ringbuf[3*16+ADDRESS] , (float_t)adc4/DMA_BUF_LEN);
 
-	if (htim->Instance->CNT < 600) {
+	if (htim->Instance->CNT < 700) {
 		Analog_Count++;
 		Analog_ActiveChannel++;
 		if(Analog_ActiveChannel>=16)Analog_ActiveChannel=0;

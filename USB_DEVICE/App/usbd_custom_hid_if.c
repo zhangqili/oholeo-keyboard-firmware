@@ -178,6 +178,7 @@ __ALIGN_BEGIN static uint8_t CUSTOM_HID_ReportDesc_FS[USBD_CUSTOM_HID_REPORT_DES
 //		0xC0,         //END Collection
 //		0xC0,         //END Collection 142
   /* USER CODE END 0 */
+  0xC0    /*     END_COLLECTION	             */
 };
 
 /* USER CODE BEGIN PRIVATE_VARIABLES */
@@ -313,7 +314,7 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 	   } else if(page_num<48) {  ///keycode
 		   page_num %= 16; // needed
 		   for(int i=0;i<4;i++) {
-			   keymap[0][Keyboard_AdvancedKeys[api_lut[page_num*4+i]].key.id] = USB_Recive_Buffer[2+i*4+0] << 8 | USB_Recive_Buffer[2+i*4+1];
+			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].key.keycode = USB_Recive_Buffer[2+i*4+0] << 8 | USB_Recive_Buffer[2+i*4+1];
 		   }
 	   }
    }
