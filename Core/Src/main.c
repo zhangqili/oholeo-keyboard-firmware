@@ -82,9 +82,10 @@ sfud_flash sfud_norflash0 = {
 
 enum state_t {
 	NORMAL,
-	DEBUG,
+	ADC,
 	JOYSTICK,
 	REQUEST_PROFILE,
+	REQUEST_SAVE,
 };
 int32_t state_counter = 0;
 enum state_t global_state = NORMAL;
@@ -110,6 +111,7 @@ __attribute__((weak)) int _write(int file, char *ptr, int len)
      {
          Error_Handler();
      }
+     return HAL_OK;
 }
 // 重定向print end
 
@@ -267,10 +269,14 @@ int main(void)
   RGB_TurnOff();
 
 
-  HAL_ADC_Start(&hadc2);
-  HAL_ADCEx_MultiModeStart_DMA(&hadc1, &DMA_Buffer[0], DMA_BUF_LEN);
-  HAL_ADC_Start(&hadc4);
-  HAL_ADCEx_MultiModeStart_DMA(&hadc3, &DMA_Buffer[DMA_BUF_LEN], DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc1, DMA_Buffer[0], DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc2, DMA_Buffer[1], DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc3, DMA_Buffer[2], DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc4, DMA_Buffer[3], DMA_BUF_LEN);
+//  HAL_ADC_Start(&hadc2);
+//  HAL_ADCEx_MultiModeStart_DMA(&hadc1, &DMA_Buffer[0], DMA_BUF_LEN);
+//  HAL_ADC_Start(&hadc4);
+//  HAL_ADCEx_MultiModeStart_DMA(&hadc3, &DMA_Buffer[DMA_BUF_LEN], DMA_BUF_LEN);
 
   //Analog_Start();
   /* Analog Calibration BEGIN */
@@ -302,6 +308,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
+	  if(global_state == REQUEST_SAVE){
+		  Keyboard_Save();
+		  global_state = NORMAL;
+	  }
       if(RGB_Update_Flag)
       {
           RGB_Update_Flag=false;
@@ -374,7 +385,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	    Analog_Check();
 
 	    if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[0].key.state){
-	    	global_state=DEBUG;
+	    	global_state=ADC;
 	    }
 		if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[33].key.state){
 			global_state=NORMAL;
@@ -387,7 +398,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	    case NORMAL:
 	    	Keyboard_SendReport();
 	    	break;
-	    case DEBUG:
+	    case ADC:
 	    	Keyboard_ReportBuffer[0] = 2;
 	    	Keyboard_ReportBuffer[1] = usb_adc_send_idx;
 		    for(int i=0;i<16; i++) {
@@ -481,10 +492,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		uint32_t adc4=0;
 
 		for(int i=0;i<DMA_BUF_LEN;i++) {
-		 adc1+=DMA_Buffer[i]&0x0fff;
-		 adc2+=(DMA_Buffer[i]>>16)&0x0fff;
-		 adc3+=DMA_Buffer[i+DMA_BUF_LEN]&0x0fff;
-		 adc4+=(DMA_Buffer[i+DMA_BUF_LEN]>>16)&0x0fff;
+		 adc1+=DMA_Buffer[0][i]&0xfff;
+		 adc2+=DMA_Buffer[1][i]&0xfff;
+		 adc3+=DMA_Buffer[2][i]&0xfff;
+		 adc4+=DMA_Buffer[3][i]&0xfff;
 		}
 
 		RingBuf_Push(&adc_ringbuf[0*16+ADDRESS] , (float_t)adc1/DMA_BUF_LEN);
@@ -492,7 +503,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		RingBuf_Push(&adc_ringbuf[2*16+ADDRESS] , (float_t)adc3/DMA_BUF_LEN);
 		RingBuf_Push(&adc_ringbuf[3*16+ADDRESS] , (float_t)adc4/DMA_BUF_LEN);
 
-	if (htim->Instance->CNT < 600) {
+	if (htim->Instance->CNT < 700) {
 		Analog_Count++;
 		Analog_ActiveChannel++;
 		if(Analog_ActiveChannel>=16)Analog_ActiveChannel=0;

@@ -16,7 +16,7 @@
 #include "lefl.h"
 #include "keyboard_conf.h"
 #include "math.h"
-uint32_t DMA_Buffer[DMA_BUF_LEN*2];
+uint32_t DMA_Buffer[4][DMA_BUF_LEN];
 float_t ADC_Buffer[ADVANCED_KEY_NUM];
 //#define EXTENDED_SAMPLING
 //AnalogItem AnalogDatas[ADVANCED_KEY_NUM];
@@ -46,10 +46,16 @@ void RingBuf_Push(RingBuf *ringbuf, uint32_t data) {
 }
 float_t RingBuf_Avg(RingBuf *ringbuf) {
 
-	float_t avg = 0;
+	uint32_t avg = 0;
 	for(int i=0;i<RING_BUF_LEN;i++)
 		avg+=ringbuf->Datas[i];
-	return avg/RING_BUF_LEN;
+
+	avg = ((avg>>2)&0x01)+(avg>>3);
+//	avg = ringbuf->Datas[ringbuf->Pointer];
+	if(avg-TOLERANCE>ringbuf->state)ringbuf->state=avg-TOLERANCE;
+	if(avg+TOLERANCE<ringbuf->state)ringbuf->state=avg+TOLERANCE;
+//	return (float_t)avg;
+	return (float_t)ringbuf->state;
 }
 
 void Analog_Init()

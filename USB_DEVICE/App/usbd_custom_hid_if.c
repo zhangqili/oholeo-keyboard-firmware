@@ -277,9 +277,10 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 	   uint8_t page_num = USB_Recive_Buffer[1];
 	   enum state_t {
 			NORMAL,
-			DEBUG,
+			ADC,
 			JOYSTICK,
 			REQUEST_PROFILE,
+			REQUEST_SAVE,
 		};
 	   extern enum state_t global_state;
 	   extern int32_t state_counter;
@@ -287,6 +288,10 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 		   //request profile
 		   state_counter = 96;// send twice for safety
 		   global_state = REQUEST_PROFILE;
+	   }
+	   if(page_num == 254) {
+		   //request save
+		   global_state = REQUEST_SAVE;
 	   }
 	   if(page_num<16) {  ///performance
 		   for(int i=0;i<4;i++) {
