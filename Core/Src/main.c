@@ -294,7 +294,7 @@ int main(void)
       lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, RingBuf_Avg(&adc_ringbuf[i]), 1200);
 //	  lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i,(ADC_Buffer[i]), 1200);
 
-      lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, DEFAULT_UPPER_DEADZONE, DEFAULT_LOWER_DEADZONE);
+      lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, DEFAULT_UPPER_DEADZONE, Keyboard_AdvancedKeys[i].lower_deadzone);
   }
   HAL_TIM_Base_Start_IT(&htim7);
   HAL_TIM_Base_Start_IT(&htim6);

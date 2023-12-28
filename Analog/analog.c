@@ -111,7 +111,7 @@ void Analog_Check()
         if(analog_avg<Keyboard_AdvancedKeys[i].lower_bound)
         {
             lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, Keyboard_AdvancedKeys[i].upper_bound,analog_avg);
-            lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, DEFAULT_UPPER_DEADZONE, DEFAULT_LOWER_DEADZONE);
+            lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, DEFAULT_UPPER_DEADZONE, Keyboard_AdvancedKeys[i].lower_deadzone);
         }
         if(Keyboard_AdvancedKeys[i].mode!=LEFL_KEY_DIGITAL_MODE)
         lefl_advanced_key_update_raw(Keyboard_AdvancedKeys+i, analog_avg);
