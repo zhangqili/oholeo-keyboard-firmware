@@ -117,6 +117,9 @@ void Analog_Check()
         lefl_advanced_key_update_raw(Keyboard_AdvancedKeys+i, analog_avg);
         if(Keyboard_AdvancedKeys[i].key.state&&!state)
         {
+        	extern uint32_t pulse_counter;
+        	pulse_counter=0;
+
             a.rgb_ptr = RGB_Mapping[i];
             a.argument=0.0;
             rgb_loop_queue_enqueue(&RGB_Argument_Queue, a);

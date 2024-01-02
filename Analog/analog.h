@@ -17,7 +17,7 @@
 
 #define TOLERANCE 3
 #define RING_BUF_LEN 4
-#define DMA_BUF_LEN 40
+#define DMA_BUF_LEN 32
 //#define EXTENDED_SAMPLING
 
 typedef struct

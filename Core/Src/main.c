@@ -94,6 +94,9 @@ enum state_t global_state = NORMAL;
 uint8_t LED_Report = 0;
 
 uint32_t test_cnt = 0;
+
+uint32_t pulse_counter=0;
+uint8_t beep_switch=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -245,8 +248,8 @@ int main(void)
   MX_USB_DEVICE_Init();
   MX_TIM2_Init();
   MX_TIM6_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-
   DWT_Init();
   sfud_device_init(&sfud_norflash0);
 
@@ -283,7 +286,7 @@ int main(void)
   //Analog_Start();
   /* Analog Calibration BEGIN */
   HAL_TIM_Base_Start_IT(&htim2);
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+//  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
 
 
   HAL_Delay(500);
@@ -305,6 +308,8 @@ int main(void)
   memset(USB_Recive_Buffer, 0, sizeof(USB_Recive_Buffer));
 //  Keyboard_Save();
 
+
+  /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -386,14 +391,30 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   {
 	    Analog_Check();
 
+    	if(pulse_counter<PULSE_LEN_MS) {
+    		pulse_counter++;
+    		if(beep_switch) {
+				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 1);
+				HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+    		}
+    	} else {
+    		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 0);
+    		HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
+
+    	}
+
 	    if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[0].key.state){
 	    	global_state=ADC;
 	    }
 		if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[33].key.state){
 			global_state=NORMAL;
+			beep_switch=0;
 		}
 		if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[61].key.state){
 			global_state=JOYSTICK;
+		}
+		if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[39].key.state){
+			beep_switch=1;
 		}
 
 	    switch(global_state) {
@@ -488,7 +509,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
   if (htim->Instance==TIM2) {
 	  test_cnt++;
-	  if(test_cnt%3==0) {
+	  if(test_cnt%2==0) {
 		uint32_t adc1=0;
 		uint32_t adc2=0;
 		uint32_t adc3=0;

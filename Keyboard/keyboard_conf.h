@@ -31,4 +31,7 @@
 
 #define DEFAULT_SCHMITT_PARAMETER 0.01
 
+#define PULSE 1000
+#define PULSE_LEN_MS 50
+
 #endif /* KEYBOARD_CONF_H_ */
