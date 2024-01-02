@@ -509,7 +509,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
   if (htim->Instance==TIM2) {
 	  test_cnt++;
-	  if(test_cnt%2==0) {
+//	  if(test_cnt%2==0) {
 		uint32_t adc1=0;
 		uint32_t adc2=0;
 		uint32_t adc3=0;
@@ -527,13 +527,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		RingBuf_Push(&adc_ringbuf[2*16+ADDRESS] , (float_t)adc3/DMA_BUF_LEN);
 		RingBuf_Push(&adc_ringbuf[3*16+ADDRESS] , (float_t)adc4/DMA_BUF_LEN);
 
-//		if (htim->Instance->CNT < 700) {
+		if (htim->Instance->CNT < 700) {
 			Analog_Count++;
 			Analog_ActiveChannel++;
 			if(Analog_ActiveChannel>=16)Analog_ActiveChannel=0;
 			Analog_Channel_Select(Analog_ActiveChannel);
-//		}
-	  }
+		}
+//	  }
   }
 }
 /* USER CODE END 4 */
