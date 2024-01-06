@@ -50,7 +50,7 @@ float_t RingBuf_Avg(RingBuf *ringbuf) {
 	for(int i=0;i<RING_BUF_LEN;i++)
 		avg+=ringbuf->Datas[i];
 
-	avg = ((avg>>1)&0x01)+(avg>>2);
+	avg = ((avg>>2)&0x01)+(avg>>3);
 //	avg = ringbuf->Datas[ringbuf->Pointer];
 	if(avg-TOLERANCE>ringbuf->state)ringbuf->state=avg-TOLERANCE;
 	if(avg+TOLERANCE<ringbuf->state)ringbuf->state=avg+TOLERANCE;

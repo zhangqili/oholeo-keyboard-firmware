@@ -16,8 +16,8 @@
 #define BCD_TO_GRAY(x) (x^(x>>1))
 
 #define TOLERANCE 3
-#define RING_BUF_LEN 4
-#define DMA_BUF_LEN 16
+#define RING_BUF_LEN 8
+#define DMA_BUF_LEN 12
 //#define EXTENDED_SAMPLING
 
 typedef struct

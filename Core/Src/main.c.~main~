@@ -95,9 +95,8 @@ uint8_t LED_Report = 0;
 
 uint32_t test_cnt = 0;
 
-uint32_t pulse_counter=PULSE_LEN_MS;
+uint32_t pulse_counter=0;
 uint8_t beep_switch=0;
-uint8_t em_switch=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -251,10 +250,6 @@ int main(void)
   MX_TIM6_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-
-  //!!!
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 0);
-
   DWT_Init();
   sfud_device_init(&sfud_norflash0);
 
@@ -399,10 +394,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     	if(pulse_counter<PULSE_LEN_MS) {
     		pulse_counter++;
     		if(beep_switch) {
-				HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
-    		}
-    		if(em_switch) {
 				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 1);
+				HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
     		}
     	} else {
     		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 0);
@@ -416,7 +409,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[33].key.state){
 			global_state=NORMAL;
 			beep_switch=0;
-			em_switch=0;
 		}
 		if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[61].key.state){
 			global_state=JOYSTICK;
@@ -424,10 +416,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[39].key.state){
 			beep_switch=1;
 		}
-		if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[60].key.state){
-			em_switch=1;
-		}
-
 
 	    switch(global_state) {
 	    case NORMAL:
