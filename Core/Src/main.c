@@ -86,6 +86,7 @@ enum state_t {
 	JOYSTICK,
 	REQUEST_PROFILE,
 	REQUEST_SAVE,
+	FACTORYRESET,
 };
 int32_t state_counter = 0;
 enum state_t global_state = NORMAL;
@@ -323,6 +324,10 @@ int main(void)
 
 	  if(global_state == REQUEST_SAVE){
 		  Keyboard_Save();
+		  global_state = NORMAL;
+	  }
+	  if(global_state == FACTORYRESET){
+		  Keyboard_FactoryReset();
 		  global_state = NORMAL;
 	  }
       if(RGB_Update_Flag)

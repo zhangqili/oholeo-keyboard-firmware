@@ -282,6 +282,7 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 			JOYSTICK,
 			REQUEST_PROFILE,
 			REQUEST_SAVE,
+			FACTORYRESET,
 		};
 	   extern enum state_t global_state;
 	   extern int32_t state_counter;
@@ -293,6 +294,10 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 	   if(page_num == 254) {
 		   //request save
 		   global_state = REQUEST_SAVE;
+	   }
+	   if(page_num == 253) {
+		   //softwate control factoryreset
+		   global_state = FACTORYRESET;
 	   }
 	   if(page_num<16) {  ///performance
 		   for(int i=0;i<4;i++) {
