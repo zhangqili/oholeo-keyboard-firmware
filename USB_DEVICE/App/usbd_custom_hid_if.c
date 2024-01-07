@@ -305,6 +305,7 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 			   } else {
 				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].mode = LEFL_KEY_ANALOG_NORMAL_MODE;
 				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].trigger_distance = (float_t)USB_Recive_Buffer[2+i*4+0]/100.0;
+				   lefl_advanced_key_set_deadzone(&Keyboard_AdvancedKeys[api_lut[page_num*4+i]], 0.02, 0.0);
 			   }
 		   }
 	   } else if(page_num<32) {  ///rgb

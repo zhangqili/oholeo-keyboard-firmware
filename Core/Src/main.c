@@ -539,7 +539,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		RingBuf_Push(&adc_ringbuf[2*16+ADDRESS] , (float_t)adc3/DMA_BUF_LEN);
 		RingBuf_Push(&adc_ringbuf[3*16+ADDRESS] , (float_t)adc4/DMA_BUF_LEN);
 
-		if (htim->Instance->CNT < 700) {
+		if (htim->Instance->CNT < 650) {
 			Analog_Count++;
 			Analog_ActiveChannel++;
 			if(Analog_ActiveChannel>=16)Analog_ActiveChannel=0;
