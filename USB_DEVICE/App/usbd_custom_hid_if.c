@@ -300,11 +300,13 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].mode = LEFL_KEY_ANALOG_RAPID_MODE;
 				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].trigger_distance = (float_t)USB_Recive_Buffer[2+i*4+1]/100.0;
 				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].release_distance = (float_t)USB_Recive_Buffer[2+i*4+2]/100.0;
+				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].phantom_lower_deadzone = (float_t)USB_Recive_Buffer[2+i*4+3]/100.0;
 				   lefl_advanced_key_set_deadzone(&Keyboard_AdvancedKeys[api_lut[page_num*4+i]], 0.02, (float_t)USB_Recive_Buffer[2+i*4+3]/100.0);
 	//			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].lower_deadzone = (float_t)USB_Recive_Buffer[2+i*4+3]/100.0;
 			   } else {
 				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].mode = LEFL_KEY_ANALOG_NORMAL_MODE;
-				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].trigger_distance = (float_t)USB_Recive_Buffer[2+i*4+0]/100.0;
+//				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].trigger_distance = (float_t)USB_Recive_Buffer[2+i*4+0]/100.0;
+				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].activation_value = (float_t)USB_Recive_Buffer[2+i*4+0]/100.0;
 				   lefl_advanced_key_set_deadzone(&Keyboard_AdvancedKeys[api_lut[page_num*4+i]], 0.02, 0.0);
 			   }
 		   }

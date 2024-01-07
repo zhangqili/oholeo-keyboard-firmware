@@ -195,6 +195,8 @@ void Keyboard_FactoryReset()
         Keyboard_AdvancedKeys[i].trigger_distance=DEFAULT_TRIGGER_DISTANCE;
         Keyboard_AdvancedKeys[i].release_distance=DEFAULT_RELEASE_DISTANCE;
         Keyboard_AdvancedKeys[i].schmitt_parameter=DEFAULT_SCHMITT_PARAMETER;
+        Keyboard_AdvancedKeys[i].activation_value=0.3;
+        Keyboard_AdvancedKeys[i].phantom_lower_deadzone=0.32;
         Keyboard_AdvancedKeys[i].key.keycode = default_keymap[0][Keyboard_AdvancedKeys[i].key.id];
     }
     RGB_Recovery();

@@ -33,11 +33,11 @@ void lefl_advanced_key_update(lefl_advanced_key_t* advanced_key,float value)
         break;
     case LEFL_KEY_ANALOG_NORMAL_MODE:
         advanced_key->value=value;
-        if(advanced_key->value-advanced_key->schmitt_parameter>advanced_key->trigger_distance)
+        if(advanced_key->value-advanced_key->schmitt_parameter>advanced_key->activation_value)
         {
             state=true;
         }
-        if(advanced_key->value+advanced_key->schmitt_parameter<advanced_key->trigger_distance)
+        if(advanced_key->value+advanced_key->schmitt_parameter<advanced_key->activation_value)
         {
             state=false;
         }

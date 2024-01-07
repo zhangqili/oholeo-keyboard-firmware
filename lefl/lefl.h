@@ -252,6 +252,10 @@ extern "C" {
         lefl_key_mode_t mode;
         float value;
         float raw;
+        //New
+        float activation_value;
+        float phantom_lower_deadzone;
+
         float trigger_distance;
         float release_distance;
         float schmitt_parameter;

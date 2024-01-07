@@ -474,11 +474,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				Keyboard_ReportBuffer[1] = (state_counter%16) + 16;
 				for(int i=0;i<4;i++) {
 					uint32_t index = i + (state_counter%16)*4;
-					Keyboard_ReportBuffer[2 + i*4+0] = (uint8_t)(roundf(Keyboard_AdvancedKeys[index].trigger_distance*100.0)) |
+					Keyboard_ReportBuffer[2 + i*4+0] = (uint8_t)(roundf(Keyboard_AdvancedKeys[index].activation_value*100.0)) |
 							((Keyboard_AdvancedKeys[index].mode - 1) << 7);
 					Keyboard_ReportBuffer[2 + i*4+1] = (uint8_t)(roundf(Keyboard_AdvancedKeys[index].trigger_distance*100.0));
 					Keyboard_ReportBuffer[2 + i*4+2] = (uint8_t)(roundf(Keyboard_AdvancedKeys[index].release_distance*100.0));
-					Keyboard_ReportBuffer[2 + i*4+3] = (uint8_t)(roundf(Keyboard_AdvancedKeys[index].lower_deadzone*100.0));
+					Keyboard_ReportBuffer[2 + i*4+3] = (uint8_t)(roundf(Keyboard_AdvancedKeys[index].phantom_lower_deadzone*100.0));
 				}
 	    	}
 	    	if(state_counter/32 == 1) {
