@@ -201,7 +201,7 @@ void Keyboard_FactoryReset()
         Keyboard_AdvancedKeys[i].key.keycode = default_keymap[0][Keyboard_AdvancedKeys[i].key.id];
     }
     RGB_Recovery();
-    Keyboard_Save();
+//    Keyboard_Save();
 }
 void Keyboard_SystemReset()
 {

@@ -328,7 +328,9 @@ int main(void)
 	  }
 	  if(global_state == FACTORYRESET){
 		  Keyboard_FactoryReset();
-		  global_state = NORMAL;
+		   //request profile
+		   state_counter = 96;// send twice for safety
+		   global_state = REQUEST_PROFILE;
 	  }
       if(RGB_Update_Flag)
       {
@@ -539,12 +541,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		 adc4+=DMA_Buffer[3][i]&0xfff;
 		}
 
-		RingBuf_Push(&adc_ringbuf[0*16+ADDRESS] , (float_t)adc1/DMA_BUF_LEN);
-		RingBuf_Push(&adc_ringbuf[1*16+ADDRESS] , (float_t)adc2/DMA_BUF_LEN);
-		RingBuf_Push(&adc_ringbuf[2*16+ADDRESS] , (float_t)adc3/DMA_BUF_LEN);
-		RingBuf_Push(&adc_ringbuf[3*16+ADDRESS] , (float_t)adc4/DMA_BUF_LEN);
+		RingBuf_Push(&adc_ringbuf[0*16+ADDRESS] , (float_t)adc1/(float_t)DMA_BUF_LEN);
+		RingBuf_Push(&adc_ringbuf[1*16+ADDRESS] , (float_t)adc2/(float_t)DMA_BUF_LEN);
+		RingBuf_Push(&adc_ringbuf[2*16+ADDRESS] , (float_t)adc3/(float_t)DMA_BUF_LEN);
+		RingBuf_Push(&adc_ringbuf[3*16+ADDRESS] , (float_t)adc4/(float_t)DMA_BUF_LEN);
 
-		if (htim->Instance->CNT < 650) {
+		if (htim->Instance->CNT < 700) {
 			Analog_Count++;
 			Analog_ActiveChannel++;
 			if(Analog_ActiveChannel>=16)Analog_ActiveChannel=0;
