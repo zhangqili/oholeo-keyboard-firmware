@@ -249,7 +249,6 @@ int main(void)
   MX_TIM7_Init();
   MX_USB_DEVICE_Init();
   MX_TIM2_Init();
-  MX_TIM6_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
@@ -306,9 +305,10 @@ int main(void)
 //	  lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i,(ADC_Buffer[i]), 1200);
 
       lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, DEFAULT_UPPER_DEADZONE, Keyboard_AdvancedKeys[i].lower_deadzone);
+      RGB_Configs[i].speed=0.01;
   }
+  RGB_GlobalConfig.speed = 0.01;
   HAL_TIM_Base_Start_IT(&htim7);
-  HAL_TIM_Base_Start_IT(&htim6);
   //sprintf(uart_buf,"%f\n",Keyboard_AdvancedKeys[0].upper_bound);
   //HAL_UART_Transmit(&huart1, (uint8_t*)uart_buf, 64, 0xFF);
   memset(USB_Recive_Buffer, 0, sizeof(USB_Recive_Buffer));
@@ -332,13 +332,8 @@ int main(void)
 		   state_counter = 96;// send twice for safety
 		   global_state = REQUEST_PROFILE;
 	  }
-      if(RGB_Update_Flag)
-      {
-          RGB_Update_Flag=false;
 
-          RGB_Update();
-
-      }
+      RGB_Update();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

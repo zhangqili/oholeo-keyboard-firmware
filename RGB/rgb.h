@@ -50,7 +50,7 @@ typedef struct __rgb_individual_config_t
     lefl_color_rgb_t rgb;
     lefl_color_hsv_t hsv;
     float speed;
-    float argument;
+    uint32_t begin_time;
 } rgb_individual_config_t;
 
 typedef struct __rgb_global_config_t
@@ -59,7 +59,7 @@ typedef struct __rgb_global_config_t
     lefl_color_rgb_t rgb;
     lefl_color_hsv_t hsv;
     float speed;
-    float argument;
+    uint32_t begin_time;
 } rgb_global_config_t;
 
 typedef struct __rgb_location_t
@@ -71,7 +71,7 @@ typedef struct __rgb_location_t
 typedef struct __rgb_argument_t
 {
     uint8_t rgb_ptr;
-    float argument;
+    uint32_t begin_time;
 }rgb_argument_t;
 
 
@@ -99,6 +99,7 @@ extern lefl_color_rgb_t RGB_Colors[RGB_NUM];
 extern rgb_individual_config_t RGB_Configs[RGB_NUM];
 extern rgb_global_config_t RGB_GlobalConfig;
 extern uint8_t RGB_TargetConfig;
+extern uint32_t RGB_Tick;
 extern rgb_loop_queue_t RGB_Argument_Queue;
 extern const uint8_t RGB_Mapping[ADVANCED_KEY_NUM];
 

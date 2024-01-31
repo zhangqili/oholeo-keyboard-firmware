@@ -19,6 +19,7 @@ rgb_individual_config_t RGB_Configs[RGB_NUM];
 lefl_color_rgb_t RGB_Colors[RGB_NUM];
 uint8_t RGB_TargetConfig;
 rgb_loop_queue_t RGB_Argument_Queue;
+uint32_t RGB_Tick;
 const uint8_t RGB_Mapping[ADVANCED_KEY_NUM]={26,25,24,23,9,10,11,12,36,37,38,39,53,52,51,50,
                                              35,34,33,32,19,20,21,22,46,47,48,49,63,62,61,60,
                                              3,15,29,42,41,56,28,14,13,27,40,55,54,0,1,2,
@@ -43,14 +44,14 @@ void RGB_Init()
 #define COLOR_INTERVAL(key,low,up) (uint8_t)((key)<0?(low):((key)>1.0?(up):(key)*(up)))
 void RGB_Update()
 {
+    RGB_Tick = HAL_GetTick();
     lefl_color_hsv_t temp_hsv;
     uint16_t tempint;
     float tempf;
     memcpy(&temp_hsv,&(RGB_GlobalConfig.hsv),sizeof(lefl_color_hsv_t));
     lefl_loop_queue_foreach(&RGB_Argument_Queue,j)
     {
-        RGB_Argument_Queue.data[j].argument += RGB_Configs[RGB_Argument_Queue.data[j].rgb_ptr].speed;
-        if(RGB_Argument_Queue.data[j].argument>20.0f)
+        if(RGB_GlobalConfig.speed*(RGB_Tick-RGB_Argument_Queue.data[j].begin_time)>20.0f)
         {
             rgb_loop_queue_dequeue(&RGB_Argument_Queue);
         }
@@ -69,10 +70,14 @@ void RGB_Update()
                         RGB_Colors[rgb_index].b=COLOR_INTERVAL(Keyboard_AdvancedKeys[i].value,0,(float)(RGB_Configs[rgb_index].rgb.b));
                         break;
                     case RGB_MODE_REACT_TRIGGER:
-                        RGB_Configs[rgb_index].argument = Keyboard_AdvancedKeys[i].key.state?1.0:RGB_Configs[rgb_index].argument*(1.0-fabsf(RGB_Configs[rgb_index].speed));
-                        RGB_Colors[rgb_index].r=(uint8_t)((float)(RGB_Configs[rgb_index].rgb.r)*RGB_Configs[rgb_index].argument);;
-                        RGB_Colors[rgb_index].g=(uint8_t)((float)(RGB_Configs[rgb_index].rgb.g)*RGB_Configs[rgb_index].argument);;
-                        RGB_Colors[rgb_index].b=(uint8_t)((float)(RGB_Configs[rgb_index].rgb.b)*RGB_Configs[rgb_index].argument);;
+                        if(Keyboard_AdvancedKeys[i].key.state)
+                        {
+                            RGB_Configs[rgb_index].begin_time = RGB_Tick;
+                        }
+                        tempf=powf(1-RGB_Configs[rgb_index].speed,RGB_Tick-RGB_Configs[rgb_index].begin_time);
+                        RGB_Colors[rgb_index].r=(uint8_t)((float)(RGB_Configs[rgb_index].rgb.r)*tempf);;
+                        RGB_Colors[rgb_index].g=(uint8_t)((float)(RGB_Configs[rgb_index].rgb.g)*tempf);;
+                        RGB_Colors[rgb_index].b=(uint8_t)((float)(RGB_Configs[rgb_index].rgb.b)*tempf);;
                         break;
                     case RGB_MODE_STATIC:
                         RGB_Colors[rgb_index].r=RGB_Configs[rgb_index].rgb.r;
@@ -80,18 +85,9 @@ void RGB_Update()
                         RGB_Colors[rgb_index].b=RGB_Configs[rgb_index].rgb.b;
                         break;
                     case RGB_MODE_CYCLE:
-                        RGB_Configs[i].argument+=RGB_Configs[i].speed;
-                        if(RGB_Configs[i].argument>359.9f)
-                        {
-                            RGB_Configs[i].argument=0;
-                        }
-                        if(RGB_Configs[i].argument<0)
-                        {
-                            RGB_Configs[i].argument=360;
-                        }
                         temp_hsv.s = RGB_Configs[i].hsv.s;
                         temp_hsv.v = RGB_Configs[i].hsv.v;
-                        temp_hsv.h = (RGB_Configs[i].hsv.h+(uint16_t)(RGB_Configs[i].argument))%360;
+                        temp_hsv.h = (uint8_t)(RGB_Configs[i].hsv.h+(RGB_Tick*RGB_Configs[i].speed))%360;
                         lefl_color_set_hsv(RGB_Colors + i, &temp_hsv);
                         break;
                     default:
@@ -101,18 +97,9 @@ void RGB_Update()
             }
             break;
         case RGB_GLOBAL_MODE_WAVE:
-            RGB_GlobalConfig.argument+=RGB_GlobalConfig.speed;
-            if(RGB_GlobalConfig.argument>359.9f)
-            {
-                RGB_GlobalConfig.argument=0;
-            }
-            if(RGB_GlobalConfig.argument<0)
-            {
-                RGB_GlobalConfig.argument=360;
-            }
             for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
             {
-                temp_hsv.h = ((uint16_t)RGB_GlobalConfig.argument + (uint16_t)(RGB_Locations[i].x*15))%360;
+                temp_hsv.h = ((uint16_t)(((uint32_t)(RGB_GlobalConfig.speed*RGB_Tick))%360) + (uint16_t)(RGB_Locations[i].x*15))%360;
                 lefl_color_set_hsv(RGB_Colors+i, &temp_hsv);
             }
             break;
@@ -138,11 +125,11 @@ void RGB_Update()
                 {
                     if(RGB_Locations[RGB_Argument_Queue.data[k].rgb_ptr].row==RGB_Locations[j].row)
                     {
-                        tempf = (1.0f-fabsf(RGB_Argument_Queue.data[k].argument-fabsf(RGB_Locations[RGB_Argument_Queue.data[k].rgb_ptr].x-RGB_Locations[j].x)));
+                        tempf = (1.0f-fabsf((RGB_Tick - RGB_Argument_Queue.data[k].begin_time)*RGB_GlobalConfig.speed-fabsf(RGB_Locations[RGB_Argument_Queue.data[k].rgb_ptr].x-RGB_Locations[j].x)));
                         tempf = tempf > 0 ? tempf : 0;
                         if(RGB_GlobalConfig.mode==RGB_GLOBAL_MODE_FADING_STRING)
                         {
-                            tempf/=RGB_Argument_Queue.data[k].argument;
+                            tempf/=(RGB_Tick - RGB_Argument_Queue.data[k].begin_time)*RGB_GlobalConfig.speed;
                         }
                         //printf("%f\n",1.0 - fabsf(i+RGB_Configs[i].argument-j));
                         //printf("%.2f\t",tempf*((float)(RGB_Configs[i].rgb.r)));
@@ -176,11 +163,11 @@ void RGB_Update()
             {
                 for (int8_t i = 0; i < ADVANCED_KEY_NUM; i++)
                 {
-                    tempf = (1.0f-fabsf(RGB_Argument_Queue.data[k].argument*2-fabsf(RGB_Locations[RGB_Argument_Queue.data[k].rgb_ptr].row-RGB_Locations[i].row)-fabsf(RGB_Locations[RGB_Argument_Queue.data[k].rgb_ptr].x-RGB_Locations[i].x)));
+                    tempf = (1.0f-fabsf((RGB_Tick-RGB_Argument_Queue.data[k].begin_time)*RGB_GlobalConfig.speed*2-fabsf(RGB_Locations[RGB_Argument_Queue.data[k].rgb_ptr].row-RGB_Locations[i].row)-fabsf(RGB_Locations[RGB_Argument_Queue.data[k].rgb_ptr].x-RGB_Locations[i].x)));
                     tempf = tempf > 0 ? tempf : 0;
                     if(RGB_GlobalConfig.mode==RGB_GLOBAL_MODE_FADING_DIAMOND_RIPPLE)
                     {
-                        tempf/=RGB_Argument_Queue.data[k].argument;
+                        tempf/=(RGB_Tick-RGB_Argument_Queue.data[k].begin_time)*RGB_GlobalConfig.speed;
                     }
                     //printf("%f\n",1.0 - fabsf(i+RGB_Configs[i].argument-j));
                     //printf("%.2f\t",tempf*((float)(RGB_Configs[i].rgb.r)));

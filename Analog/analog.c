@@ -121,7 +121,7 @@ void Analog_Check()
         	pulse_counter=0;
 
             a.rgb_ptr = RGB_Mapping[i];
-            a.argument=0.0;
+            a.begin_time=HAL_GetTick();
             rgb_loop_queue_enqueue(&RGB_Argument_Queue, a);
         }
             //lefl_advanced_key_update_raw(Keyboard_AdvancedKeys+i, (((float)(AnalogItems.sum))/(float)(AnalogItems.count)));
