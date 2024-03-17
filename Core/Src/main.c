@@ -48,7 +48,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define rgb_start() HAL_TIM_PWM_Start_DMA(&htim1,TIM_CHANNEL_1,(uint32_t*)g_rgb_buffer,RGB_BUFFER_LENGTH);
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -262,21 +262,21 @@ int main(void)
 
   HAL_GPIO_WritePin(INHIBIT_GPIO_Port, INHIBIT_Pin, GPIO_PIN_RESET);
 //  Keyboard_Init();
-  RGB_Init();
+  rgb_init();
   //RGB_Recovery();
   Keyboard_Recovery();
-  Keyboard_FactoryReset();
+  //Keyboard_FactoryReset();
 
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
   HAL_ADCEx_Calibration_Start(&hadc3, ADC_SINGLE_ENDED);
   HAL_ADCEx_Calibration_Start(&hadc4, ADC_SINGLE_ENDED);
-  RGB_Start();
+  rgb_start();
   //HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
 
   //Analog_Init();
-  RGB_Flash();
-  RGB_TurnOff();
+  rgb_flash();
+  rgb_turn_off();
 
 
   HAL_ADC_Start_DMA(&hadc1, DMA_Buffer[0], DMA_BUF_LEN);
@@ -301,15 +301,15 @@ int main(void)
   }
   for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
   {
-      advanced_key_set_range(Keyboard_AdvancedKeys+i, RingBuf_Avg(&adc_ringbuf[i]), 1200);
-      key_attach(&Keyboard_AdvancedKeys[i].key, KEY_EVENT_UP, NULL);
-      key_attach(&Keyboard_AdvancedKeys[i].key, KEY_EVENT_DOWN, NULL);
+      advanced_key_set_range(g_keyboard_advanced_keys+i, RingBuf_Avg(&adc_ringbuf[i]), 1200);
+      key_attach(&g_keyboard_advanced_keys[i].key, KEY_EVENT_UP, NULL);
+      key_attach(&g_keyboard_advanced_keys[i].key, KEY_EVENT_DOWN, NULL);
 //	  advanced_key_set_range(Keyboard_AdvancedKeys+i,(ADC_Buffer[i]), 1200);
 
-      advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, DEFAULT_UPPER_DEADZONE, Keyboard_AdvancedKeys[i].lower_deadzone);
-      RGB_Configs[i].speed=0.01;
+      advanced_key_set_deadzone(g_keyboard_advanced_keys+i, DEFAULT_UPPER_DEADZONE, g_keyboard_advanced_keys[i].lower_deadzone);
+      g_rgb_configs[i].speed=0.01;
   }
-  RGB_GlobalConfig.speed = 0.01;
+  g_rgb_global_config.speed = 0.01;
   HAL_TIM_Base_Start_IT(&htim7);
   //sprintf(uart_buf,"%f\n",Keyboard_AdvancedKeys[0].upper_bound);
   //HAL_UART_Transmit(&huart1, (uint8_t*)uart_buf, 64, 0xFF);
@@ -335,7 +335,7 @@ int main(void)
 		   global_state = REQUEST_PROFILE;
 	  }
 
-      RGB_Update();
+      rgb_update();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -398,7 +398,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance==TIM7)
   {
-	    Analog_Check();
+	    analog_check();
 
     	if(pulse_counter<PULSE_LEN_MS) {
     		pulse_counter++;
@@ -414,21 +414,21 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
     	}
 
-	    if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[0].key.state){
+	    if(g_keyboard_advanced_keys[49].key.state&g_keyboard_advanced_keys[0].key.state){
 	    	global_state=ADC;
 	    }
-		if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[33].key.state){
+		if(g_keyboard_advanced_keys[49].key.state&g_keyboard_advanced_keys[33].key.state){
 			global_state=NORMAL;
 			beep_switch=0;
 			em_switch=0;
 		}
-		if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[61].key.state){
+		if(g_keyboard_advanced_keys[49].key.state&g_keyboard_advanced_keys[61].key.state){
 			global_state=JOYSTICK;
 		}
-		if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[39].key.state){
+		if(g_keyboard_advanced_keys[49].key.state&g_keyboard_advanced_keys[39].key.state){
 			beep_switch=1;
 		}
-		if(Keyboard_AdvancedKeys[49].key.state&Keyboard_AdvancedKeys[60].key.state){
+		if(g_keyboard_advanced_keys[49].key.state&g_keyboard_advanced_keys[60].key.state){
 			em_switch=1;
 		}
 
@@ -442,7 +442,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	    	Keyboard_ReportBuffer[1] = usb_adc_send_idx;
 		    for(int i=0;i<16; i++) {
 //		    	Keyboard_ReportBuffer[i+2] = i%2?(uint32_t)RingBuf_Avg(&adc_ringbuf[i/2 + usb_adc_send_idx*8]):((uint32_t)RingBuf_Avg(&adc_ringbuf[i/2 + usb_adc_send_idx*8]))>>8;
-		    	Keyboard_ReportBuffer[i+2] = i%2?(uint32_t)Keyboard_AdvancedKeys[i/2 + usb_adc_send_idx*8].raw:((uint32_t)Keyboard_AdvancedKeys[i/2 + usb_adc_send_idx*8].raw)>>8;
+		    	Keyboard_ReportBuffer[i+2] = i%2?(uint32_t)g_keyboard_advanced_keys[i/2 + usb_adc_send_idx*8].raw:((uint32_t)g_keyboard_advanced_keys[i/2 + usb_adc_send_idx*8].raw)>>8;
 
 		    }
 
@@ -452,10 +452,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			break;
 	    case JOYSTICK:
 	    	int8_t Ry,Rx,y,x;
-	    	y = (Keyboard_AdvancedKeys[1].upper_bound-Keyboard_AdvancedKeys[1].raw)/(Keyboard_AdvancedKeys[1].upper_bound-Keyboard_AdvancedKeys[1].lower_bound)*127.0
-	    			- (Keyboard_AdvancedKeys[10].upper_bound-Keyboard_AdvancedKeys[10].raw)/(Keyboard_AdvancedKeys[10].upper_bound-Keyboard_AdvancedKeys[10].lower_bound)*127.0;
-	    	x = (Keyboard_AdvancedKeys[0].upper_bound-Keyboard_AdvancedKeys[0].raw)/(Keyboard_AdvancedKeys[0].upper_bound-Keyboard_AdvancedKeys[0].lower_bound)*127.0
-	    			- (Keyboard_AdvancedKeys[2].upper_bound-Keyboard_AdvancedKeys[2].raw)/(Keyboard_AdvancedKeys[2].upper_bound-Keyboard_AdvancedKeys[2].lower_bound)*127.0;
+	    	y = (g_keyboard_advanced_keys[1].upper_bound-g_keyboard_advanced_keys[1].raw)/(g_keyboard_advanced_keys[1].upper_bound-g_keyboard_advanced_keys[1].lower_bound)*127.0
+	    			- (g_keyboard_advanced_keys[10].upper_bound-g_keyboard_advanced_keys[10].raw)/(g_keyboard_advanced_keys[10].upper_bound-g_keyboard_advanced_keys[10].lower_bound)*127.0;
+	    	x = (g_keyboard_advanced_keys[0].upper_bound-g_keyboard_advanced_keys[0].raw)/(g_keyboard_advanced_keys[0].upper_bound-g_keyboard_advanced_keys[0].lower_bound)*127.0
+	    			- (g_keyboard_advanced_keys[2].upper_bound-g_keyboard_advanced_keys[2].raw)/(g_keyboard_advanced_keys[2].upper_bound-g_keyboard_advanced_keys[2].lower_bound)*127.0;
 
 	    	Keyboard_ReportBuffer[0] = 3;
 	    	//Ry,Rx,y,x
@@ -478,11 +478,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				Keyboard_ReportBuffer[1] = (state_counter%16) + 16;
 				for(int i=0;i<4;i++) {
 					uint32_t index = i + (state_counter%16)*4;
-					Keyboard_ReportBuffer[2 + i*4+0] = (uint8_t)(roundf(Keyboard_AdvancedKeys[index].activation_value*100.0)) |
-							((Keyboard_AdvancedKeys[index].mode - 1) << 7);
-					Keyboard_ReportBuffer[2 + i*4+1] = (uint8_t)(roundf(Keyboard_AdvancedKeys[index].trigger_distance*100.0));
-					Keyboard_ReportBuffer[2 + i*4+2] = (uint8_t)(roundf(Keyboard_AdvancedKeys[index].release_distance*100.0));
-					Keyboard_ReportBuffer[2 + i*4+3] = (uint8_t)(roundf(Keyboard_AdvancedKeys[index].phantom_lower_deadzone*100.0));
+					Keyboard_ReportBuffer[2 + i*4+0] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].activation_value*100.0)) |
+							((g_keyboard_advanced_keys[index].mode - 1) << 7);
+					Keyboard_ReportBuffer[2 + i*4+1] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].trigger_distance*100.0));
+					Keyboard_ReportBuffer[2 + i*4+2] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].release_distance*100.0));
+					Keyboard_ReportBuffer[2 + i*4+3] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].phantom_lower_deadzone*100.0));
 				}
 	    	}
 	    	if(state_counter/32 == 1) {
@@ -491,10 +491,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		    	Keyboard_ReportBuffer[1] = (state_counter%16) + 32;
 		    	for(int i=0;i<4;i++) {
 		    		uint32_t index = i + (state_counter%16)*4;
-		    		Keyboard_ReportBuffer[2 + i*4+0] = (uint8_t)(RGB_GlobalConfig.mode<<4) | RGB_Configs[RGB_Mapping[index]].mode;
-		    		Keyboard_ReportBuffer[2 + i*4+1] = RGB_Configs[RGB_Mapping[index]].rgb.r;
-		    		Keyboard_ReportBuffer[2 + i*4+2] = RGB_Configs[RGB_Mapping[index]].rgb.g;
-		    		Keyboard_ReportBuffer[2 + i*4+3] = RGB_Configs[RGB_Mapping[index]].rgb.b;
+		    		Keyboard_ReportBuffer[2 + i*4+0] = (uint8_t)(g_rgb_global_config.mode<<4) | g_rgb_configs[g_rgb_mapping[index]].mode;
+		    		Keyboard_ReportBuffer[2 + i*4+1] = g_rgb_configs[g_rgb_mapping[index]].rgb.r;
+		    		Keyboard_ReportBuffer[2 + i*4+2] = g_rgb_configs[g_rgb_mapping[index]].rgb.g;
+		    		Keyboard_ReportBuffer[2 + i*4+3] = g_rgb_configs[g_rgb_mapping[index]].rgb.b;
 		    	}
 	    	}
 	    	if(state_counter/32 == 2) {
@@ -503,10 +503,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		    	Keyboard_ReportBuffer[1] = (state_counter%16) + 48;
 		    	for(int i=0;i<4;i++) {
 		    		uint32_t index = i + (state_counter%16)*4;
-		    		Keyboard_ReportBuffer[2 + i*4+0] = keymap[0][Keyboard_AdvancedKeys[index].key.id] >>8;
-		    		Keyboard_ReportBuffer[2 + i*4+1] = keymap[0][Keyboard_AdvancedKeys[index].key.id]&0xff;
-		    		Keyboard_ReportBuffer[2 + i*4+2] = keymap[1][Keyboard_AdvancedKeys[index].key.id]>>8;
-		    		Keyboard_ReportBuffer[2 + i*4+3] = keymap[1][Keyboard_AdvancedKeys[index].key.id]&0xff;
+		    		Keyboard_ReportBuffer[2 + i*4+0] = g_keymap[0][g_keyboard_advanced_keys[index].key.id] >>8;
+		    		Keyboard_ReportBuffer[2 + i*4+1] = g_keymap[0][g_keyboard_advanced_keys[index].key.id]&0xff;
+		    		Keyboard_ReportBuffer[2 + i*4+2] = g_keymap[1][g_keyboard_advanced_keys[index].key.id]>>8;
+		    		Keyboard_ReportBuffer[2 + i*4+3] = g_keymap[1][g_keyboard_advanced_keys[index].key.id]&0xff;
 		    	}
 	    	}
 		    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,Keyboard_ReportBuffer,17+1);
@@ -547,7 +547,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			Analog_Count++;
 			Analog_ActiveChannel++;
 			if(Analog_ActiveChannel>=16)Analog_ActiveChannel=0;
-			Analog_Channel_Select(Analog_ActiveChannel);
+			analog_channel_select(Analog_ActiveChannel);
 		}
 //	  }
   }

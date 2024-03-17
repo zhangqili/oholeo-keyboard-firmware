@@ -50,14 +50,14 @@ extern bool Analog_ConvCpltFlag[4];
 
 extern uint32_t Analog_Count;
 
-void Analog_Channel_Select(uint8_t x);
-void Analog_Scan();
-void Analog_Init();
-void Analog_Average();
-void Analog_Check();
+void analog_channel_select(uint8_t x);
+void analog_scan();
+void analog_init();
+void analog_average();
+void analog_check();
 void Analog_Recovery();
 void Analog_Flush();
-void Analog_Start();
+void analog_start();
 void Analog_Save();
 
 void RingBuf_Push(RingBuf *ringbuf, uint32_t data);

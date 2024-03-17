@@ -57,12 +57,12 @@ float_t RingBuf_Avg(RingBuf *ringbuf) {
 	return (float_t)ringbuf->state;
 }
 
-void Analog_Init()
+void analog_init()
 {
 }
 
 
-void Analog_Start()
+void analog_start()
 {
     Analog_ActiveChannel=0;
     /*
@@ -73,10 +73,10 @@ void Analog_Start()
     */
     //HAL_ADC_Start_IT(&hadc1);
     //HAL_ADC_Start_IT(&hadc2);
-    Analog_Scan();
+    analog_scan();
 }
 
-void Analog_Channel_Select(uint8_t x)
+void analog_channel_select(uint8_t x)
 {
     x=BCD_TO_GRAY(x);
     HAL_GPIO_WritePin(A_GPIO_Port, A_Pin, x&0x01);
@@ -85,43 +85,43 @@ void Analog_Channel_Select(uint8_t x)
     HAL_GPIO_WritePin(D_GPIO_Port, D_Pin, x&0x08);
 }
 
-void Analog_Scan()
+void analog_scan()
 {
-    Analog_Channel_Select(Analog_ActiveChannel);
+    analog_channel_select(Analog_ActiveChannel);
     //HAL_ADC_Start(&hadc2);
     //HAL_ADCEx_MultiModeStart_DMA(&hadc1, (uint32_t*)(Analog_Buffer), 1);
     //HAL_ADC_Start_IT(&hadc3);
     HAL_ADC_Start_IT(&hadc4);
 }
 
-void Analog_Average()
+void analog_average()
 {
 
 }
 
-void Analog_Check()
+void analog_check()
 {
     bool state;
-    rgb_argument_t a;
+    RGBArgument a;
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
     	float_t analog_avg = ANALOG_AVERAGE(i);
-        state=Keyboard_AdvancedKeys[i].key.state;
-        if(analog_avg<Keyboard_AdvancedKeys[i].lower_bound)
+        state=g_keyboard_advanced_keys[i].key.state;
+        if(analog_avg<g_keyboard_advanced_keys[i].lower_bound)
         {
-            advanced_key_set_range(Keyboard_AdvancedKeys+i, Keyboard_AdvancedKeys[i].upper_bound,analog_avg);
-            advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, DEFAULT_UPPER_DEADZONE, Keyboard_AdvancedKeys[i].lower_deadzone);
+            advanced_key_set_range(g_keyboard_advanced_keys+i, g_keyboard_advanced_keys[i].upper_bound,analog_avg);
+            advanced_key_set_deadzone(g_keyboard_advanced_keys+i, DEFAULT_UPPER_DEADZONE, g_keyboard_advanced_keys[i].lower_deadzone);
         }
-        if(Keyboard_AdvancedKeys[i].mode!=KEY_DIGITAL_MODE)
-        advanced_key_update_raw(Keyboard_AdvancedKeys+i, analog_avg);
-        if(Keyboard_AdvancedKeys[i].key.state&&!state)
+        if(g_keyboard_advanced_keys[i].mode!=KEY_DIGITAL_MODE)
+        advanced_key_update_raw(g_keyboard_advanced_keys+i, analog_avg);
+        if(g_keyboard_advanced_keys[i].key.state&&!state)
         {
         	extern uint32_t pulse_counter;
         	pulse_counter=0;
 
-            a.rgb_ptr = RGB_Mapping[i];
+            a.rgb_ptr = g_rgb_mapping[i];
             a.begin_time=HAL_GetTick();
-            rgb_loop_queue_enqueue(&RGB_Argument_Queue, a);
+            rgb_loop_queue_enqueue(&g_rgb_argument_queue, a);
         }
             //advanced_key_update_raw(Keyboard_AdvancedKeys+i, (((float)(AnalogItems.sum))/(float)(AnalogItems.count)));
     }

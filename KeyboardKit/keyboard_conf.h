@@ -34,4 +34,8 @@
 #define PULSE 1000
 #define PULSE_LEN_MS 40
 
+#define LAYER_NUM               5
+#define ADVANCED_KEY_NUM        64
+#define KEY_NUM                 0
+
 #endif /* KEYBOARD_CONF_H_ */

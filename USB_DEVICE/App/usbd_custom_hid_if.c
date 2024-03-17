@@ -302,34 +302,34 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 	   if(page_num<16) {  ///performance
 		   for(int i=0;i<4;i++) {
 			   if(USB_Recive_Buffer[2+i*4+0]&0x80){
-				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].mode = KEY_ANALOG_RAPID_MODE;
-				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].trigger_distance = (float)USB_Recive_Buffer[2+i*4+1]/100.0;
-				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].release_distance = (float)USB_Recive_Buffer[2+i*4+2]/100.0;
-				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].phantom_lower_deadzone = (float)USB_Recive_Buffer[2+i*4+3]/100.0;
-				   advanced_key_set_deadzone(&Keyboard_AdvancedKeys[api_lut[page_num*4+i]], 0.02, (float)USB_Recive_Buffer[2+i*4+3]/100.0);
+				   g_keyboard_advanced_keys[api_lut[page_num*4+i]].mode = KEY_ANALOG_RAPID_MODE;
+				   g_keyboard_advanced_keys[api_lut[page_num*4+i]].trigger_distance = (float)USB_Recive_Buffer[2+i*4+1]/100.0;
+				   g_keyboard_advanced_keys[api_lut[page_num*4+i]].release_distance = (float)USB_Recive_Buffer[2+i*4+2]/100.0;
+				   g_keyboard_advanced_keys[api_lut[page_num*4+i]].phantom_lower_deadzone = (float)USB_Recive_Buffer[2+i*4+3]/100.0;
+				   advanced_key_set_deadzone(&g_keyboard_advanced_keys[api_lut[page_num*4+i]], 0.02, (float)USB_Recive_Buffer[2+i*4+3]/100.0);
 	//			   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].lower_deadzone = (float_t)USB_Recive_Buffer[2+i*4+3]/100.0;
 			   } else {
-				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].mode = KEY_ANALOG_NORMAL_MODE;
+				   g_keyboard_advanced_keys[api_lut[page_num*4+i]].mode = KEY_ANALOG_NORMAL_MODE;
 //				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].trigger_distance = (float)USB_Recive_Buffer[2+i*4+0]/100.0;
-				   Keyboard_AdvancedKeys[api_lut[page_num*4+i]].activation_value = (float)USB_Recive_Buffer[2+i*4+0]/100.0;
-				   advanced_key_set_deadzone(&Keyboard_AdvancedKeys[api_lut[page_num*4+i]], 0.02, 0.0);
+				   g_keyboard_advanced_keys[api_lut[page_num*4+i]].activation_value = (float)USB_Recive_Buffer[2+i*4+0]/100.0;
+				   advanced_key_set_deadzone(&g_keyboard_advanced_keys[api_lut[page_num*4+i]], 0.02, 0.0);
 			   }
 		   }
 	   } else if(page_num<32) {  ///rgb
 		   page_num %= 16; // needed
 		   for(int i=0;i<4;i++) {
-			   RGB_GlobalConfig.mode = USB_Recive_Buffer[2+i*4+0]>>4;
-			   RGB_GlobalConfig.rgb = *(ColorRGB *)&USB_Recive_Buffer[2+i*4+1];
-			   rgb_to_hsv(&RGB_GlobalConfig.hsv, &RGB_GlobalConfig.rgb);
-			   RGB_Configs[RGB_Mapping[api_lut[page_num*4+i]]].mode = USB_Recive_Buffer[2+i*4+0]&0x0f;
-			   RGB_Configs[RGB_Mapping[api_lut[page_num*4+i]]].rgb = *(ColorRGB *)&USB_Recive_Buffer[2+i*4+1];
-			   rgb_to_hsv(&RGB_Configs[RGB_Mapping[api_lut[page_num*4+i]]].hsv, &RGB_Configs[RGB_Mapping[api_lut[page_num*4+i]]].rgb);
+			   g_rgb_global_config.mode = USB_Recive_Buffer[2+i*4+0]>>4;
+			   g_rgb_global_config.rgb = *(ColorRGB *)&USB_Recive_Buffer[2+i*4+1];
+			   rgb_to_hsv(&g_rgb_global_config.hsv, &g_rgb_global_config.rgb);
+			   g_rgb_configs[g_rgb_mapping[api_lut[page_num*4+i]]].mode = USB_Recive_Buffer[2+i*4+0]&0x0f;
+			   g_rgb_configs[g_rgb_mapping[api_lut[page_num*4+i]]].rgb = *(ColorRGB *)&USB_Recive_Buffer[2+i*4+1];
+			   rgb_to_hsv(&g_rgb_configs[g_rgb_mapping[api_lut[page_num*4+i]]].hsv, &g_rgb_configs[g_rgb_mapping[api_lut[page_num*4+i]]].rgb);
 
 		   }
 	   } else if(page_num<48) {  ///keycode
 		   page_num %= 16; // needed
 		   for(int i=0;i<4;i++) {
-			   keymap[0][Keyboard_AdvancedKeys[api_lut[page_num*4+i]].key.id] = USB_Recive_Buffer[2+i*4+0] << 8 | USB_Recive_Buffer[2+i*4+1];
+			   g_keymap[0][g_keyboard_advanced_keys[api_lut[page_num*4+i]].key.id] = USB_Recive_Buffer[2+i*4+0] << 8 | USB_Recive_Buffer[2+i*4+1];
 		   }
 	   }
    }
