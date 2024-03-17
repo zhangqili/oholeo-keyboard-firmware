@@ -8,6 +8,8 @@
 #ifndef KEYBOARD_CONF_H_
 #define KEYBOARD_CONF_H_
 
+#include "usbd_conf.h"
+
 //#define EXTENDED_SAMPLING
 
 //#define PAUSE_TIM_WHEN_CALCULATING
@@ -37,5 +39,7 @@
 #define LAYER_NUM               5
 #define ADVANCED_KEY_NUM        64
 #define KEY_NUM                 0
+
+#define HID_BUFFER_LENGTH       USBD_CUSTOMHID_OUTREPORT_BUF_SIZE
 
 #endif /* KEYBOARD_CONF_H_ */

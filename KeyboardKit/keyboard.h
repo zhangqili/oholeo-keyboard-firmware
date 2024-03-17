@@ -10,24 +10,36 @@
 
 #include "key.h"
 #include "usb_hid_keys.h"
-#include "usbd_conf.h"
 #include "keyboard_conf.h"
 
+#define KEYBINDING(keycode,modifier) (((modifier)<<8)|(keycode))
+#define KEY_KEYCODE(binding) ((binding)&0xFF)
+#define KEY_MODIFIER(binding) (((binding)>>8)&0xFF)
 
-extern uint8_t Keyboard_ReportBuffer[USBD_CUSTOMHID_OUTREPORT_BUF_SIZE];
+typedef struct
+{
+    uint8_t buffer[8];
+    uint8_t keynum;
+}Keyboard_6KROBuffer;
 
+extern Key g_keyboard_keys[KEY_NUM];
 extern AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM];
-
-
-extern uint16_t g_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
+extern uint8_t g_keyboard_current_layer;
 extern const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
+extern uint16_t g_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 
-void Keyboard_Init();
-void Keyboard_FactoryReset();
-void Keyboard_SystemReset();
-void Keyboard_Scan();
-void Keyboard_SendReport();
-void Keyboard_Recovery();
-void Keyboard_Save();
+extern uint8_t g_keyboard_report_buffer[HID_BUFFER_LENGTH];
+
+int keyboard_6KRObuffer_add(Keyboard_6KROBuffer*buf,uint16_t key);
+void keyboard_6KRObuffer_send(Keyboard_6KROBuffer*buf);
+void keyboard_6KRObuffer_clear(Keyboard_6KROBuffer*buf);
+void keyboard_init();
+void keyboard_factory_reset();
+void keyboard_system_reset();
+void keyboard_scan();
+void keyboard_send_report();
+void keyboard_recovery();
+void keyboard_save();
+void keyboard_hid_send(uint8_t *report, uint16_t len);
 
 #endif /* KEYBOARD_H_ */

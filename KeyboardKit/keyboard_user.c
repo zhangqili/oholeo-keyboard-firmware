@@ -6,6 +6,9 @@
  */
 #include "keyboard.h"
 #include "rgb.h"
+#include "usbd_conf.h"
+#include "usb_device.h"
+#include "usbd_custom_hid_if.h"
 
 const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM] = {
     {
@@ -107,3 +110,9 @@ AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM] =
     {.key.id = 21},
     {.key.id = 7}
 };
+
+void keyboard_hid_send(uint8_t*report,uint16_t len)
+{
+    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,g_keyboard_report_buffer,17+1);
+}
+
