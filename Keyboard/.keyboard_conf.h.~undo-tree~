@@ -1,9 +1,0 @@
-(undo-tree-save-format-version . 1)
-"200234ed48bfbc02f5c3479e42f63edbc70d58c8"
-[nil nil nil nil (25983 57600 152179 845000) 0 nil]
-([nil current ((apply smerge-mode 1) (#("<<<<<<< HEAD
-" 0 1 (face smerge-markers smerge-refine-part (11 . 2) c-is-sws t) 1 13 (face smerge-markers)) . 429) (undo-tree-id0 . -13) (undo-tree-id1 . -8) (undo-tree-id2 . -8) (undo-tree-id3 . -8) (undo-tree-id4 . -8) (undo-tree-id5 . -8) (undo-tree-id6 . -8) (undo-tree-id7 . -8) (#("=======
-#define DEFAULT_TRIGGER_DISTANCE 0.5
->>>>>>> main
-" 0 1 (c-is-sws t face smerge-markers) 1 7 (face smerge-markers) 7 8 (face nil) 8 15 (face (smerge-lower font-lock-preprocessor-face)) 15 16 (face (smerge-lower)) 16 40 (face (smerge-lower font-lock-variable-name-face)) 40 45 (face (smerge-lower)) 45 58 (face smerge-markers)) . 480) (undo-tree-id8 . -8) 437 (t 25983 56442 756432 133000)) nil (25983 57600 152176 164000) 0 nil])
-nil

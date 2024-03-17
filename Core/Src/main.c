@@ -34,7 +34,6 @@
 #include "rgb.h"
 #include "keyboard.h"
 #include "keyboard_conf.h"
-#include "lefl.h"
 #include "usbd_custom_hid_if.h"
 #include "math.h"
 #include "lfs.h"
@@ -266,6 +265,7 @@ int main(void)
   RGB_Init();
   //RGB_Recovery();
   Keyboard_Recovery();
+  Keyboard_FactoryReset();
 
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
@@ -301,10 +301,12 @@ int main(void)
   }
   for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
   {
-      lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i, RingBuf_Avg(&adc_ringbuf[i]), 1200);
-//	  lefl_advanced_key_set_range(Keyboard_AdvancedKeys+i,(ADC_Buffer[i]), 1200);
+      advanced_key_set_range(Keyboard_AdvancedKeys+i, RingBuf_Avg(&adc_ringbuf[i]), 1200);
+      key_attach(&Keyboard_AdvancedKeys[i].key, KEY_EVENT_UP, NULL);
+      key_attach(&Keyboard_AdvancedKeys[i].key, KEY_EVENT_DOWN, NULL);
+//	  advanced_key_set_range(Keyboard_AdvancedKeys+i,(ADC_Buffer[i]), 1200);
 
-      lefl_advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, DEFAULT_UPPER_DEADZONE, Keyboard_AdvancedKeys[i].lower_deadzone);
+      advanced_key_set_deadzone(Keyboard_AdvancedKeys+i, DEFAULT_UPPER_DEADZONE, Keyboard_AdvancedKeys[i].lower_deadzone);
       RGB_Configs[i].speed=0.01;
   }
   RGB_GlobalConfig.speed = 0.01;
