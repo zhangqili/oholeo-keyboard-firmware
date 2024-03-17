@@ -68,7 +68,7 @@ void keyboard_factory_reset()
     }
     rgb_recovery();
     keyboard_save();
-    keyboard_system_reset();
+    //keyboard_system_reset();
 }
 void keyboard_system_reset()
 {

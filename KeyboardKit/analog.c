@@ -5,7 +5,6 @@
  *      Author: xq123
  */
 #include "main.h"
-#include "usart.h"
 #include "stdlib.h"
 #include "stdio.h"
 #include "adc.h"
@@ -15,65 +14,16 @@
 #include "rgb.h"
 #include "keyboard_conf.h"
 #include "math.h"
-uint32_t DMA_Buffer[4][DMA_BUF_LEN];
-float_t ADC_Buffer[ADVANCED_KEY_NUM];
-//#define EXTENDED_SAMPLING
-//AnalogItem AnalogDatas[ADVANCED_KEY_NUM];
+uint32_t g_ADC_Buffer[4][DMA_BUF_LEN];
+
 RingBuf adc_ringbuf[ADVANCED_KEY_NUM];
 
-#ifdef EXTENDED_SAMPLING
-AnalogItem LastAnalogDatas[ADVANCED_KEY_NUM];
-//#define ANALOG_AVERAGE(x) ((AnalogDatas[x].sum+LastAnalogDatas[x].sum)/(AnalogDatas[x].count+LastAnalogDatas[x].count))
-#define ANALOG_AVERAGE(x) (RingBuf_Avg(&adc_ringbuf[x]))
-#else
-//#define ANALOG_AVERAGE(x) ((AnalogDatas[x].sum)/(AnalogDatas[x].count))
-#define ANALOG_AVERAGE(x) (RingBuf_Avg(&adc_ringbuf[x]))
-//#define ANALOG_AVERAGE(x) (ADC_Buffer[x])
+#define ANALOG_AVERAGE(x) (ringbuf_avg(&adc_ringbuf[x]))
 
-#endif
-
-uint16_t Analog_Buffer[ADVANCED_KEY_NUM];
-
-uint8_t Analog_ActiveChannel;
-uint32_t Analog_Count;
-bool Analog_ConvCpltFlag[4];
-
-void RingBuf_Push(RingBuf *ringbuf, uint32_t data) {
-	ringbuf->Pointer++;
-	if(ringbuf->Pointer >= RING_BUF_LEN)ringbuf->Pointer=0;
-	ringbuf->Datas[ringbuf->Pointer] = data;
-}
-float_t RingBuf_Avg(RingBuf *ringbuf) {
-
-	uint32_t avg = 0;
-	for(int i=0;i<RING_BUF_LEN;i++)
-		avg+=ringbuf->Datas[i];
-
-	avg = ((avg>>2)&0x01)+(avg>>3);
-//	avg = ringbuf->Datas[ringbuf->Pointer];
-	if(avg-TOLERANCE>ringbuf->state)ringbuf->state=avg-TOLERANCE;
-	if(avg+TOLERANCE<ringbuf->state)ringbuf->state=avg+TOLERANCE;
-//	return (float_t)avg;
-	return (float_t)ringbuf->state;
-}
+uint8_t g_analog_active_channel;
 
 void analog_init()
 {
-}
-
-
-void analog_start()
-{
-    Analog_ActiveChannel=0;
-    /*
-    HAL_ADC_Start_DMA(&hadc1, (ADC_Buffer+0), 1);
-    HAL_ADC_Start_DMA(&hadc2, (ADC_Buffer+1), 1);
-    HAL_ADC_Start_DMA(&hadc3, (ADC_Buffer+2), 1);
-    HAL_ADC_Start_DMA(&hadc4, (ADC_Buffer+3), 1);
-    */
-    //HAL_ADC_Start_IT(&hadc1);
-    //HAL_ADC_Start_IT(&hadc2);
-    analog_scan();
 }
 
 void analog_channel_select(uint8_t x)
@@ -87,11 +37,6 @@ void analog_channel_select(uint8_t x)
 
 void analog_scan()
 {
-    analog_channel_select(Analog_ActiveChannel);
-    //HAL_ADC_Start(&hadc2);
-    //HAL_ADCEx_MultiModeStart_DMA(&hadc1, (uint32_t*)(Analog_Buffer), 1);
-    //HAL_ADC_Start_IT(&hadc3);
-    HAL_ADC_Start_IT(&hadc4);
 }
 
 void analog_average()
@@ -129,52 +74,24 @@ void analog_check()
 }
 
 
-void Analog_Recovery()
+void ringbuf_push(RingBuf* ringbuf, uint32_t data)
 {
-
+    ringbuf->pointer++;
+    if (ringbuf->pointer >= RING_BUF_LEN)ringbuf->pointer = 0;
+    ringbuf->datas[ringbuf->pointer] = data;
 }
 
-void Analog_Flush()
+float ringbuf_avg(RingBuf* ringbuf)
 {
-#ifdef EXTENDED_SAMPLING
-    memcpy(LastAnalogDatas,AnalogDatas,sizeof(AnalogDatas));
-#endif
-//    memset(AnalogDatas,0,sizeof(AnalogDatas));
-}
+    uint32_t avg = 0;
+    for (int i = 0; i < RING_BUF_LEN; i++)
+        avg += ringbuf->datas[i];
 
+    avg = ((avg >> 2) & 0x01) + (avg >> 3);
+    //  avg = ringbuf->Datas[ringbuf->Pointer];
+    if (avg - TOLERANCE > ringbuf->state)ringbuf->state = avg - TOLERANCE;
+    if (avg + TOLERANCE < ringbuf->state)ringbuf->state = avg + TOLERANCE;
 
-void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
-{
-
-}
-
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
-{
-//	if (hadc==&hadc1){RingBuf_Push(&adc_ringbuf[0*16+ADDRESS], HAL_ADC_GetValue(&hadc1));}
-//	if (hadc==&hadc2){RingBuf_Push(&adc_ringbuf[1*16+ADDRESS], HAL_ADC_GetValue(&hadc2));}
-//	if (hadc==&hadc3){RingBuf_Push(&adc_ringbuf[2*16+ADDRESS], HAL_ADC_GetValue(&hadc3));}
-//	if (hadc==&hadc4){RingBuf_Push(&adc_ringbuf[3*16+ADDRESS], HAL_ADC_GetValue(&hadc4));}
-
-//    if (hadc==&hadc1)
-//    {
-//        AnalogDatas[0*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc1);
-//        //AnalogDatas[0*16+ADDRESS].sum+=Analog_Buffer[0];
-//        AnalogDatas[0*16+ADDRESS].count++;
-//        AnalogDatas[1*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc2);
-//        //AnalogDatas[1*16+ADDRESS].sum+=Analog_Buffer[1];
-//        AnalogDatas[1*16+ADDRESS].count++;
-//        Analog_ConvCpltFlag[0]=true;
-//    }
-//    if (hadc==&hadc3)
-//    {
-//        AnalogDatas[2*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc3);
-//        //AnalogDatas[2*16+ADDRESS].sum+=Analog_Buffer[2];
-//        AnalogDatas[2*16+ADDRESS].count++;
-//        AnalogDatas[3*16+ADDRESS].sum+=HAL_ADC_GetValue(&hadc4);
-//        //AnalogDatas[3*16+ADDRESS].sum+=Analog_Buffer[3];
-//        AnalogDatas[3*16+ADDRESS].count++;
-//        Analog_ConvCpltFlag[2]=true;
-//        //HAL_ADC_Stop_DMA(&hadc3);
-//    }
-
+    //  return (float_t)avg;
+    return (float)ringbuf->state;
 }

@@ -10,9 +10,11 @@
 #ifndef ANALOG_H_
 #define ANALOG_H_
 
-
-#define ADDRESS BCD_TO_GRAY(Analog_ActiveChannel)
+#define Analog_Clean() (ADC_Conversion_Count=0)
+#define ADDRESS BCD_TO_GRAY(g_analog_active_channel)
 #define BCD_TO_GRAY(x) (x^(x>>1))
+
+#define ANALOG_BUFFER_LENGTH 16
 
 #define TOLERANCE 3
 #define RING_BUF_LEN 8
@@ -21,46 +23,26 @@
 
 typedef struct
 {
-     uint32_t Datas[RING_BUF_LEN];
-     uint32_t Pointer;
+     uint32_t datas[RING_BUF_LEN];
+     uint32_t pointer;
      uint32_t state;
 }RingBuf;
 
-typedef struct
-{
-     uint32_t sum;
-     uint32_t count;
-} AnalogItem;
 
-
-
-extern uint32_t DMA_Buffer[4][DMA_BUF_LEN];
-extern float ADC_Buffer[ADVANCED_KEY_NUM];
+extern uint32_t g_ADC_Buffer[4][DMA_BUF_LEN];
 //extern AnalogItem AnalogDatas[ADVANCED_KEY_NUM];
 extern RingBuf adc_ringbuf[ADVANCED_KEY_NUM];
 
-#ifdef EXTENDED_SAMPLING
-extern AnalogItem LastAnalogDatas[ADVANCED_KEY_NUM];
-#endif
+extern uint8_t g_analog_active_channel;
 
-extern uint16_t Analog_Buffer[ADVANCED_KEY_NUM];
-
-extern uint8_t Analog_ActiveChannel;
-extern bool Analog_ConvCpltFlag[4];
-
-extern uint32_t Analog_Count;
-
+void analog_init();
 void analog_channel_select(uint8_t x);
 void analog_scan();
-void analog_init();
 void analog_average();
 void analog_check();
-void Analog_Recovery();
-void Analog_Flush();
-void analog_start();
-void Analog_Save();
+void analog_reset_range();
 
-void RingBuf_Push(RingBuf *ringbuf, uint32_t data);
-float RingBuf_Avg(RingBuf *ringbuf);
+void ringbuf_push(RingBuf *ringbuf, uint32_t data);
+float ringbuf_avg(RingBuf *ringbuf);
 
 #endif /* ANALOG_H_ */

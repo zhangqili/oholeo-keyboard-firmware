@@ -257,51 +257,34 @@ int main(void)
   DWT_Init();
   sfud_device_init(&sfud_norflash0);
 
-//  lefl_bit_array_init(&Keyboard_KeyArray, (size_t*)(Keyboard_ReportBuffer+2), 168);
-//  lefl_bit_array_init(&Keyboard_KeyArray, (size_t*)(&Keyboard_ReportBuffer[1]), 128);
-
   HAL_GPIO_WritePin(INHIBIT_GPIO_Port, INHIBIT_Pin, GPIO_PIN_RESET);
-//  Keyboard_Init();
   rgb_init();
-  //RGB_Recovery();
-  keyboard_recovery();
-  //Keyboard_FactoryReset();
 
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
   HAL_ADCEx_Calibration_Start(&hadc3, ADC_SINGLE_ENDED);
   HAL_ADCEx_Calibration_Start(&hadc4, ADC_SINGLE_ENDED);
   rgb_start();
-  //HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
 
-  //Analog_Init();
   rgb_flash();
   rgb_turn_off();
 
+  HAL_ADC_Start_DMA(&hadc1, g_ADC_Buffer[0], DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc2, g_ADC_Buffer[1], DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc3, g_ADC_Buffer[2], DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc4, g_ADC_Buffer[3], DMA_BUF_LEN);
 
-  HAL_ADC_Start_DMA(&hadc1, DMA_Buffer[0], DMA_BUF_LEN);
-  HAL_ADC_Start_DMA(&hadc2, DMA_Buffer[1], DMA_BUF_LEN);
-  HAL_ADC_Start_DMA(&hadc3, DMA_Buffer[2], DMA_BUF_LEN);
-  HAL_ADC_Start_DMA(&hadc4, DMA_Buffer[3], DMA_BUF_LEN);
-//  HAL_ADC_Start(&hadc2);
-//  HAL_ADCEx_MultiModeStart_DMA(&hadc1, &DMA_Buffer[0], DMA_BUF_LEN);
-//  HAL_ADC_Start(&hadc4);
-//  HAL_ADCEx_MultiModeStart_DMA(&hadc3, &DMA_Buffer[DMA_BUF_LEN], DMA_BUF_LEN);
-
-  //Analog_Start();
-  /* Analog Calibration BEGIN */
   HAL_TIM_Base_Start_IT(&htim2);
-//  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-
 
   HAL_Delay(500);
-  if(RingBuf_Avg(&adc_ringbuf[49])<1400)
+  if(ringbuf_avg(&adc_ringbuf[49])<1400)
   {
 	  JumpToBootloader();
   }
+  keyboard_recovery();
   for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
   {
-      advanced_key_set_range(g_keyboard_advanced_keys+i, RingBuf_Avg(&adc_ringbuf[i]), 1200);
+      advanced_key_set_range(g_keyboard_advanced_keys+i, ringbuf_avg(&adc_ringbuf[i]), 1200);
       key_attach(&g_keyboard_advanced_keys[i].key, KEY_EVENT_UP, NULL);
       key_attach(&g_keyboard_advanced_keys[i].key, KEY_EVENT_DOWN, NULL);
 //	  advanced_key_set_range(Keyboard_AdvancedKeys+i,(ADC_Buffer[i]), 1200);
@@ -532,26 +515,36 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		uint32_t adc4=0;
 
 		for(int i=0;i<DMA_BUF_LEN;i++) {
-		 adc1+=DMA_Buffer[0][i]&0xfff;
-		 adc2+=DMA_Buffer[1][i]&0xfff;
-		 adc3+=DMA_Buffer[2][i]&0xfff;
-		 adc4+=DMA_Buffer[3][i]&0xfff;
+		 adc1+=g_ADC_Buffer[0][i]&0xfff;
+		 adc2+=g_ADC_Buffer[1][i]&0xfff;
+		 adc3+=g_ADC_Buffer[2][i]&0xfff;
+		 adc4+=g_ADC_Buffer[3][i]&0xfff;
 		}
 
-		RingBuf_Push(&adc_ringbuf[0*16+ADDRESS] , (float_t)adc1/(float_t)DMA_BUF_LEN);
-		RingBuf_Push(&adc_ringbuf[1*16+ADDRESS] , (float_t)adc2/(float_t)DMA_BUF_LEN);
-		RingBuf_Push(&adc_ringbuf[2*16+ADDRESS] , (float_t)adc3/(float_t)DMA_BUF_LEN);
-		RingBuf_Push(&adc_ringbuf[3*16+ADDRESS] , (float_t)adc4/(float_t)DMA_BUF_LEN);
+		ringbuf_push(&adc_ringbuf[0*16+ADDRESS] , (float_t)adc1/(float_t)DMA_BUF_LEN);
+		ringbuf_push(&adc_ringbuf[1*16+ADDRESS] , (float_t)adc2/(float_t)DMA_BUF_LEN);
+		ringbuf_push(&adc_ringbuf[2*16+ADDRESS] , (float_t)adc3/(float_t)DMA_BUF_LEN);
+		ringbuf_push(&adc_ringbuf[3*16+ADDRESS] , (float_t)adc4/(float_t)DMA_BUF_LEN);
 
 		if (htim->Instance->CNT < 700) {
-			Analog_Count++;
-			Analog_ActiveChannel++;
-			if(Analog_ActiveChannel>=16)Analog_ActiveChannel=0;
-			analog_channel_select(Analog_ActiveChannel);
+			g_analog_active_channel++;
+			if(g_analog_active_channel>=16)g_analog_active_channel=0;
+			analog_channel_select(g_analog_active_channel);
 		}
 //	  }
   }
 }
+
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
+{
+
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+
+}
+
 /* USER CODE END 4 */
 
 /**
