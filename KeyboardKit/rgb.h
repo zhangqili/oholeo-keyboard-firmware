@@ -88,7 +88,7 @@ void rgb_loop_queue_enqueue(RGBLoopQueue* q, RGBLoopQueueElm t);
 extern uint32_t RGB_Tick;
 //#define loop_queue_foreach(q,i) for(uint16_t (i)=(q)->front;(i)!=(q)->rear;(i)=(i+1)%(q)->len)
 
-#define ARGUMENT_BUFFER_LENGTH 16
+#define ARGUMENT_BUFFER_LENGTH 64
 extern uint8_t g_rgb_buffer[RGB_BUFFER_LENGTH];
 extern ColorRGB g_rgb_colors[RGB_NUM];
 extern RGBIndividualConfig g_rgb_configs[RGB_NUM];

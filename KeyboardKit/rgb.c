@@ -39,7 +39,7 @@ void rgb_update()
     memcpy(&temp_hsv, &(g_rgb_global_config.hsv), sizeof(ColorHSV));
     loop_queue_foreach(&g_rgb_argument_queue, j)
     {
-        if(g_rgb_global_config.speed*(RGB_Tick-g_rgb_argument_queue.data[j].begin_time)>4.0f)
+        if(g_rgb_global_config.speed*(RGB_Tick-g_rgb_argument_queue.data[j].begin_time)>20.0f)
         {
             rgb_loop_queue_dequeue(&g_rgb_argument_queue);
         }

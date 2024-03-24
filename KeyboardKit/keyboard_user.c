@@ -116,3 +116,21 @@ void keyboard_hid_send(uint8_t*report,uint16_t len)
     USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,g_keyboard_report_buffer,17+1);
 }
 
+
+float advanced_key_normalize(AdvancedKey* key, float value)
+{
+    float x = (key->upper_bound - value) / (key->upper_bound - key->lower_bound);
+    if (x<0.225)
+    {
+        return x*(0.5/0.225);
+    }
+    else if (x<0.404)
+    {
+        return (x-0.225)*(0.25/(0.404-0.225))+0.5;
+    }
+    else
+    {
+        return (x-0.404)*(0.25/(1.0-0.404))+0.75;
+    }
+    
+}
