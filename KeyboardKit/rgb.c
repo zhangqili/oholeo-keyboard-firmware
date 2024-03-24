@@ -224,6 +224,13 @@ void rgb_update()
             }
             break;
     }
+    extern uint8_t LED_Report;
+	if(LED_Report&0x02) {
+	    g_rgb_colors[g_rgb_mapping[3]] = g_rgb_configs[g_rgb_mapping[3]].rgb;//cap lock
+	}
+	if(g_keyboard_advanced_keys[49].key.state) {
+		g_rgb_colors[g_rgb_mapping[9]] = g_rgb_configs[g_rgb_mapping[9]].rgb;//q
+	}
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
         rgb_set(g_rgb_colors[i].r, g_rgb_colors[i].g, g_rgb_colors[i].b, i);
