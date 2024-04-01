@@ -49,7 +49,7 @@ AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM] =
     {.key.id = 41}, //Left Shift
     {.key.id = 42},
     {.key.id = 43},
-    {.key.id = 44},
+    {.key.id = 44},//C
     {.key.id = 14},
     {.key.id = 15},
     {.key.id = 16},
@@ -84,7 +84,7 @@ AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM] =
     {.key.id = 6},
     {.key.id = 33},
     {.key.id = 46},
-    {.key.id = 45},
+    {.key.id = 45},//V
     {.key.id = 32},
     {.key.id = 18},
     {.key.id = 5},
@@ -1146,4 +1146,7 @@ float advanced_key_normalize(AdvancedKey* key, float value)
     }
     */
     
+}
+void keyboard_post_process()
+{
 }

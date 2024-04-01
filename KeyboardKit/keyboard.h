@@ -11,6 +11,7 @@
 #include "key.h"
 #include "usb_hid_keys.h"
 #include "keyboard_conf.h"
+#include "keyboard_def.h"
 
 #define KEYBINDING(keycode,modifier) (((modifier)<<8)|(keycode))
 #define KEY_KEYCODE(binding) ((binding)&0xFF)
@@ -38,8 +39,10 @@ void keyboard_factory_reset();
 void keyboard_system_reset();
 void keyboard_scan();
 void keyboard_send_report();
+void keyboard_post_process();
 void keyboard_recovery();
 void keyboard_save();
+void keyboard_timer();
 void keyboard_hid_send(uint8_t *report, uint16_t len);
 
 #endif /* KEYBOARD_H_ */

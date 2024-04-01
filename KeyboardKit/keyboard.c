@@ -145,8 +145,9 @@ void keyboard_save()
 
 void keyboard_send_report()
 {
+    keyboard_post_process();
     int16_t index, bitIndex, keycode, layer;
-    layer = g_keyboard_advanced_keys[49].key.state?1:0; //Fn key
+    layer = g_keyboard_advanced_keys[49].key.report_state?1:0; //Fn key
 
     memset(g_keyboard_report_buffer, 0, HID_BUFFER_LENGTH);
     g_keyboard_report_buffer[0] = 1;
@@ -161,14 +162,27 @@ void keyboard_send_report()
             bitIndex += 8;
         } else if (keycode > 100)
             continue;
-        if(g_keyboard_advanced_keys[i].key.state)g_keyboard_report_buffer[index + 1] |= 1 << (bitIndex); // +1 for Report-ID
+        if(g_keyboard_advanced_keys[i].key.report_state)g_keyboard_report_buffer[index + 1] |= 1 << (bitIndex); // +1 for Report-ID
     }
     //debug
 //    memset(Keyboard_ReportBuffer, 0, USBD_CUSTOMHID_OUTREPORT_BUF_SIZE);
     keyboard_hid_send(g_keyboard_report_buffer,16+1);
 }
 
+__WEAK void keyboard_timer()
+{
+    keyboard_scan();
+    analog_average();
+    analog_check();
+    keyboard_post_process();
+    keyboard_send_report();
+}
+
 __WEAK void keyboard_hid_send(uint8_t *report, uint16_t len)
 {
 }
 
+__WEAK void keyboard_post_process()
+{
+    
+}

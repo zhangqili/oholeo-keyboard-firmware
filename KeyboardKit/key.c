@@ -17,6 +17,7 @@ void key_update(Key* key,bool state)
             key->key_cb[KEY_EVENT_UP](key);
     }
     key->state = state;
+    key->report_state = state;
 }
 
 void key_attach(Key* key, KEY_EVENT e, key_cb_t cb)

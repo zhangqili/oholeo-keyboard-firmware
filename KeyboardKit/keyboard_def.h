@@ -19,4 +19,8 @@
     #define __packed __attribute__((__packed__))
   #endif /* __packed */
 #endif /* __GNUC__ */
+
+#define KEY_RAPPY_SNAPPY_BIND(a,b) ((a)->key.report_state=(a)->value>(b)->value&&(a)->value>(a)->upper_deadzone);\
+                                   ((b)->key.report_state=!((a)->value>(b)->value)&&(b)->value>(b)->upper_deadzone); 
+
 #endif //KEYBOARD_DEF_H
