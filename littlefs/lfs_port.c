@@ -125,6 +125,6 @@ void lfs_test(void)
     lfs_unmount(&lfs_w25qxx);
 
     // print the boot count
-    printf("boot_count: %d\n", boot_count);
+    printf("boot_count: %ld\n", boot_count);
 }
 

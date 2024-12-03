@@ -96,7 +96,7 @@ uint32_t api_lut[64] = {15, 14, 13, 12, 44, 43, 37, 63, 59, 58, 31, 30, 29, 28, 
   */
 
 /** Usb HID report descriptor. */
-__ALIGN_BEGIN static uint8_t CUSTOM_HID_ReportDesc_FS[USBD_CUSTOM_HID_REPORT_DESC_SIZE] __ALIGN_END =
+__ALIGN_BEGIN static uint8_t CUSTOM_HID_ReportDesc_FS[USBD_CUSTOM_HID_REPORT_DESC_SIZE+1] __ALIGN_END =
 {
   /* USER CODE BEGIN 0 */
         0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
@@ -318,9 +318,9 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 	   } else if(page_num<32) {  ///rgb
 		   page_num %= 16; // needed
 		   for(int i=0;i<4;i++) {
-			   g_rgb_global_config.mode = USB_Recive_Buffer[2+i*4+0]>>4;
-			   g_rgb_global_config.rgb = *(ColorRGB *)&USB_Recive_Buffer[2+i*4+1];
-			   rgb_to_hsv(&g_rgb_global_config.hsv, &g_rgb_global_config.rgb);
+			   //g_rgb_global_config.mode = USB_Recive_Buffer[2+i*4+0]>>4;
+			   //g_rgb_global_config.rgb = *(ColorRGB *)&USB_Recive_Buffer[2+i*4+1];
+			   //rgb_to_hsv(&g_rgb_global_config.hsv, &g_rgb_global_config.rgb);
 			   g_rgb_configs[g_rgb_mapping[api_lut[page_num*4+i]]].mode = USB_Recive_Buffer[2+i*4+0]&0x0f;
 			   g_rgb_configs[g_rgb_mapping[api_lut[page_num*4+i]]].rgb = *(ColorRGB *)&USB_Recive_Buffer[2+i*4+1];
 			   rgb_to_hsv(&g_rgb_configs[g_rgb_mapping[api_lut[page_num*4+i]]].hsv, &g_rgb_configs[g_rgb_mapping[api_lut[page_num*4+i]]].rgb);

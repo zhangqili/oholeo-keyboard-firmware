@@ -167,3 +167,31 @@ void color_set_hsv(Color*color, ColorHSV*hsv)
 {
     hsv_to_rgb(color, hsv);
 }
+
+void color_mix(Color *dest, Color *source)
+{
+	if (dest->r + source->r < 256)
+	{
+		dest->r += source->r;
+	}
+	else
+	{
+		dest->r = 255;
+	}
+	if (dest->g + source->g < 256)
+	{
+		dest->g += source->g;
+	}
+	else
+	{
+		dest->g = 255;
+	}
+	if (dest->b + source->b < 256)
+	{
+		dest->b += source->b;
+	}
+	else
+	{
+		dest->b = 255;
+	}
+}

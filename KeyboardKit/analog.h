@@ -6,6 +6,7 @@
  */
 #include "keyboard.h"
 #include "keyboard_conf.h"
+#include "filter.h"
 
 #ifndef ANALOG_H_
 #define ANALOG_H_
@@ -13,6 +14,9 @@
 #define Analog_Clean() (ADC_Conversion_Count=0)
 #define ADDRESS BCD_TO_GRAY(g_analog_active_channel)
 #define BCD_TO_GRAY(x) (x^(x>>1))
+
+extern AdaptiveSchimidtFilter g_analog_filters[ADVANCED_KEY_NUM];
+
 
 #define ANALOG_BUFFER_LENGTH 16
 
@@ -29,7 +33,9 @@ typedef struct
 }RingBuf;
 
 
-extern uint32_t g_ADC_Buffer[4][DMA_BUF_LEN];
+extern uint16_t g_ADC_Conversion_Count;
+extern uint32_t g_ADC_Buffer[4 * DMA_BUF_LEN];
+extern float g_ADC_Averages[ADVANCED_KEY_NUM];
 //extern AnalogItem AnalogDatas[ADVANCED_KEY_NUM];
 extern RingBuf adc_ringbuf[ADVANCED_KEY_NUM];
 

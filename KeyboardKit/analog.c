@@ -14,7 +14,12 @@
 #include "rgb.h"
 #include "keyboard_conf.h"
 #include "math.h"
-uint32_t g_ADC_Buffer[4][DMA_BUF_LEN];
+
+uint16_t g_ADC_Conversion_Count;
+uint32_t g_ADC_Buffer[4 * DMA_BUF_LEN];
+float g_ADC_Averages[ADVANCED_KEY_NUM];
+
+AdaptiveSchimidtFilter g_analog_filters[ADVANCED_KEY_NUM];
 
 RingBuf adc_ringbuf[ADVANCED_KEY_NUM];
 
@@ -37,40 +42,74 @@ void analog_channel_select(uint8_t x)
 
 void analog_scan()
 {
+    //uint32_t ADC_sum;
+    for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+    {
+        /*
+        ADC_sum = 0;
+        for (uint8_t j = 0; j < ANALOG_BUFFER_LENGTH; j++)
+        {
+            ADC_sum += g_ADC_Buffer[i + j * ADVANCED_KEY_NUM];
+        }
+        g_ADC_Averages[i] = ADC_sum/((float)ANALOG_BUFFER_LENGTH);
+#ifdef ENABLE_FILTER
+        g_ADC_Averages[i] = adaptive_schimidt_filter(g_analog_filters+i,g_ADC_Averages[i]);
+#endif
+        */
+    }
 }
 
 void analog_average()
 {
-
+    //uint32_t ADC_sum;
+    for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+    {
+        //ADC_sum = 0;
+        //for (uint8_t j = 0; j < ANALOG_BUFFER_LENGTH; j++)
+        //{
+        //    ADC_sum += g_ADC_Buffer[i + j * ADVANCED_KEY_NUM];
+        //}
+        g_ADC_Averages[i] = ANALOG_AVERAGE(i);
+#ifdef ENABLE_FILTER
+        g_ADC_Averages[i] = adaptive_schimidt_filter(g_analog_filters+i,g_ADC_Averages[i]);
+#endif
+    }
 }
 
 void analog_check()
 {
     bool state;
-    RGBArgument a;
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-    	float_t analog_avg = ANALOG_AVERAGE(i);
-        state=g_keyboard_advanced_keys[i].key.state;
-        if(analog_avg<g_keyboard_advanced_keys[i].lower_bound)
+        state = g_keyboard_advanced_keys[i].key.state;
+        if (g_keyboard_advanced_keys[i].mode != KEY_DIGITAL_MODE)
         {
-            advanced_key_set_range(g_keyboard_advanced_keys+i, g_keyboard_advanced_keys[i].upper_bound,analog_avg);
-            advanced_key_set_deadzone(g_keyboard_advanced_keys+i, DEFAULT_UPPER_DEADZONE, g_keyboard_advanced_keys[i].lower_deadzone);
+            switch (g_keyboard_advanced_keys[i].calibration_mode)
+            {
+            case KEY_AUTO_CALIBRATION_POSITIVE:
+                if (g_ADC_Averages[i] > g_keyboard_advanced_keys[i].lower_bound)
+                    g_keyboard_advanced_keys[i].lower_bound = g_ADC_Averages[i];
+                break;
+            case KEY_AUTO_CALIBRATION_NEGATIVE:
+                if (g_ADC_Averages[i] < g_keyboard_advanced_keys[i].lower_bound)
+                    g_keyboard_advanced_keys[i].lower_bound = g_ADC_Averages[i];
+            default:
+                break;
+            }
+            advanced_key_update_raw(g_keyboard_advanced_keys + i, g_ADC_Averages[i]);
         }
-        if(g_keyboard_advanced_keys[i].mode!=KEY_DIGITAL_MODE)
-        advanced_key_update_raw(g_keyboard_advanced_keys+i, analog_avg);
-        if(g_keyboard_advanced_keys[i].key.state&&!state)
-        {
-        	extern uint32_t pulse_counter;
+        if (g_keyboard_advanced_keys[i].key.state && !state)
+        {        	
+            extern uint32_t pulse_counter;
         	pulse_counter=0;
-
-            a.rgb_ptr = g_rgb_mapping[i];
-            a.begin_time=HAL_GetTick();
-            rgb_loop_queue_enqueue(&g_rgb_argument_queue, a);
+#ifdef ENABLE_KPS
+            record_kps_tick();
+#endif
+#ifdef ENABLE_COUNTER
+            g_key_counts[i]++;
+#endif
         }
-            //advanced_key_update_raw(Keyboard_AdvancedKeys+i, (((float)(AnalogItems.sum))/(float)(AnalogItems.count)));
     }
-
 }
 
 
@@ -92,6 +131,6 @@ float ringbuf_avg(RingBuf* ringbuf)
     if (avg - TOLERANCE > ringbuf->state)ringbuf->state = avg - TOLERANCE;
     if (avg + TOLERANCE < ringbuf->state)ringbuf->state = avg + TOLERANCE;
 
-    //  return (float_t)avg;
-    return (float)ringbuf->state;
+    return (float)avg;
+    //return (float)ringbuf->state;
 }

@@ -9,6 +9,7 @@
 #define KEYBOARD_H_
 
 #include "key.h"
+#include "advanced_key.h"
 #include "usb_hid_keys.h"
 #include "keyboard_conf.h"
 #include "keyboard_def.h"
@@ -42,7 +43,8 @@ void keyboard_send_report();
 void keyboard_post_process();
 void keyboard_recovery();
 void keyboard_save();
-void keyboard_timer();
+void keyboard_task();
+void keyboard_delay();
 void keyboard_hid_send(uint8_t *report, uint16_t len);
 
 #endif /* KEYBOARD_H_ */

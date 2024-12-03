@@ -12,32 +12,33 @@
 
 const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM] = {
     {
-        ESC/*0*/, NUM_1/*1*/, NUM_2/*2*/, NUM_3/*3*/, NUM_4/*4*/, NUM_5/*5*/, NUM_6/*6*/, NUM_7/*7*/, NUM_8/*8*/, NUM_9/*9*/, NUM_0/*10*/, MINUS/*11*/, EQUAL/*12*/, BACKSPACE/*13*/,
-        TAB/*14*/, Q/*15*/, W/*16*/, E/*17*/, R/*18*/, T/*19*/, Y/*20*/, U/*21*/, I/*22*/, O/*23*/, P/*24*/, LEFT_U_BRACE/*25*/, RIGHT_U_BRACE/*26*/, BACKSLASH/*27*/,
-        CAP_LOCK/*28*/, A/*29*/, S/*30*/, D/*31*/, F/*32*/, G/*33*/, H/*34*/, J/*35*/, K/*36*/, L/*37*/, SEMI_COLON/*38*/, QUOTE/*39*/, ENTER/*40*/,
-        LEFT_SHIFT/*41*/, Z/*42*/, X/*43*/, C/*44*/, V/*45*/, B/*46*/, N/*47*/, M/*48*/, COMMA/*49*/, PERIOD/*50*/, SLASH/*51*/, RIGHT_SHIFT/*52*/, UP_ARROW/*53*/, DELETE/*54*/,
-        LEFT_CTRL/*55*/, LEFT_GUI/*56*/, LEFT_ALT/*57*/, SPACE/*58*/, RIGHT_ALT/*59*/, FN/*60*/, LEFT_ARROW/*61*/, DOWN_ARROW/*62*/, RIGHT_ARROW/*63*/,
+        KEY_ESC/*0*/, KEY_1/*1*/, KEY_2/*2*/, KEY_3/*3*/, KEY_4/*4*/, KEY_5/*5*/, KEY_6/*6*/, KEY_7/*7*/, KEY_8/*8*/, KEY_9/*9*/, KEY_0/*10*/, KEY_MINUS/*11*/, KEY_EQUAL/*12*/, KEY_BACKSPACE/*13*/,
+        KEY_TAB/*14*/, KEY_Q/*15*/, KEY_W/*16*/, KEY_E/*17*/, KEY_R/*18*/, KEY_T/*19*/, KEY_Y/*20*/, KEY_U/*21*/, KEY_I/*22*/, KEY_O/*23*/, KEY_P/*24*/, KEY_LEFT_BRACE/*25*/, KEY_RIGHT_BRACE/*26*/, KEY_BACKSLASH/*27*/,
+        KEY_CAPS_LOCK/*28*/, KEY_A/*29*/, KEY_S/*30*/, KEY_D/*31*/, KEY_F/*32*/, KEY_G/*33*/, KEY_H/*34*/, KEY_J/*35*/, KEY_K/*36*/, KEY_L/*37*/, KEY_SEMICOLON/*38*/, KEY_APOSTROPHE/*39*/, KEY_ENTER/*40*/,
+        KEY_LEFT_SHIFT<<8/*41*/, KEY_Z/*42*/, KEY_X/*43*/, KEY_C/*44*/, KEY_V/*45*/, KEY_B/*46*/, KEY_N/*47*/, KEY_M/*48*/, KEY_COMMA/*49*/, KEY_DOT/*50*/, KEY_SLASH/*51*/, KEY_RIGHT_SHIFT<<8/*52*/, KEY_UP_ARROW/*53*/, KEY_DELETE/*54*/,
+        KEY_LEFT_CTRL<<8/*55*/, KEY_LEFT_GUI<<8/*56*/, KEY_LEFT_ALT<<8/*57*/, KEY_SPACEBAR/*58*/, KEY_RIGHT_ALT<<8/*59*/, FN/*60*/, KEY_LEFT_ARROW/*61*/, KEY_DOWN_ARROW/*62*/, KEY_RIGHT_ARROW/*63*/,
     },
 
     {
-        GRAVE_ACCENT, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, BACKSPACE,
-        TAB, PROFILE1, PROFILE2, PROFILE3, PROFILE4, T, Y, U, I, O, P, LEFT_U_BRACE, RIGHT_U_BRACE, BACKSLASH,
-        CAP_LOCK, A, S, D, F, G, H, J, K, L, SEMI_COLON, QUOTE, ENTER,
-        LEFT_SHIFT, Z, X, C, V, B, N, M, COMMA, PERIOD, SLASH, RIGHT_SHIFT, UP_ARROW, DELETE,
-        LEFT_CTRL, LEFT_GUI, LEFT_ALT, SPACE, RIGHT_ALT, FN, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW,
+        KEY_GRAVE, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_BACKSPACE,
+        KEY_TAB, KEY_Q, KEY_W, KEY_E, KEY_R, KEY_T, KEY_Y, KEY_U, KEY_I, KEY_O, KEY_P, KEY_LEFT_BRACE, KEY_RIGHT_BRACE, KEY_BACKSLASH,
+        KEY_CAPS_LOCK, KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_H, KEY_J, KEY_K, KEY_L, KEY_SEMICOLON, KEY_APOSTROPHE, KEY_ENTER,
+        KEY_LEFT_SHIFT<<8, KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M, KEY_COMMA, KEY_DOT, KEY_SLASH, KEY_RIGHT_SHIFT<<8, KEY_UP_ARROW, KEY_DELETE,
+        KEY_LEFT_CTRL<<8, KEY_LEFT_GUI<<8, KEY_LEFT_ALT<<8, KEY_SPACEBAR, KEY_RIGHT_ALT<<8, FN, KEY_LEFT_ARROW, KEY_DOWN_ARROW, KEY_RIGHT_ARROW,
     }
 
 };
 
-const uint8_t g_rgb_mapping[ADVANCED_KEY_NUM]={26,25,24,23,9,10,11,12,36,37,38,39,53,52,51,50,
-                                             35,34,33,32,19,20,21,22,46,47,48,49,63,62,61,60,
-                                             3,15,29,42,41,56,28,14,13,27,40,55,54,0,1,2,
-                                             4,5,6,7,8,18,17,31,44,45,59,58,16,30,43,57};
-const RGBLocation g_rgb_locations[RGB_NUM]={{0,0.625},{0,1.875},{0,3.125},{0,6.875},{0,10.5},{0,11.5},{0,12.5},{0,13.5},{0,14.5},
-                                             {1,1},{1,2.5},{1,3.5},{1,4.5},{1,5.5},{1,6.5},{1,7.5},{1,8.5},{1,9.5},{1,10.5},{1,11.5},{1,12.5},{1,13.5},{1,14.5},
-                                             {2,0.875},{2,2.25},{2,3.25},{2,4.25},{2,5.25},{2,6.25},{2,7.25},{2,8.25},{2,9.25},{2,10.25},{2,11.25},{2,12.25},{2,13.875},
-                                             {3,0.75},{3,2},{3,3},{3,4},{3,5},{3,6},{3,7},{3,8},{3,9},{3,10},{3,11},{3,12},{3,13},{3,14.25},
-                                             {4,0.5},{4,1.5},{4,2.5},{4,3.5},{4,4.5},{4,5.5},{4,6.5},{4,7.5},{4,8.5},{4,9.5},{4,10.5},{4,11.5},{4,12.5},{4,14}};
+const uint8_t g_rgb_mapping[ADVANCED_KEY_NUM] = {50,51,52,53,54,55,56,57,58,59,60,61,62,63,
+                                                36,37,38,39,40,41,42,43,44,45,46,47,48,49,
+                                                23,24,25,26,27,28,29,30,31,32,33,34,35,
+                                                9,10,11,12,13,14,15,16,17,18,19,20,21,22,
+                                                0,1,2,3,4,5,6,7,8};
+const RGBLocation g_rgb_locations[RGB_NUM]={{0.625,0},{1.875,0},{3.125,0},{6.875,0},{10.5,0},{11.5,0},{12.5,0},{13.5,0},{14.5,0},
+                                             {1,1},{2.5,1},{3.5,1},{4.5,1},{5.5,1},{6.5,1},{7.5,1},{8.5,1},{9.5,1},{10.5,1},{11.5,1},{12.5,1},{13.5,1},{14.5,1},
+                                             {0.875,2},{2.25,2},{3.25,2},{4.25,2},{5.25,2},{6.25,2},{7.25,2},{8.25,2},{9.25,2},{10.25,2},{11.25,2},{12.25,2},{13.875,2},
+                                             {0.75,3},{2,3},{3,3},{4,3},{5,3},{6,3},{7,3},{8,3},{9,3},{10,3},{11,3},{12,3},{13,3},{14.25,3},
+                                             {0.5,4},{1.5,4},{2.5,4},{3.5,4},{4.5,4},{5.5,4},{6.5,4},{7.5,4},{8.5,4},{9.5,4},{10.5,4},{11.5,4},{12.5,4},{14,4}};
 
 AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM] =
 {
@@ -83,7 +84,7 @@ AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM] =
     {.key.id = 19},
     {.key.id = 6},
     {.key.id = 33},
-    {.key.id = 46},
+    {.key.id = 46},//B
     {.key.id = 45},//V
     {.key.id = 32},
     {.key.id = 18},
@@ -1149,4 +1150,9 @@ float advanced_key_normalize(AdvancedKey* key, float value)
 }
 void keyboard_post_process()
 {
+}
+
+void keyboard_delay(uint32_t ms)
+{
+    HAL_Delay(ms);
 }
