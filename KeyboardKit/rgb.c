@@ -12,10 +12,6 @@
 
 #define MANHATTAN_DISTANCE(m, n) (fabsf((m)->x - (n)->x) + fabsf((m)->y - (n)->y))
 
-#define RGB_MAX_DURATION 1500
-#define FADING_DISTANCE 5.0f
-#define JELLY_DISTANCE 10.0f
-
 __WEAK const uint8_t g_rgb_mapping[ADVANCED_KEY_NUM];
 __WEAK const RGBLocation g_rgb_locations[RGB_NUM];
 
@@ -191,7 +187,8 @@ void rgb_update()
         }
     }
     extern uint8_t LED_Report;
-	if(LED_Report&0x02) {
+	if(LED_Report&0x02)
+    {
 	    g_rgb_colors[g_rgb_mapping[28]].r = 0xff;
 	    g_rgb_colors[g_rgb_mapping[28]].g = 0xff;
 	    g_rgb_colors[g_rgb_mapping[28]].b = 0xff;//cap lock
@@ -217,10 +214,10 @@ void rgb_init_flash()
     float intensity;
     ColorRGB temp_rgb;
     uint32_t begin_time = RGB_Tick;
-    RGBLocation location = {1, 4.5};
-    while (RGB_Tick - begin_time < 1000)
+    RGBLocation location = PORT_LOCATION;
+    while (RGB_Tick - begin_time < RGB_FLASH_DURATION)
     {
-        float distance = (RGB_Tick - begin_time) * 0.03;
+        float distance = (RGB_Tick - begin_time) * RGB_FLASH_RIPPLE_SPEED;
         memset(g_rgb_colors, 0, sizeof(g_rgb_colors));
         for (int8_t i = 0; i < RGB_NUM; i++)
         {
@@ -255,21 +252,25 @@ void rgb_init_flash()
 
 void rgb_flash()
 {
-    for (uint8_t i = 1; i < 128; i++)
+    float intensity;
+    ColorRGB temp_rgb;
+    uint32_t begin_time = RGB_Tick;
+    while (RGB_Tick - begin_time < RGB_FLASH_DURATION)
     {
-        for (uint8_t j = 0; j < RGB_NUM; j++)
+        float distance = (RGB_Tick - begin_time);
+        memset(g_rgb_colors, 0, sizeof(g_rgb_colors));
+        intensity = (RGB_FLASH_DURATION/2 - fabs(distance - (RGB_FLASH_DURATION/2)))/((float)(RGB_FLASH_DURATION/2));
+        for (int8_t i = 0; i < RGB_NUM; i++)
         {
-            rgb_set(i, i, i, j);
+            temp_rgb.r = ((uint8_t)(intensity * 255));
+            temp_rgb.g = ((uint8_t)(intensity * 255));
+            temp_rgb.b = ((uint8_t)(intensity * 255));
+            color_mix(&g_rgb_colors[i], &temp_rgb);
         }
-        keyboard_delay(1);
-    }
-    for (uint8_t i = 128; i > 0; i--)
-    {
-        for (uint8_t j = 0; j < RGB_NUM; j++)
+        for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
         {
-            rgb_set(i, i, i, j);
+            rgb_set(g_rgb_colors[i].r, g_rgb_colors[i].g, g_rgb_colors[i].b, i);
         }
-        keyboard_delay(1);
     }
     rgb_turn_off();
 }
@@ -284,12 +285,12 @@ void rgb_turn_off()
 
 void rgb_factory_reset()
 {
-    ColorHSV temphsv = {273, 78, 99};
+    ColorHSV temphsv = RGB_DEFAULT_COLOR_HSV;
     for (uint8_t i = 0; i < RGB_NUM; i++)
     {
-        g_rgb_configs[i].mode = RGB_MODE_FADING_DIAMOND_RIPPLE;
+        g_rgb_configs[i].mode = RGB_DEFAULT_MODE;
         g_rgb_configs[i].hsv = temphsv;
-        g_rgb_configs[i].speed = 0.03;
+        g_rgb_configs[i].speed = RGB_DEFAULT_SPEED;
         color_set_hsv(&g_rgb_configs[i].rgb, &temphsv);
     }
 }

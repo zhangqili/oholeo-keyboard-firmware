@@ -89,6 +89,20 @@ void advanced_key_update_raw(AdvancedKey* key, KeyValueType value)
         if (value < key->lower_bound)
             key->lower_bound = value;
         break;
+    case KEY_AUTO_CALIBRATION_UNDEFINED:
+        if (value - key->upper_bound > 500)
+        {
+            key->calibration_mode = KEY_AUTO_CALIBRATION_POSITIVE;
+            key->lower_bound = value;
+            break;
+        }
+        if (key->upper_bound - value > 500)
+        {
+            key->calibration_mode = KEY_AUTO_CALIBRATION_NEGATIVE;
+            key->lower_bound = value;
+            break;
+        }
+        return;
     default:
         break;
     }

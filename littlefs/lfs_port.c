@@ -66,7 +66,7 @@ lfs_t lfs_w25qxx;
 
 lfs_file_t lfs_file_w25qxx;
 
-const struct lfs_config cfg =
+const struct lfs_config lfs_cfg =
 {
     // block device operations
     .read  = lfs_deskio_read,
@@ -96,14 +96,14 @@ const struct lfs_config cfg =
 void lfs_test(void)
 {
     // mount the filesystem
-    int err = lfs_mount(&lfs_w25qxx, &cfg);
+    int err = lfs_mount(&lfs_w25qxx, &lfs_cfg);
 
     // reformat if we can't mount the filesystem
     // this should only happen on the first boot
     if (err)
     {
-        lfs_format(&lfs_w25qxx, &cfg);
-        lfs_mount(&lfs_w25qxx, &cfg);
+        lfs_format(&lfs_w25qxx, &lfs_cfg);
+        lfs_mount(&lfs_w25qxx, &lfs_cfg);
     }
 
     // read current count

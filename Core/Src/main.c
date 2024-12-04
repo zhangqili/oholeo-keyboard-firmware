@@ -49,6 +49,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define rgb_start() HAL_TIM_PWM_Start_DMA(&htim1, TIM_CHANNEL_1, (uint32_t *)g_rgb_buffer, RGB_BUFFER_LENGTH);
+#define rgb_stop() HAL_TIM_PWM_Stop_DMA(&htim1, TIM_CHANNEL_1);
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -87,7 +88,6 @@ enum state_t global_state = NORMAL;
 
 uint8_t LED_Report = 0;
 
-uint32_t test_cnt = 0;
 
 uint32_t pulse_counter = PULSE_LEN_MS;
 uint8_t beep_switch = 0;
@@ -273,8 +273,9 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim2);
 
   rgb_init_flash();
-  rgb_turn_off();
-  analog_average();
+  keyboard_factory_reset();
+  analog_reset_range();
+
   if (g_ADC_Averages[49] < 1400)
   {
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
@@ -284,23 +285,10 @@ int main(void)
     HAL_Delay(10);
     JumpToBootloader();
   }
-  keyboard_factory_reset();
-  for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
-  {
-    advanced_key_set_range(g_keyboard_advanced_keys + i, g_ADC_Averages[i], 1200);
-    //key_attach(&g_keyboard_advanced_keys[i].key, KEY_EVENT_UP, NULL);
-    //key_attach(&g_keyboard_advanced_keys[i].key, KEY_EVENT_DOWN, NULL);
-    //	  advanced_key_set_range(Keyboard_AdvancedKeys+i,(ADC_Buffer[i]), 1200);
 
-    advanced_key_set_deadzone(g_keyboard_advanced_keys + i, DEFAULT_UPPER_DEADZONE, g_keyboard_advanced_keys[i].lower_deadzone);
-    //g_rgb_configs[i].speed = 0.01;
-  }
-  //g_rgb_global_config.speed = 0.01;
   HAL_TIM_Base_Start_IT(&htim7);
-  // sprintf(uart_buf,"%f\n",Keyboard_AdvancedKeys[0].upper_bound);
-  // HAL_UART_Transmit(&huart1, (uint8_t*)uart_buf, 64, 0xFF);
+
   memset(USB_Recive_Buffer, 0, sizeof(USB_Recive_Buffer));
-  //  Keyboard_Save();
 
   /* USER CODE END 2 */
 
@@ -309,18 +297,18 @@ int main(void)
   while (1)
   {
 
-    if (global_state == REQUEST_SAVE)
-    {
-      keyboard_save();
-      global_state = NORMAL;
-    }
-    if (global_state == FACTORYRESET)
-    {
-      keyboard_factory_reset();
-      // request profile
-      state_counter = 96; // send twice for safety
-      global_state = REQUEST_PROFILE;
-    }
+    //if (global_state == REQUEST_SAVE)
+    //{
+    //  keyboard_save();
+    //  global_state = NORMAL;
+    //}
+    //if (global_state == FACTORYRESET)
+    //{
+    //  keyboard_factory_reset();
+    //  // request profile
+    //  state_counter = 96; // send twice for safety
+    //  global_state = REQUEST_PROFILE;
+    //}
 
     rgb_update();
     /* USER CODE END WHILE */
@@ -403,32 +391,32 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
     }
 
-    if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[0].key.state)
-    {
-      global_state = ADC;
-    }
-    if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[39].key.state)
-    {
-      //JumpToBootloader();
-    }
+    //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[0].key.state)
+    //{
+    //  global_state = ADC;
+    //}
+    //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[39].key.state)
+    //{
+    //  //JumpToBootloader();
+    //}
     if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[33].key.state)
     {
       global_state = NORMAL;
       beep_switch = 0;
       em_switch = 0;
     }
-    if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[61].key.state)
-    {
-      global_state = JOYSTICK;
-    }
+    //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[61].key.state)
+    //{
+    //  global_state = JOYSTICK;
+    //}
     if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[39].key.state)
     {
       beep_switch = 1;
     }
-    if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[60].key.state)
-    {
-      em_switch = 1;
-    }
+    //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[60].key.state)
+    //{
+    //  em_switch = 1;
+    //}
     /*
     switch (global_state)
     {
@@ -523,6 +511,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
   if (htim->Instance == TIM2)
   {
+    static uint32_t test_cnt = 0;
     test_cnt++;
     //	  if(test_cnt%2==0) {
     uint32_t adc1 = 0;
@@ -532,22 +521,24 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
     for (int i = 0; i < DMA_BUF_LEN; i++)
     {
-      adc1 += g_ADC_Buffer[DMA_BUF_LEN*0+i] & 0xfff;
-      adc2 += g_ADC_Buffer[DMA_BUF_LEN*1+i] & 0xfff;
-      adc3 += g_ADC_Buffer[DMA_BUF_LEN*2+i] & 0xfff;
-      adc4 += g_ADC_Buffer[DMA_BUF_LEN*3+i] & 0xfff;
+      adc1 += g_ADC_Buffer[DMA_BUF_LEN * 0 + i] & 0xfff;
+      adc2 += g_ADC_Buffer[DMA_BUF_LEN * 1 + i] & 0xfff;
+      adc3 += g_ADC_Buffer[DMA_BUF_LEN * 2 + i] & 0xfff;
+      adc4 += g_ADC_Buffer[DMA_BUF_LEN * 3 + i] & 0xfff;
     }
 
-    ringbuf_push(&adc_ringbuf[0 * 16 + ADDRESS], (float_t)adc1 / (float_t)DMA_BUF_LEN);
-    ringbuf_push(&adc_ringbuf[1 * 16 + ADDRESS], (float_t)adc2 / (float_t)DMA_BUF_LEN);
-    ringbuf_push(&adc_ringbuf[2 * 16 + ADDRESS], (float_t)adc3 / (float_t)DMA_BUF_LEN);
-    ringbuf_push(&adc_ringbuf[3 * 16 + ADDRESS], (float_t)adc4 / (float_t)DMA_BUF_LEN);
+    ringbuf_push(&adc_ringbuf[0 * 16 + ADDRESS], (float)adc1 / (float)DMA_BUF_LEN);
+    ringbuf_push(&adc_ringbuf[1 * 16 + ADDRESS], (float)adc2 / (float)DMA_BUF_LEN);
+    ringbuf_push(&adc_ringbuf[2 * 16 + ADDRESS], (float)adc3 / (float)DMA_BUF_LEN);
+    ringbuf_push(&adc_ringbuf[3 * 16 + ADDRESS], (float)adc4 / (float)DMA_BUF_LEN);
 
     if (htim->Instance->CNT < 700)
     {
       g_analog_active_channel++;
       if (g_analog_active_channel >= 16)
+      {
         g_analog_active_channel = 0;
+      }
       analog_channel_select(g_analog_active_channel);
     }
     //	  }

@@ -22,6 +22,7 @@ typedef enum
     KEY_NO_CALIBRATION,
     KEY_AUTO_CALIBRATION_POSITIVE,
     KEY_AUTO_CALIBRATION_NEGATIVE,
+    KEY_AUTO_CALIBRATION_UNDEFINED,
 } CalibrationMode;
 
 typedef struct __AdvancedKey

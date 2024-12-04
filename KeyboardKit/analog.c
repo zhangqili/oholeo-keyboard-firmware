@@ -4,19 +4,15 @@
  *  Created on: 2023年5月21日
  *      Author: xq123
  */
-#include "main.h"
 #include "stdlib.h"
 #include "stdio.h"
-#include "adc.h"
-#include "dma.h"
-#include "gpio.h"
-#include "analog.h"
 #include "rgb.h"
-#include "keyboard_conf.h"
-#include "math.h"
+#include "analog.h"
+#include "record.h"
+#include "advanced_key.h"
 
 uint16_t g_ADC_Conversion_Count;
-uint32_t g_ADC_Buffer[4 * DMA_BUF_LEN];
+uint32_t g_ADC_Buffer[ANALOG_BUFFER_LENGTH];
 float g_ADC_Averages[ADVANCED_KEY_NUM];
 
 AdaptiveSchimidtFilter g_analog_filters[ADVANCED_KEY_NUM];
@@ -29,13 +25,8 @@ void analog_init()
 {
 }
 
-void analog_channel_select(uint8_t x)
+__WEAK void analog_channel_select(uint8_t x)
 {
-    x=BCD_TO_GRAY(x);
-    HAL_GPIO_WritePin(A_GPIO_Port, A_Pin, x&0x01);
-    HAL_GPIO_WritePin(B_GPIO_Port, B_Pin, x&0x02);
-    HAL_GPIO_WritePin(C_GPIO_Port, C_Pin, x&0x04);
-    HAL_GPIO_WritePin(D_GPIO_Port, D_Pin, x&0x08);
 }
 
 void analog_scan()
@@ -68,18 +59,6 @@ void analog_check()
         state = g_keyboard_advanced_keys[i].key.state;
         if (g_keyboard_advanced_keys[i].mode != KEY_DIGITAL_MODE)
         {
-            switch (g_keyboard_advanced_keys[i].calibration_mode)
-            {
-            case KEY_AUTO_CALIBRATION_POSITIVE:
-                if (g_ADC_Averages[i] > g_keyboard_advanced_keys[i].lower_bound)
-                    g_keyboard_advanced_keys[i].lower_bound = g_ADC_Averages[i];
-                break;
-            case KEY_AUTO_CALIBRATION_NEGATIVE:
-                if (g_ADC_Averages[i] < g_keyboard_advanced_keys[i].lower_bound)
-                    g_keyboard_advanced_keys[i].lower_bound = g_ADC_Averages[i];
-            default:
-                break;
-            }
             advanced_key_update_raw(g_keyboard_advanced_keys + i, g_ADC_Averages[i]);
         }
         if (g_keyboard_advanced_keys[i].key.state && !state)
@@ -119,8 +98,6 @@ float ringbuf_avg(RingBuf* ringbuf)
         avg += ringbuf->datas[i];
 
     avg = ((avg >> 2) & 0x01) + (avg >> 3);
-    //  avg = ringbuf->Datas[ringbuf->Pointer];
 
     return (float)avg;
-    //return (float)ringbuf->state;
 }

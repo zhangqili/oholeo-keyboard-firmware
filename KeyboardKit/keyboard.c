@@ -6,10 +6,10 @@
  */
 #include "keyboard.h"
 #include "analog.h"
-#include "rgb.h"
 #include "keyboard_conf.h"
+#include "rgb.h"
+#include "stdio.h"
 #include "lfs.h"
-#include "main.h"
 #include "action.h"
 #include "filter.h"
 #include "mouse.h"
@@ -30,7 +30,7 @@ Keyboard_6KROBuffer g_keyboard_6kro_buffer;
 #endif
 
 uint8_t g_keyboard_knob_flag;
-volatile bool g_keybaord_send_report_enable = true;
+volatile bool g_keyboard_send_report_enable = true;
 
 volatile bool g_debug_enable;
 
@@ -100,7 +100,7 @@ void keyboard_buffer_clear()
 #endif
 }
 
-int keyboard_6KRObuffer_add(Keyboard_6KROBuffer* buf, uint16_t key)
+int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, uint16_t key)
 {
     buf->buffer[0] |= KEY_MODIFIER(key);
     if (KEY_KEYCODE(key) != KEY_NO_EVENT && buf->keynum < 6)
@@ -154,7 +154,6 @@ void keyboard_NKRObuffer_clear(Keyboard_NKROBuffer*buf)
 
 void keyboard_init()
 {
-    //memcpy(g_keymap, g_default_keymap, sizeof(g_keymap));
 #ifdef NKRO_ENABLE
     static uint8_t buffer[64];
     keyboard_NKRObuffer_init(&g_keyboard_nkro_buffer, buffer, sizeof(buffer));
@@ -163,7 +162,7 @@ void keyboard_init()
 
 void keyboard_factory_reset()
 {
-    memcpy(g_keymap,g_default_keymap,sizeof(g_keymap));
+    memcpy(g_keymap, g_default_keymap, sizeof(g_keymap));
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
         g_keyboard_advanced_keys[i].mode = DEFAULT_ADVANCED_KEY_MODE;
@@ -181,6 +180,7 @@ void keyboard_factory_reset()
     keyboard_save();
     //keyboard_system_reset();
 }
+
 __WEAK void keyboard_system_reset()
 {
 }
@@ -192,13 +192,13 @@ __WEAK void keyboard_scan()
 void keyboard_recovery()
 {
     // mount the filesystem
-    int err = lfs_mount(&lfs_w25qxx, &cfg);
+    int err = lfs_mount(&lfs_w25qxx, &lfs_cfg);
     // reformat if we can't mount the filesystem
     // this should only happen on the first boot
     if (err)
     {
-        lfs_format(&lfs_w25qxx, &cfg);
-        lfs_mount(&lfs_w25qxx, &cfg);
+        lfs_format(&lfs_w25qxx, &lfs_cfg);
+        lfs_mount(&lfs_w25qxx, &lfs_cfg);
     }
     lfs_file_open(&lfs_w25qxx, &lfs_file_w25qxx, "config1.dat", LFS_O_RDWR | LFS_O_CREAT);
     lfs_file_rewind(&lfs_w25qxx, &lfs_file_w25qxx);
@@ -223,13 +223,13 @@ void keyboard_recovery()
 void keyboard_save()
 {
     // mount the filesystem
-    int err = lfs_mount(&lfs_w25qxx, &cfg);
+    int err = lfs_mount(&lfs_w25qxx, &lfs_cfg);
     // reformat if we can't mount the filesystem
     // this should only happen on the first boot
     if (err)
     {
-        lfs_format(&lfs_w25qxx, &cfg);
-        lfs_mount(&lfs_w25qxx, &cfg);
+        lfs_format(&lfs_w25qxx, &lfs_cfg);
+        lfs_mount(&lfs_w25qxx, &lfs_cfg);
     }
     // read current count
     lfs_file_open(&lfs_w25qxx, &lfs_file_w25qxx, "config1.dat", LFS_O_RDWR | LFS_O_CREAT);
@@ -252,8 +252,6 @@ void keyboard_save()
     // print the boot count
 }
 
-
-
 void keyboard_send_report()
 {
     static uint32_t mouse_value;
@@ -270,7 +268,7 @@ void keyboard_send_report()
     {
         keyboard_key_add_buffer(&g_keyboard_keys[i]);
     }
-    if (g_keybaord_send_report_enable)
+    if (g_keyboard_send_report_enable)
     {
         keyboard_buffer_send();
         if ((*(uint32_t*)&g_mouse)!=mouse_value)
