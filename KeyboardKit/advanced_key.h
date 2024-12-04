@@ -7,7 +7,7 @@
 #ifdef USE_FLOAT_VALUE
 typedef float KeyValueType;
 #else
-typedef uint KeyValueType;
+typedef uint16_t KeyValueType;
 #endif
 
 typedef enum

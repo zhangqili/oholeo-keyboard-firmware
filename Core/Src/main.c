@@ -92,6 +92,8 @@ uint32_t test_cnt = 0;
 uint32_t pulse_counter = PULSE_LEN_MS;
 uint8_t beep_switch = 0;
 uint8_t em_switch = 0;
+
+uint8_t usb_raw_report_buffer[64];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -254,6 +256,7 @@ int main(void)
   sfud_device_init(&sfud_norflash0);
 
   HAL_GPIO_WritePin(INHIBIT_GPIO_Port, INHIBIT_Pin, GPIO_PIN_RESET);
+  keyboard_init();
   rgb_init();
 
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
@@ -433,32 +436,32 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       keyboard_send_report();
       break;
     case ADC:
-      g_keyboard_report_buffer[0] = 2;
-      g_keyboard_report_buffer[1] = usb_adc_send_idx;
+      g_usb_report_buffer[0] = 2;
+      g_usb_report_buffer[1] = usb_adc_send_idx;
       for (int i = 0; i < 16; i++)
       {
         //Keyboard_ReportBuffer[i+2] = i%2?(uint32_t)g_ADC_Averages[i/2 + usb_adc_send_idx*8]:((uint32_t)g_ADC_Averages[i/2 + usb_adc_send_idx*8])>>8;
-        g_keyboard_report_buffer[i + 2] = i % 2 ? (uint32_t)g_keyboard_advanced_keys[i / 2 + usb_adc_send_idx * 8].raw : ((uint32_t)g_keyboard_advanced_keys[i / 2 + usb_adc_send_idx * 8].raw) >> 8;
+        g_usb_report_buffer[i + 2] = i % 2 ? (uint32_t)g_keyboard_advanced_keys[i / 2 + usb_adc_send_idx * 8].raw : ((uint32_t)g_keyboard_advanced_keys[i / 2 + usb_adc_send_idx * 8].raw) >> 8;
       }
 
       usb_adc_send_idx++;
       if (usb_adc_send_idx >= 8)
         usb_adc_send_idx = 0;
-      USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, g_keyboard_report_buffer, 17 + 1);
+      USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, g_usb_report_buffer, 17 + 1);
       break;
     case JOYSTICK:
       int8_t Ry, Rx, y, x;
       y = (g_keyboard_advanced_keys[1].upper_bound - g_keyboard_advanced_keys[1].raw) / (g_keyboard_advanced_keys[1].upper_bound - g_keyboard_advanced_keys[1].lower_bound) * 127.0 - (g_keyboard_advanced_keys[10].upper_bound - g_keyboard_advanced_keys[10].raw) / (g_keyboard_advanced_keys[10].upper_bound - g_keyboard_advanced_keys[10].lower_bound) * 127.0;
       x = (g_keyboard_advanced_keys[0].upper_bound - g_keyboard_advanced_keys[0].raw) / (g_keyboard_advanced_keys[0].upper_bound - g_keyboard_advanced_keys[0].lower_bound) * 127.0 - (g_keyboard_advanced_keys[2].upper_bound - g_keyboard_advanced_keys[2].raw) / (g_keyboard_advanced_keys[2].upper_bound - g_keyboard_advanced_keys[2].lower_bound) * 127.0;
 
-      g_keyboard_report_buffer[0] = 3;
+      g_usb_report_buffer[0] = 3;
       // Ry,Rx,y,x
-      g_keyboard_report_buffer[1] = 128;
-      g_keyboard_report_buffer[2] = 0;
-      g_keyboard_report_buffer[3] = y - 128;
-      g_keyboard_report_buffer[4] = x - 128;
-      g_keyboard_report_buffer[5] = 0;
-      USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, g_keyboard_report_buffer, 5 + 1);
+      g_usb_report_buffer[1] = 128;
+      g_usb_report_buffer[2] = 0;
+      g_usb_report_buffer[3] = y - 128;
+      g_usb_report_buffer[4] = x - 128;
+      g_usb_report_buffer[5] = 0;
+      USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, g_usb_report_buffer, 5 + 1);
 
       break;
 
@@ -470,47 +473,47 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       if (state_counter / 32 == 0)
       {
         // sent performance data
-        g_keyboard_report_buffer[0] = 2;
-        g_keyboard_report_buffer[1] = (state_counter % 16) + 16;
+        g_usb_report_buffer[0] = 2;
+        g_usb_report_buffer[1] = (state_counter % 16) + 16;
         for (int i = 0; i < 4; i++)
         {
           uint32_t index = i + (state_counter % 16) * 4;
-          g_keyboard_report_buffer[2 + i * 4 + 0] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].activation_value * 100.0)) |
+          g_usb_report_buffer[2 + i * 4 + 0] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].activation_value * 100.0)) |
                                                     ((g_keyboard_advanced_keys[index].mode - 1) << 7);
-          g_keyboard_report_buffer[2 + i * 4 + 1] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].trigger_distance * 100.0));
-          g_keyboard_report_buffer[2 + i * 4 + 2] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].release_distance * 100.0));
-          g_keyboard_report_buffer[2 + i * 4 + 3] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].phantom_lower_deadzone * 100.0));
+          g_usb_report_buffer[2 + i * 4 + 1] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].trigger_distance * 100.0));
+          g_usb_report_buffer[2 + i * 4 + 2] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].release_distance * 100.0));
+          g_usb_report_buffer[2 + i * 4 + 3] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].phantom_lower_deadzone * 100.0));
         }
       }
       if (state_counter / 32 == 1)
       {
         // sent rgb data
-        g_keyboard_report_buffer[0] = 2;
-        g_keyboard_report_buffer[1] = (state_counter % 16) + 32;
+        g_usb_report_buffer[0] = 2;
+        g_usb_report_buffer[1] = (state_counter % 16) + 32;
         for (int i = 0; i < 4; i++)
         {
           uint32_t index = i + (state_counter % 16) * 4;
-          g_keyboard_report_buffer[2 + i * 4 + 0] = (uint8_t)(g_rgb_global_config.mode << 4) | g_rgb_configs[g_rgb_mapping[index]].mode;
-          g_keyboard_report_buffer[2 + i * 4 + 1] = g_rgb_configs[g_rgb_mapping[index]].rgb.r;
-          g_keyboard_report_buffer[2 + i * 4 + 2] = g_rgb_configs[g_rgb_mapping[index]].rgb.g;
-          g_keyboard_report_buffer[2 + i * 4 + 3] = g_rgb_configs[g_rgb_mapping[index]].rgb.b;
+          g_usb_report_buffer[2 + i * 4 + 0] = (uint8_t)(g_rgb_global_config.mode << 4) | g_rgb_configs[g_rgb_mapping[index]].mode;
+          g_usb_report_buffer[2 + i * 4 + 1] = g_rgb_configs[g_rgb_mapping[index]].rgb.r;
+          g_usb_report_buffer[2 + i * 4 + 2] = g_rgb_configs[g_rgb_mapping[index]].rgb.g;
+          g_usb_report_buffer[2 + i * 4 + 3] = g_rgb_configs[g_rgb_mapping[index]].rgb.b;
         }
       }
       if (state_counter / 32 == 2)
       {
         // sent keymap data
-        g_keyboard_report_buffer[0] = 2;
-        g_keyboard_report_buffer[1] = (state_counter % 16) + 48;
+        g_usb_report_buffer[0] = 2;
+        g_usb_report_buffer[1] = (state_counter % 16) + 48;
         for (int i = 0; i < 4; i++)
         {
           uint32_t index = i + (state_counter % 16) * 4;
-          g_keyboard_report_buffer[2 + i * 4 + 0] = g_keymap[0][g_keyboard_advanced_keys[index].key.id] >> 8;
-          g_keyboard_report_buffer[2 + i * 4 + 1] = g_keymap[0][g_keyboard_advanced_keys[index].key.id] & 0xff;
-          g_keyboard_report_buffer[2 + i * 4 + 2] = g_keymap[1][g_keyboard_advanced_keys[index].key.id] >> 8;
-          g_keyboard_report_buffer[2 + i * 4 + 3] = g_keymap[1][g_keyboard_advanced_keys[index].key.id] & 0xff;
+          g_usb_report_buffer[2 + i * 4 + 0] = g_keymap[0][g_keyboard_advanced_keys[index].key.id] >> 8;
+          g_usb_report_buffer[2 + i * 4 + 1] = g_keymap[0][g_keyboard_advanced_keys[index].key.id] & 0xff;
+          g_usb_report_buffer[2 + i * 4 + 2] = g_keymap[1][g_keyboard_advanced_keys[index].key.id] >> 8;
+          g_usb_report_buffer[2 + i * 4 + 3] = g_keymap[1][g_keyboard_advanced_keys[index].key.id] & 0xff;
         }
       }
-      USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, g_keyboard_report_buffer, 17 + 1);
+      USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, g_usb_report_buffer, 17 + 1);
       break;
 
     default:

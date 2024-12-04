@@ -23,8 +23,6 @@ AdaptiveSchimidtFilter g_analog_filters[ADVANCED_KEY_NUM];
 
 RingBuf adc_ringbuf[ADVANCED_KEY_NUM];
 
-#define ANALOG_AVERAGE(x) (ringbuf_avg(&adc_ringbuf[x]))
-
 uint8_t g_analog_active_channel;
 
 void analog_init()
@@ -42,21 +40,6 @@ void analog_channel_select(uint8_t x)
 
 void analog_scan()
 {
-    //uint32_t ADC_sum;
-    for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
-    {
-        /*
-        ADC_sum = 0;
-        for (uint8_t j = 0; j < ANALOG_BUFFER_LENGTH; j++)
-        {
-            ADC_sum += g_ADC_Buffer[i + j * ADVANCED_KEY_NUM];
-        }
-        g_ADC_Averages[i] = ADC_sum/((float)ANALOG_BUFFER_LENGTH);
-#ifdef ENABLE_FILTER
-        g_ADC_Averages[i] = adaptive_schimidt_filter(g_analog_filters+i,g_ADC_Averages[i]);
-#endif
-        */
-    }
 }
 
 void analog_average()
@@ -69,7 +52,8 @@ void analog_average()
         //{
         //    ADC_sum += g_ADC_Buffer[i + j * ADVANCED_KEY_NUM];
         //}
-        g_ADC_Averages[i] = ANALOG_AVERAGE(i);
+        //g_ADC_Averages[i] = ADC_sum/((float)ANALOG_BUFFER_LENGTH);
+        g_ADC_Averages[i] = ringbuf_avg(&adc_ringbuf[i]);
 #ifdef ENABLE_FILTER
         g_ADC_Averages[i] = adaptive_schimidt_filter(g_analog_filters+i,g_ADC_Averages[i]);
 #endif
@@ -112,6 +96,14 @@ void analog_check()
     }
 }
 
+void analog_reset_range()
+{
+    analog_average();
+    for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+    {
+        advanced_key_reset_range(g_keyboard_advanced_keys + i, g_ADC_Averages[i]);
+    }
+}
 
 void ringbuf_push(RingBuf* ringbuf, uint32_t data)
 {
@@ -128,8 +120,6 @@ float ringbuf_avg(RingBuf* ringbuf)
 
     avg = ((avg >> 2) & 0x01) + (avg >> 3);
     //  avg = ringbuf->Datas[ringbuf->Pointer];
-    if (avg - TOLERANCE > ringbuf->state)ringbuf->state = avg - TOLERANCE;
-    if (avg + TOLERANCE < ringbuf->state)ringbuf->state = avg + TOLERANCE;
 
     return (float)avg;
     //return (float)ringbuf->state;

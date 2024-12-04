@@ -1119,7 +1119,10 @@ static const float table[]=
 
 void keyboard_hid_send(uint8_t*report,uint16_t len)
 {
-    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,g_keyboard_report_buffer,17+1);
+    static uint8_t send_buffer[64];
+    send_buffer[0] = 1;
+    memcpy(send_buffer+1,report,63);
+    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,send_buffer,17+1);
 }
 
 
@@ -1155,4 +1158,10 @@ void keyboard_post_process()
 void keyboard_delay(uint32_t ms)
 {
     HAL_Delay(ms);
+}
+
+void keyboard_system_reset()
+{
+    __set_FAULTMASK(1);
+    NVIC_SystemReset();
 }

@@ -4,23 +4,17 @@
  *  Created on: 2023年5月21日
  *      Author: xq123
  */
-#include "keyboard.h"
-#include "keyboard_conf.h"
-#include "filter.h"
-
 #ifndef ANALOG_H_
 #define ANALOG_H_
+#include "keyboard.h"
+#include "filter.h"
 
 #define Analog_Clean() (ADC_Conversion_Count=0)
 #define ADDRESS BCD_TO_GRAY(g_analog_active_channel)
 #define BCD_TO_GRAY(x) (x^(x>>1))
 
-extern AdaptiveSchimidtFilter g_analog_filters[ADVANCED_KEY_NUM];
-
-
 #define ANALOG_BUFFER_LENGTH 16
 
-#define TOLERANCE 3
 #define RING_BUF_LEN 8
 #define DMA_BUF_LEN 10
 //#define EXTENDED_SAMPLING
@@ -29,14 +23,15 @@ typedef struct
 {
      uint32_t datas[RING_BUF_LEN];
      uint32_t pointer;
-     uint32_t state;
 }RingBuf;
 
 
 extern uint16_t g_ADC_Conversion_Count;
 extern uint32_t g_ADC_Buffer[4 * DMA_BUF_LEN];
 extern float g_ADC_Averages[ADVANCED_KEY_NUM];
-//extern AnalogItem AnalogDatas[ADVANCED_KEY_NUM];
+
+extern AdaptiveSchimidtFilter g_analog_filters[ADVANCED_KEY_NUM];
+
 extern RingBuf adc_ringbuf[ADVANCED_KEY_NUM];
 
 extern uint8_t g_analog_active_channel;
