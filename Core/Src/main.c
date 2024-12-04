@@ -273,17 +273,23 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim2);
 
   rgb_init_flash();
-  keyboard_factory_reset();
+
+  keyboard_recovery();
   analog_reset_range();
 
-  if (g_ADC_Averages[49] < 1400)
+  if (g_ADC_Averages[15] < 1400)
   {
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
         rgb_set(100, 0, 0, i);
     }
-    HAL_Delay(10);
+    HAL_Delay(2);
     JumpToBootloader();
+  }
+  if (g_ADC_Averages[49] < 1400)
+  {
+    keyboard_factory_reset();
+    keyboard_system_reset();
   }
 
   HAL_TIM_Base_Start_IT(&htim7);
@@ -395,15 +401,23 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     //{
     //  global_state = ADC;
     //}
-    //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[39].key.state)
+    //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[15].key.state)
     //{
-    //  //JumpToBootloader();
+    //  for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+    //  {
+    //      rgb_set(100, 0, 0, i);
+    //  }
+    //  JumpToBootloader();
     //}
     if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[33].key.state)
     {
       global_state = NORMAL;
       beep_switch = 0;
       em_switch = 0;
+    }
+    if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[42].key.state)
+    {
+      keyboard_system_reset();
     }
     //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[61].key.state)
     //{

@@ -215,14 +215,15 @@ void rgb_init_flash()
     ColorRGB temp_rgb;
     uint32_t begin_time = RGB_Tick;
     RGBLocation location = PORT_LOCATION;
-    while (RGB_Tick - begin_time < RGB_FLASH_DURATION)
+    bool animation_playing = false;
+    while (RGB_Tick - begin_time < RGB_FLASH_MAX_DURATION)
     {
         float distance = (RGB_Tick - begin_time) * RGB_FLASH_RIPPLE_SPEED;
         memset(g_rgb_colors, 0, sizeof(g_rgb_colors));
+        animation_playing = false;
         for (int8_t i = 0; i < RGB_NUM; i++)
         {
             //rgb_flash();
-            
             intensity = (distance - sqrtf((location.x - g_rgb_locations[i].x) * (location.x - g_rgb_locations[i].x) +
                                           (location.y - g_rgb_locations[i].y) * (location.y - g_rgb_locations[i].y)));
                                           
@@ -236,10 +237,19 @@ void rgb_init_flash()
             {
                 intensity = 1.0f + intensity > 0 ? 1.0f + intensity : 0;
             }
+            if (intensity > 0 || distance < 4)
+            {
+                animation_playing = true;
+            }
+            
             temp_rgb.r = ((uint8_t)(intensity * 255));
             temp_rgb.g = ((uint8_t)(intensity * 255));
             temp_rgb.b = ((uint8_t)(intensity * 255));
             color_mix(&g_rgb_colors[i], &temp_rgb);
+        }
+        if (!animation_playing)
+        {
+            break;
         }
         for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
         {
@@ -255,11 +265,11 @@ void rgb_flash()
     float intensity;
     ColorRGB temp_rgb;
     uint32_t begin_time = RGB_Tick;
-    while (RGB_Tick - begin_time < RGB_FLASH_DURATION)
+    while (RGB_Tick - begin_time < RGB_FLASH_MAX_DURATION)
     {
         float distance = (RGB_Tick - begin_time);
         memset(g_rgb_colors, 0, sizeof(g_rgb_colors));
-        intensity = (RGB_FLASH_DURATION/2 - fabs(distance - (RGB_FLASH_DURATION/2)))/((float)(RGB_FLASH_DURATION/2));
+        intensity = (RGB_FLASH_MAX_DURATION/2 - fabs(distance - (RGB_FLASH_MAX_DURATION/2)))/((float)(RGB_FLASH_MAX_DURATION/2));
         for (int8_t i = 0; i < RGB_NUM; i++)
         {
             temp_rgb.r = ((uint8_t)(intensity * 255));

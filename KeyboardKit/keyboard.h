@@ -44,6 +44,9 @@ extern volatile bool g_debug_enable;
 
 void keyboard_key_add_buffer(Key *k);
 
+void keyboard_buffer_send();
+void keyboard_buffer_clear();
+
 int keyboard_6KRObuffer_add(Keyboard_6KROBuffer*buf,uint16_t key);
 void keyboard_6KRObuffer_send(Keyboard_6KROBuffer*buf);
 void keyboard_6KRObuffer_clear(Keyboard_6KROBuffer*buf);
