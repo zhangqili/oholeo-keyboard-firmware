@@ -1,16 +1,10 @@
 #include "command.h"
 #include "keyboard.h"
+#include "keyboard_def.h"
 #include "rgb.h"
 #include "string.h"
 
-static const uint8_t command_advanced_key_mapping[] = {15, 14, 13, 12, 44, 43, 37, 63,
-                                                       59, 58, 31, 30, 29, 28, 8, 9,
-                                                       10, 11, 42, 36, 35, 62, 56, 57,
-                                                       24, 25, 26, 27, 3, 2, 1, 0,
-                                                       41, 38, 34, 61, 55, 19, 18, 17,
-                                                       16, 4, 5, 6, 7, 40, 39, 33,
-                                                       60, 54, 53, 20, 21, 22, 23, 45,
-                                                       46, 47, 32, 48, 49, 50, 51, 52};
+__WEAK const uint8_t command_advanced_key_mapping[ADVANCED_KEY_NUM];
 // static const uint8_t command_rgb_mapping[] = {0, 1, 2, 3};
 
 // static inline float fill_in_float(uint8_t *buf) __attribute__((optimize("O0")));
