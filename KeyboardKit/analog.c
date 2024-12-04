@@ -4,21 +4,20 @@
  *  Created on: 2023年5月21日
  *      Author: xq123
  */
-#include "main.h"
 #include "stdlib.h"
 #include "stdio.h"
-#include "adc.h"
-#include "dma.h"
-#include "gpio.h"
-#include "analog.h"
 #include "rgb.h"
-#include "keyboard_conf.h"
-#include "math.h"
-uint32_t g_ADC_Buffer[4][DMA_BUF_LEN];
+#include "analog.h"
+#include "record.h"
+#include "advanced_key.h"
+
+uint16_t g_ADC_Conversion_Count;
+uint32_t g_ADC_Buffer[ANALOG_BUFFER_LENGTH];
+float g_ADC_Averages[ADVANCED_KEY_NUM];
+
+AdaptiveSchimidtFilter g_analog_filters[ADVANCED_KEY_NUM];
 
 RingBuf adc_ringbuf[ADVANCED_KEY_NUM];
-
-#define ANALOG_AVERAGE(x) (ringbuf_avg(&adc_ringbuf[x]))
 
 uint8_t g_analog_active_channel;
 
@@ -26,13 +25,8 @@ void analog_init()
 {
 }
 
-void analog_channel_select(uint8_t x)
+__WEAK void analog_channel_select(uint8_t x)
 {
-    x=BCD_TO_GRAY(x);
-    HAL_GPIO_WritePin(A_GPIO_Port, A_Pin, x&0x01);
-    HAL_GPIO_WritePin(B_GPIO_Port, B_Pin, x&0x02);
-    HAL_GPIO_WritePin(C_GPIO_Port, C_Pin, x&0x04);
-    HAL_GPIO_WritePin(D_GPIO_Port, D_Pin, x&0x08);
 }
 
 void analog_scan()
@@ -41,38 +35,54 @@ void analog_scan()
 
 void analog_average()
 {
-
+    //uint32_t ADC_sum;
+    for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+    {
+        //ADC_sum = 0;
+        //for (uint8_t j = 0; j < ANALOG_BUFFER_LENGTH; j++)
+        //{
+        //    ADC_sum += g_ADC_Buffer[i + j * ADVANCED_KEY_NUM];
+        //}
+        //g_ADC_Averages[i] = ADC_sum/((float)ANALOG_BUFFER_LENGTH);
+        g_ADC_Averages[i] = ringbuf_avg(&adc_ringbuf[i]);
+#ifdef ENABLE_FILTER
+        g_ADC_Averages[i] = adaptive_schimidt_filter(g_analog_filters+i,g_ADC_Averages[i]);
+#endif
+    }
 }
 
 void analog_check()
 {
     bool state;
-    RGBArgument a;
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-    	float_t analog_avg = ANALOG_AVERAGE(i);
-        state=g_keyboard_advanced_keys[i].key.state;
-        if(analog_avg<g_keyboard_advanced_keys[i].lower_bound)
+        state = g_keyboard_advanced_keys[i].key.state;
+        if (g_keyboard_advanced_keys[i].mode != KEY_DIGITAL_MODE)
         {
-            advanced_key_set_range(g_keyboard_advanced_keys+i, g_keyboard_advanced_keys[i].upper_bound,analog_avg);
-            advanced_key_set_deadzone(g_keyboard_advanced_keys+i, DEFAULT_UPPER_DEADZONE, g_keyboard_advanced_keys[i].lower_deadzone);
+            advanced_key_update_raw(g_keyboard_advanced_keys + i, g_ADC_Averages[i]);
         }
-        if(g_keyboard_advanced_keys[i].mode!=KEY_DIGITAL_MODE)
-        advanced_key_update_raw(g_keyboard_advanced_keys+i, analog_avg);
-        if(g_keyboard_advanced_keys[i].key.state&&!state)
-        {
-        	extern uint32_t pulse_counter;
+        if (g_keyboard_advanced_keys[i].key.state && !state)
+        {        	
+            extern uint32_t pulse_counter;
         	pulse_counter=0;
-
-            a.rgb_ptr = g_rgb_mapping[i];
-            a.begin_time=HAL_GetTick();
-            rgb_loop_queue_enqueue(&g_rgb_argument_queue, a);
+#ifdef ENABLE_KPS
+            record_kps_tick();
+#endif
+#ifdef ENABLE_COUNTER
+            g_key_counts[i]++;
+#endif
         }
-            //advanced_key_update_raw(Keyboard_AdvancedKeys+i, (((float)(AnalogItems.sum))/(float)(AnalogItems.count)));
     }
-
 }
 
+void analog_reset_range()
+{
+    analog_average();
+    for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+    {
+        advanced_key_reset_range(g_keyboard_advanced_keys + i, g_ADC_Averages[i]);
+    }
+}
 
 void ringbuf_push(RingBuf* ringbuf, uint32_t data)
 {
@@ -88,10 +98,6 @@ float ringbuf_avg(RingBuf* ringbuf)
         avg += ringbuf->datas[i];
 
     avg = ((avg >> 2) & 0x01) + (avg >> 3);
-    //  avg = ringbuf->Datas[ringbuf->Pointer];
-    if (avg - TOLERANCE > ringbuf->state)ringbuf->state = avg - TOLERANCE;
-    if (avg + TOLERANCE < ringbuf->state)ringbuf->state = avg + TOLERANCE;
 
-    //  return (float_t)avg;
-    return (float)ringbuf->state;
+    return (float)avg;
 }

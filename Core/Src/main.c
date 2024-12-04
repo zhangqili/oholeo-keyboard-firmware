@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2023 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2023 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -48,7 +48,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define rgb_start() HAL_TIM_PWM_Start_DMA(&htim1,TIM_CHANNEL_1,(uint32_t*)g_rgb_buffer,RGB_BUFFER_LENGTH);
+#define rgb_start() HAL_TIM_PWM_Start_DMA(&htim1, TIM_CHANNEL_1, (uint32_t *)g_rgb_buffer, RGB_BUFFER_LENGTH);
+#define rgb_stop() HAL_TIM_PWM_Stop_DMA(&htim1, TIM_CHANNEL_1);
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -59,45 +60,40 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-volatile bool RGB_Update_Flag=false;
 char uart_buf[64];
 uint32_t debug;
-uint32_t max32;
-uint32_t min32=0xFFFFFFFF;
 
-uint8_t USB_Recive_Buffer[USBD_CUSTOMHID_OUTREPORT_BUF_SIZE]; //USB接收缓存
-uint8_t USB_Received_Count;//USB接收数据计数
+uint8_t USB_Recive_Buffer[USBD_CUSTOMHID_OUTREPORT_BUF_SIZE]; // USB接收缓存
+uint8_t USB_Received_Count;                                   // USB接收数据计数
 
 uint32_t usb_adc_send_idx = 0;
-uint32_t err_cnt=0;
 
 sfud_flash sfud_norflash0 = {
-        .name = "norflash0",
-        .spi.name = "SPI1",
-        .chip = {"W25Q128JV", SFUD_MF_ID_WINBOND, 0x40, 0x18, 16L*1024L*1024L, SFUD_WM_PAGE_256B, 4096, 0x20},
+    .name = "norflash0",
+    .spi.name = "SPI1",
+    .chip = {"W25Q128JV", SFUD_MF_ID_WINBOND, 0x40, 0x18, 16L * 1024L * 1024L, SFUD_WM_PAGE_256B, 4096, 0x20},
 };
 
-
-
-enum state_t {
-	NORMAL,
-	ADC,
-	JOYSTICK,
-	REQUEST_PROFILE,
-	REQUEST_SAVE,
-	FACTORYRESET,
+enum state_t
+{
+  NORMAL,
+  ADC,
+  JOYSTICK,
+  REQUEST_PROFILE,
+  REQUEST_SAVE,
+  FACTORYRESET,
 };
 int32_t state_counter = 0;
 enum state_t global_state = NORMAL;
 
-
 uint8_t LED_Report = 0;
 
-uint32_t test_cnt = 0;
 
-uint32_t pulse_counter=PULSE_LEN_MS;
-uint8_t beep_switch=0;
-uint8_t em_switch=0;
+uint32_t pulse_counter = PULSE_LEN_MS;
+uint8_t beep_switch = 0;
+uint8_t em_switch = 0;
+
+uint8_t usb_raw_report_buffer[64];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -113,47 +109,47 @@ void SystemClock_Config(void);
 //_write函數在syscalls.c中， 使用__weak定义以可以直接在其他文件中定义_write函數
 __attribute__((weak)) int _write(int file, char *ptr, int len)
 {
-     if(HAL_UART_Transmit(&huart1,ptr,len,0xffff) != HAL_OK)
-     {
-         Error_Handler();
-     }
-     return HAL_OK;
+  if (HAL_UART_Transmit(&huart1, (uint8_t*)ptr, len, 0xffff) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  return HAL_OK;
 }
 // 重定向print end
 
 /**
-* @brief  初始化时间戳
-* @note   使用延时函数前，必须调用本函数
-*/
+ * @brief  初始化时间戳
+ * @note   使用延时函数前，必须调用本函数
+ */
 int DWT_Init(void)
 {
-    /* Disable TRC */
-    CoreDebug->DEMCR &= ~CoreDebug_DEMCR_TRCENA_Msk; // ~0x01000000;
-    /* Enable TRC */
-    CoreDebug->DEMCR |=  CoreDebug_DEMCR_TRCENA_Msk; // 0x01000000;
+  /* Disable TRC */
+  CoreDebug->DEMCR &= ~CoreDebug_DEMCR_TRCENA_Msk; // ~0x01000000;
+  /* Enable TRC */
+  CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk; // 0x01000000;
 
-    /* Disable clock cycle counter */
-    DWT->CTRL &= ~DWT_CTRL_CYCCNTENA_Msk; //~0x00000001;
-    /* Enable  clock cycle counter */
-    DWT->CTRL |=  DWT_CTRL_CYCCNTENA_Msk; //0x00000001;
+  /* Disable clock cycle counter */
+  DWT->CTRL &= ~DWT_CTRL_CYCCNTENA_Msk; //~0x00000001;
+  /* Enable  clock cycle counter */
+  DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk; // 0x00000001;
 
-    /* Reset the clock cycle counter value */
-    DWT->CYCCNT = 0;
+  /* Reset the clock cycle counter value */
+  DWT->CYCCNT = 0;
 
-    /* 3 NO OPERATION instructions */
-    __ASM volatile ("NOP");
-    __ASM volatile ("NOP");
-    __ASM volatile ("NOP");
+  /* 3 NO OPERATION instructions */
+  __ASM volatile("NOP");
+  __ASM volatile("NOP");
+  __ASM volatile("NOP");
 
-    /* Check if clock cycle counter has started */
-    if(DWT->CYCCNT)
-    {
-        return 0; /*clock cycle counter started*/
-    }
-    else
-    {
-        return 1; /*clock cycle counter not started*/
-    }
+  /* Check if clock cycle counter has started */
+  if (DWT->CYCCNT)
+  {
+    return 0; /*clock cycle counter started*/
+  }
+  else
+  {
+    return 1; /*clock cycle counter not started*/
+  }
 }
 // This Function Provides Delay In Microseconds Using DWT
 
@@ -162,14 +158,16 @@ void DWT_Delay_us(volatile uint32_t au32_microseconds)
   uint32_t au32_initial_ticks = DWT->CYCCNT;
   uint32_t au32_ticks = (HAL_RCC_GetHCLKFreq() / 1000000);
   au32_microseconds *= au32_ticks;
-  while ((DWT->CYCCNT - au32_initial_ticks) < au32_microseconds-au32_ticks);
+  while ((DWT->CYCCNT - au32_initial_ticks) < au32_microseconds - au32_ticks)
+    ;
 }
 
 void (*SysMemBootJump)(void);
 __IO uint32_t BootAddr = 0x1FFFD800; /* BootLoader 地址 */
 
-void JumpToBootloader(void) {
-  uint32_t i=0;
+void JumpToBootloader(void)
+{
+  uint32_t i = 0;
 
   /* 关闭全局中断 */
   __set_PRIMASK(1);
@@ -185,15 +183,15 @@ void JumpToBootloader(void) {
   /* 关闭所有中断，清除所有中断挂起标志 */
   for (i = 0; i < 8; i++)
   {
-      NVIC->ICER[i]=0xFFFFFFFF;
-      NVIC->ICPR[i]=0xFFFFFFFF;
+    NVIC->ICER[i] = 0xFFFFFFFF;
+    NVIC->ICPR[i] = 0xFFFFFFFF;
   }
 
   /* 使能全局中断 */
   __set_PRIMASK(0);
 
   /* 跳转到系统BootLoader，首地址是MSP，地址+4是复位中断服务程序地址 */
-  SysMemBootJump = (void (*)(void)) (*((uint32_t *) (BootAddr + 4)));
+  SysMemBootJump = (void (*)(void))(*((uint32_t *)(BootAddr + 4)));
 
   /* 设置主堆栈指针 */
   __set_MSP(*(uint32_t *)BootAddr);
@@ -204,17 +202,17 @@ void JumpToBootloader(void) {
   /* 跳转成功的话，不会执行到这里，用户可以在这里添加代码 */
   while (1)
   {
-
   }
 }
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -258,6 +256,7 @@ int main(void)
   sfud_device_init(&sfud_norflash0);
 
   HAL_GPIO_WritePin(INHIBIT_GPIO_Port, INHIBIT_Pin, GPIO_PIN_RESET);
+  keyboard_init();
   rgb_init();
 
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
@@ -266,39 +265,36 @@ int main(void)
   HAL_ADCEx_Calibration_Start(&hadc4, ADC_SINGLE_ENDED);
   rgb_start();
 
-  rgb_flash();
-  rgb_turn_off();
-
-  HAL_ADC_Start_DMA(&hadc1, g_ADC_Buffer[0], DMA_BUF_LEN);
-  HAL_ADC_Start_DMA(&hadc2, g_ADC_Buffer[1], DMA_BUF_LEN);
-  HAL_ADC_Start_DMA(&hadc3, g_ADC_Buffer[2], DMA_BUF_LEN);
-  HAL_ADC_Start_DMA(&hadc4, g_ADC_Buffer[3], DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc1, g_ADC_Buffer + DMA_BUF_LEN*0, DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc2, g_ADC_Buffer + DMA_BUF_LEN*1, DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc3, g_ADC_Buffer + DMA_BUF_LEN*2, DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc4, g_ADC_Buffer + DMA_BUF_LEN*3, DMA_BUF_LEN);
 
   HAL_TIM_Base_Start_IT(&htim2);
 
-  HAL_Delay(500);
-  if(ringbuf_avg(&adc_ringbuf[49])<1400)
-  {
-	  JumpToBootloader();
-  }
+  rgb_init_flash();
+
   keyboard_recovery();
-  for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+  analog_reset_range();
+
+  if (g_ADC_Averages[15] < 1400)
   {
-      advanced_key_set_range(g_keyboard_advanced_keys+i, ringbuf_avg(&adc_ringbuf[i]), 1200);
-      key_attach(&g_keyboard_advanced_keys[i].key, KEY_EVENT_UP, NULL);
-      key_attach(&g_keyboard_advanced_keys[i].key, KEY_EVENT_DOWN, NULL);
-//	  advanced_key_set_range(Keyboard_AdvancedKeys+i,(ADC_Buffer[i]), 1200);
-
-      advanced_key_set_deadzone(g_keyboard_advanced_keys+i, DEFAULT_UPPER_DEADZONE, g_keyboard_advanced_keys[i].lower_deadzone);
-      g_rgb_configs[i].speed=0.01;
+    for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+    {
+        rgb_set(100, 0, 0, i);
+    }
+    HAL_Delay(2);
+    JumpToBootloader();
   }
-  g_rgb_global_config.speed = 0.01;
-  HAL_TIM_Base_Start_IT(&htim7);
-  //sprintf(uart_buf,"%f\n",Keyboard_AdvancedKeys[0].upper_bound);
-  //HAL_UART_Transmit(&huart1, (uint8_t*)uart_buf, 64, 0xFF);
-  memset(USB_Recive_Buffer, 0, sizeof(USB_Recive_Buffer));
-//  Keyboard_Save();
+  if (g_ADC_Averages[49] < 1400)
+  {
+    keyboard_factory_reset();
+    keyboard_system_reset();
+  }
 
+  HAL_TIM_Base_Start_IT(&htim7);
+
+  memset(USB_Recive_Buffer, 0, sizeof(USB_Recive_Buffer));
 
   /* USER CODE END 2 */
 
@@ -307,18 +303,20 @@ int main(void)
   while (1)
   {
 
-	  if(global_state == REQUEST_SAVE){
-		  keyboard_save();
-		  global_state = NORMAL;
-	  }
-	  if(global_state == FACTORYRESET){
-		  keyboard_factory_reset();
-		   //request profile
-		   state_counter = 96;// send twice for safety
-		   global_state = REQUEST_PROFILE;
-	  }
+    //if (global_state == REQUEST_SAVE)
+    //{
+    //  keyboard_save();
+    //  global_state = NORMAL;
+    //}
+    //if (global_state == FACTORYRESET)
+    //{
+    //  keyboard_factory_reset();
+    //  // request profile
+    //  state_counter = 96; // send twice for safety
+    //  global_state = REQUEST_PROFILE;
+    //}
 
-      rgb_update();
+    rgb_update();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -327,9 +325,9 @@ int main(void)
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -337,8 +335,8 @@ void SystemClock_Config(void)
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+   * in the RCC_OscInitTypeDef structure.
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
@@ -352,9 +350,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -364,8 +361,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB|RCC_PERIPHCLK_USART1
-                              |RCC_PERIPHCLK_TIM1;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB | RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_TIM1;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
   PeriphClkInit.USBClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
   PeriphClkInit.Tim1ClockSelection = RCC_TIM1CLK_HCLK;
@@ -379,178 +375,204 @@ void SystemClock_Config(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  if (htim->Instance==TIM7)
+  if (htim->Instance == TIM7)
   {
-	    analog_check();
+    keyboard_task();
 
-    	if(pulse_counter<PULSE_LEN_MS) {
-    		pulse_counter++;
-    		if(beep_switch) {
-				HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
-    		}
-    		if(em_switch) {
-				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 1);
-    		}
-    	} else {
-    		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 0);
-    		HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
+    if (pulse_counter < PULSE_LEN_MS)
+    {
+      pulse_counter++;
+      if (beep_switch)
+      {
+        HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+      }
+      if (em_switch)
+      {
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 1);
+      }
+    }
+    else
+    {
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 0);
+      HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
+    }
 
-    	}
+    //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[0].key.state)
+    //{
+    //  global_state = ADC;
+    //}
+    //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[15].key.state)
+    //{
+    //  for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+    //  {
+    //      rgb_set(100, 0, 0, i);
+    //  }
+    //  JumpToBootloader();
+    //}
+    if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[33].key.state)
+    {
+      global_state = NORMAL;
+      beep_switch = 0;
+      em_switch = 0;
+    }
+    if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[42].key.state)
+    {
+      keyboard_system_reset();
+    }
+    //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[61].key.state)
+    //{
+    //  global_state = JOYSTICK;
+    //}
+    if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[39].key.state)
+    {
+      beep_switch = 1;
+    }
+    //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[60].key.state)
+    //{
+    //  em_switch = 1;
+    //}
+    /*
+    switch (global_state)
+    {
+    case NORMAL:
+      keyboard_send_report();
+      break;
+    case ADC:
+      g_usb_report_buffer[0] = 2;
+      g_usb_report_buffer[1] = usb_adc_send_idx;
+      for (int i = 0; i < 16; i++)
+      {
+        //Keyboard_ReportBuffer[i+2] = i%2?(uint32_t)g_ADC_Averages[i/2 + usb_adc_send_idx*8]:((uint32_t)g_ADC_Averages[i/2 + usb_adc_send_idx*8])>>8;
+        g_usb_report_buffer[i + 2] = i % 2 ? (uint32_t)g_keyboard_advanced_keys[i / 2 + usb_adc_send_idx * 8].raw : ((uint32_t)g_keyboard_advanced_keys[i / 2 + usb_adc_send_idx * 8].raw) >> 8;
+      }
 
-	    if(g_keyboard_advanced_keys[49].key.state&g_keyboard_advanced_keys[0].key.state){
-	    	global_state=ADC;
-	    }
-		if(g_keyboard_advanced_keys[49].key.state&g_keyboard_advanced_keys[33].key.state){
-			global_state=NORMAL;
-			beep_switch=0;
-			em_switch=0;
-		}
-		if(g_keyboard_advanced_keys[49].key.state&g_keyboard_advanced_keys[61].key.state){
-			global_state=JOYSTICK;
-		}
-		if(g_keyboard_advanced_keys[49].key.state&g_keyboard_advanced_keys[39].key.state){
-			beep_switch=1;
-		}
-		if(g_keyboard_advanced_keys[49].key.state&g_keyboard_advanced_keys[60].key.state){
-			em_switch=1;
-		}
+      usb_adc_send_idx++;
+      if (usb_adc_send_idx >= 8)
+        usb_adc_send_idx = 0;
+      USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, g_usb_report_buffer, 17 + 1);
+      break;
+    case JOYSTICK:
+      int8_t Ry, Rx, y, x;
+      y = (g_keyboard_advanced_keys[1].upper_bound - g_keyboard_advanced_keys[1].raw) / (g_keyboard_advanced_keys[1].upper_bound - g_keyboard_advanced_keys[1].lower_bound) * 127.0 - (g_keyboard_advanced_keys[10].upper_bound - g_keyboard_advanced_keys[10].raw) / (g_keyboard_advanced_keys[10].upper_bound - g_keyboard_advanced_keys[10].lower_bound) * 127.0;
+      x = (g_keyboard_advanced_keys[0].upper_bound - g_keyboard_advanced_keys[0].raw) / (g_keyboard_advanced_keys[0].upper_bound - g_keyboard_advanced_keys[0].lower_bound) * 127.0 - (g_keyboard_advanced_keys[2].upper_bound - g_keyboard_advanced_keys[2].raw) / (g_keyboard_advanced_keys[2].upper_bound - g_keyboard_advanced_keys[2].lower_bound) * 127.0;
 
+      g_usb_report_buffer[0] = 3;
+      // Ry,Rx,y,x
+      g_usb_report_buffer[1] = 128;
+      g_usb_report_buffer[2] = 0;
+      g_usb_report_buffer[3] = y - 128;
+      g_usb_report_buffer[4] = x - 128;
+      g_usb_report_buffer[5] = 0;
+      USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, g_usb_report_buffer, 5 + 1);
 
-	    switch(global_state) {
-	    case NORMAL:
-	    	keyboard_send_report();
-	    	break;
-	    case ADC:
-	    	g_keyboard_report_buffer[0] = 2;
-	    	g_keyboard_report_buffer[1] = usb_adc_send_idx;
-		    for(int i=0;i<16; i++) {
-//		    	Keyboard_ReportBuffer[i+2] = i%2?(uint32_t)RingBuf_Avg(&adc_ringbuf[i/2 + usb_adc_send_idx*8]):((uint32_t)RingBuf_Avg(&adc_ringbuf[i/2 + usb_adc_send_idx*8]))>>8;
-		    	g_keyboard_report_buffer[i+2] = i%2?(uint32_t)g_keyboard_advanced_keys[i/2 + usb_adc_send_idx*8].raw:((uint32_t)g_keyboard_advanced_keys[i/2 + usb_adc_send_idx*8].raw)>>8;
+      break;
 
-		    }
+    case REQUEST_PROFILE:
+      state_counter--;
+      if (state_counter <= 0)
+        global_state = NORMAL;
 
-		    usb_adc_send_idx++;
-		    if(usb_adc_send_idx>=8)usb_adc_send_idx=0;
-		    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,g_keyboard_report_buffer,17+1);
-			break;
-	    case JOYSTICK:
-	    	int8_t Ry,Rx,y,x;
-	    	y = (g_keyboard_advanced_keys[1].upper_bound-g_keyboard_advanced_keys[1].raw)/(g_keyboard_advanced_keys[1].upper_bound-g_keyboard_advanced_keys[1].lower_bound)*127.0
-	    			- (g_keyboard_advanced_keys[10].upper_bound-g_keyboard_advanced_keys[10].raw)/(g_keyboard_advanced_keys[10].upper_bound-g_keyboard_advanced_keys[10].lower_bound)*127.0;
-	    	x = (g_keyboard_advanced_keys[0].upper_bound-g_keyboard_advanced_keys[0].raw)/(g_keyboard_advanced_keys[0].upper_bound-g_keyboard_advanced_keys[0].lower_bound)*127.0
-	    			- (g_keyboard_advanced_keys[2].upper_bound-g_keyboard_advanced_keys[2].raw)/(g_keyboard_advanced_keys[2].upper_bound-g_keyboard_advanced_keys[2].lower_bound)*127.0;
+      if (state_counter / 32 == 0)
+      {
+        // sent performance data
+        g_usb_report_buffer[0] = 2;
+        g_usb_report_buffer[1] = (state_counter % 16) + 16;
+        for (int i = 0; i < 4; i++)
+        {
+          uint32_t index = i + (state_counter % 16) * 4;
+          g_usb_report_buffer[2 + i * 4 + 0] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].activation_value * 100.0)) |
+                                                    ((g_keyboard_advanced_keys[index].mode - 1) << 7);
+          g_usb_report_buffer[2 + i * 4 + 1] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].trigger_distance * 100.0));
+          g_usb_report_buffer[2 + i * 4 + 2] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].release_distance * 100.0));
+          g_usb_report_buffer[2 + i * 4 + 3] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].phantom_lower_deadzone * 100.0));
+        }
+      }
+      if (state_counter / 32 == 1)
+      {
+        // sent rgb data
+        g_usb_report_buffer[0] = 2;
+        g_usb_report_buffer[1] = (state_counter % 16) + 32;
+        for (int i = 0; i < 4; i++)
+        {
+          uint32_t index = i + (state_counter % 16) * 4;
+          g_usb_report_buffer[2 + i * 4 + 0] = (uint8_t)(g_rgb_global_config.mode << 4) | g_rgb_configs[g_rgb_mapping[index]].mode;
+          g_usb_report_buffer[2 + i * 4 + 1] = g_rgb_configs[g_rgb_mapping[index]].rgb.r;
+          g_usb_report_buffer[2 + i * 4 + 2] = g_rgb_configs[g_rgb_mapping[index]].rgb.g;
+          g_usb_report_buffer[2 + i * 4 + 3] = g_rgb_configs[g_rgb_mapping[index]].rgb.b;
+        }
+      }
+      if (state_counter / 32 == 2)
+      {
+        // sent keymap data
+        g_usb_report_buffer[0] = 2;
+        g_usb_report_buffer[1] = (state_counter % 16) + 48;
+        for (int i = 0; i < 4; i++)
+        {
+          uint32_t index = i + (state_counter % 16) * 4;
+          g_usb_report_buffer[2 + i * 4 + 0] = g_keymap[0][g_keyboard_advanced_keys[index].key.id] >> 8;
+          g_usb_report_buffer[2 + i * 4 + 1] = g_keymap[0][g_keyboard_advanced_keys[index].key.id] & 0xff;
+          g_usb_report_buffer[2 + i * 4 + 2] = g_keymap[1][g_keyboard_advanced_keys[index].key.id] >> 8;
+          g_usb_report_buffer[2 + i * 4 + 3] = g_keymap[1][g_keyboard_advanced_keys[index].key.id] & 0xff;
+        }
+      }
+      USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, g_usb_report_buffer, 17 + 1);
+      break;
 
-	    	g_keyboard_report_buffer[0] = 3;
-	    	//Ry,Rx,y,x
-	    	g_keyboard_report_buffer[1] = 128;
-	    	g_keyboard_report_buffer[2] = 0;
-	    	g_keyboard_report_buffer[3] = y-128;
-	    	g_keyboard_report_buffer[4] = x-128;
-	    	g_keyboard_report_buffer[5] = 0;
-		    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,g_keyboard_report_buffer,5+1);
-
-	    	break;
-
-	    case REQUEST_PROFILE:
-	    	state_counter--;
-	    	if(state_counter<=0)global_state=NORMAL;
-
-	    	if(state_counter/32 == 0) {
-				//sent performance data
-				g_keyboard_report_buffer[0] = 2;
-				g_keyboard_report_buffer[1] = (state_counter%16) + 16;
-				for(int i=0;i<4;i++) {
-					uint32_t index = i + (state_counter%16)*4;
-					g_keyboard_report_buffer[2 + i*4+0] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].activation_value*100.0)) |
-							((g_keyboard_advanced_keys[index].mode - 1) << 7);
-					g_keyboard_report_buffer[2 + i*4+1] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].trigger_distance*100.0));
-					g_keyboard_report_buffer[2 + i*4+2] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].release_distance*100.0));
-					g_keyboard_report_buffer[2 + i*4+3] = (uint8_t)(roundf(g_keyboard_advanced_keys[index].phantom_lower_deadzone*100.0));
-				}
-	    	}
-	    	if(state_counter/32 == 1) {
-		    	//sent rgb data
-		    	g_keyboard_report_buffer[0] = 2;
-		    	g_keyboard_report_buffer[1] = (state_counter%16) + 32;
-		    	for(int i=0;i<4;i++) {
-		    		uint32_t index = i + (state_counter%16)*4;
-		    		g_keyboard_report_buffer[2 + i*4+0] = (uint8_t)(g_rgb_global_config.mode<<4) | g_rgb_configs[g_rgb_mapping[index]].mode;
-		    		g_keyboard_report_buffer[2 + i*4+1] = g_rgb_configs[g_rgb_mapping[index]].rgb.r;
-		    		g_keyboard_report_buffer[2 + i*4+2] = g_rgb_configs[g_rgb_mapping[index]].rgb.g;
-		    		g_keyboard_report_buffer[2 + i*4+3] = g_rgb_configs[g_rgb_mapping[index]].rgb.b;
-		    	}
-	    	}
-	    	if(state_counter/32 == 2) {
-		    	//sent keymap data
-		    	g_keyboard_report_buffer[0] = 2;
-		    	g_keyboard_report_buffer[1] = (state_counter%16) + 48;
-		    	for(int i=0;i<4;i++) {
-		    		uint32_t index = i + (state_counter%16)*4;
-		    		g_keyboard_report_buffer[2 + i*4+0] = g_keymap[0][g_keyboard_advanced_keys[index].key.id] >>8;
-		    		g_keyboard_report_buffer[2 + i*4+1] = g_keymap[0][g_keyboard_advanced_keys[index].key.id]&0xff;
-		    		g_keyboard_report_buffer[2 + i*4+2] = g_keymap[1][g_keyboard_advanced_keys[index].key.id]>>8;
-		    		g_keyboard_report_buffer[2 + i*4+3] = g_keymap[1][g_keyboard_advanced_keys[index].key.id]&0xff;
-		    	}
-	    	}
-		    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,g_keyboard_report_buffer,17+1);
-	    	break;
-
-	    default:
-	    	break;
-	    }
-
-
-
+    default:
+      break;
+    }
+    */  
   }
-  if (htim->Instance==TIM6)
+  if (htim->Instance == TIM2)
   {
-      RGB_Update_Flag=true;
-  }
-  if (htim->Instance==TIM2) {
-	  test_cnt++;
-//	  if(test_cnt%2==0) {
-		uint32_t adc1=0;
-		uint32_t adc2=0;
-		uint32_t adc3=0;
-		uint32_t adc4=0;
+    static uint32_t test_cnt = 0;
+    test_cnt++;
+    //	  if(test_cnt%2==0) {
+    uint32_t adc1 = 0;
+    uint32_t adc2 = 0;
+    uint32_t adc3 = 0;
+    uint32_t adc4 = 0;
 
-		for(int i=0;i<DMA_BUF_LEN;i++) {
-		 adc1+=g_ADC_Buffer[0][i]&0xfff;
-		 adc2+=g_ADC_Buffer[1][i]&0xfff;
-		 adc3+=g_ADC_Buffer[2][i]&0xfff;
-		 adc4+=g_ADC_Buffer[3][i]&0xfff;
-		}
+    for (int i = 0; i < DMA_BUF_LEN; i++)
+    {
+      adc1 += g_ADC_Buffer[DMA_BUF_LEN * 0 + i] & 0xfff;
+      adc2 += g_ADC_Buffer[DMA_BUF_LEN * 1 + i] & 0xfff;
+      adc3 += g_ADC_Buffer[DMA_BUF_LEN * 2 + i] & 0xfff;
+      adc4 += g_ADC_Buffer[DMA_BUF_LEN * 3 + i] & 0xfff;
+    }
 
-		ringbuf_push(&adc_ringbuf[0*16+ADDRESS] , (float_t)adc1/(float_t)DMA_BUF_LEN);
-		ringbuf_push(&adc_ringbuf[1*16+ADDRESS] , (float_t)adc2/(float_t)DMA_BUF_LEN);
-		ringbuf_push(&adc_ringbuf[2*16+ADDRESS] , (float_t)adc3/(float_t)DMA_BUF_LEN);
-		ringbuf_push(&adc_ringbuf[3*16+ADDRESS] , (float_t)adc4/(float_t)DMA_BUF_LEN);
+    ringbuf_push(&adc_ringbuf[0 * 16 + ADDRESS], (float)adc1 / (float)DMA_BUF_LEN);
+    ringbuf_push(&adc_ringbuf[1 * 16 + ADDRESS], (float)adc2 / (float)DMA_BUF_LEN);
+    ringbuf_push(&adc_ringbuf[2 * 16 + ADDRESS], (float)adc3 / (float)DMA_BUF_LEN);
+    ringbuf_push(&adc_ringbuf[3 * 16 + ADDRESS], (float)adc4 / (float)DMA_BUF_LEN);
 
-		if (htim->Instance->CNT < 700) {
-			g_analog_active_channel++;
-			if(g_analog_active_channel>=16)g_analog_active_channel=0;
-			analog_channel_select(g_analog_active_channel);
-		}
-//	  }
+    if (htim->Instance->CNT < 700)
+    {
+      g_analog_active_channel++;
+      if (g_analog_active_channel >= 16)
+      {
+        g_analog_active_channel = 0;
+      }
+      analog_channel_select(g_analog_active_channel);
+    }
+    //	  }
   }
 }
 
-void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 {
-
 }
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-
 }
 
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -562,14 +584,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
