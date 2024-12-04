@@ -37,6 +37,7 @@
 #include "usbd_custom_hid_if.h"
 #include "math.h"
 #include "lfs.h"
+#include "command.h"
 #include "sfud.h"
 
 /* USER CODE END Includes */
@@ -375,9 +376,12 @@ void SystemClock_Config(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+  static uint8_t report_buffer[64];
   if (htim->Instance == TIM7)
   {
-    keyboard_task();
+    keyboard_scan();
+    analog_average();
+    analog_check();
 
     if (pulse_counter < PULSE_LEN_MS)
     {
@@ -396,11 +400,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 0);
       HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
     }
-
-    //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[0].key.state)
-    //{
-    //  global_state = ADC;
-    //}
+    if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[0].key.state)
+    {
+      g_debug_enable = true;
+    }
     //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[15].key.state)
     //{
     //  for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
@@ -414,6 +417,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       global_state = NORMAL;
       beep_switch = 0;
       em_switch = 0;
+      g_debug_enable = false;
     }
     if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[42].key.state)
     {
@@ -426,6 +430,30 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[39].key.state)
     {
       beep_switch = 1;
+    }
+
+    
+    if (g_debug_enable)
+    {
+      static uint32_t report_num = 0;
+      memset(report_buffer,0,sizeof(report_buffer));
+      report_buffer[0] = 0x02;
+      report_buffer[1] = 0xFF;
+      for (int i = 0; i < 6; i++)
+      {
+        uint8_t key_index = (report_num + i) % 64;
+        report_buffer[2 + 10 * i] = key_index;
+        report_buffer[3 + 10 * i] = g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].key.state;
+        memcpy(report_buffer + 4 + 10 * i, &g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].raw, sizeof(float));
+        memcpy(report_buffer + 4 + 10 * i + 4, &g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].value, sizeof(float));
+      }
+      report_num += 6;
+      USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, report_buffer, 64);
+    }
+    else
+    {
+      keyboard_post_process();
+      keyboard_send_report();
     }
     //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[60].key.state)
     //{
