@@ -21,7 +21,7 @@ typedef struct __ActionDynamicKeyStroke4x4
 {
     Action type;
     uint16_t key_binding[4];
-    float distance[4];
+    AnalogValue distance[4];
 } ActionDynamicKeyStroke4x4;
 
 typedef struct __ActionModTap

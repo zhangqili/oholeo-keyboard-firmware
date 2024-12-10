@@ -3,11 +3,25 @@
 #include "keyboard.h"
 #include "keyboard_conf.h"
 
+#ifndef KPS_HISTORY_LENGTH
 #define KPS_HISTORY_LENGTH    65
+#endif
+
+#ifndef BIT_STREAM_LENGTH
 #define BIT_STREAM_LENGTH    128
+#endif
+
+#ifndef ANALOG_HISTORY_LENGTH
 #define ANALOG_HISTORY_LENGTH 129
+#endif
+
+#ifndef RECORD_MAX_KEY_NUM
 #define RECORD_MAX_KEY_NUM    8
+#endif
+
+#ifndef KPS_REFRESH_RATE
 #define KPS_REFRESH_RATE      144
+#endif
 
 #define BIT_DATA_LENGTH ((BIT_STREAM_LENGTH - 1) / (sizeof(size_t) * 8) + 1)
 

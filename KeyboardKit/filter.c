@@ -1,6 +1,6 @@
 #include "filter.h"
 
-float adaptive_schimidt_filter(AdaptiveSchimidtFilter *filter, float value)
+AnalogValue adaptive_schimidt_filter(AdaptiveSchimidtFilter *filter, AnalogValue value)
 {
     if (value - TOLERANCE > filter->state)
         filter->state = value - TOLERANCE;

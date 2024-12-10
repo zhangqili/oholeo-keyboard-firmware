@@ -51,6 +51,8 @@
 /* USER CODE BEGIN PD */
 #define rgb_start() HAL_TIM_PWM_Start_DMA(&htim1, TIM_CHANNEL_1, (uint32_t *)g_rgb_buffer, RGB_BUFFER_LENGTH);
 #define rgb_stop() HAL_TIM_PWM_Stop_DMA(&htim1, TIM_CHANNEL_1);
+
+#define DMA_BUF_LEN             10
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -95,6 +97,8 @@ uint8_t beep_switch = 0;
 uint8_t em_switch = 0;
 
 uint8_t usb_raw_report_buffer[64];
+
+uint32_t ADC_Buffer[4*DMA_BUF_LEN];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -266,10 +270,10 @@ int main(void)
   HAL_ADCEx_Calibration_Start(&hadc4, ADC_SINGLE_ENDED);
   rgb_start();
 
-  HAL_ADC_Start_DMA(&hadc1, g_ADC_Buffer + DMA_BUF_LEN*0, DMA_BUF_LEN);
-  HAL_ADC_Start_DMA(&hadc2, g_ADC_Buffer + DMA_BUF_LEN*1, DMA_BUF_LEN);
-  HAL_ADC_Start_DMA(&hadc3, g_ADC_Buffer + DMA_BUF_LEN*2, DMA_BUF_LEN);
-  HAL_ADC_Start_DMA(&hadc4, g_ADC_Buffer + DMA_BUF_LEN*3, DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc1, ADC_Buffer + DMA_BUF_LEN*0, DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc2, ADC_Buffer + DMA_BUF_LEN*1, DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc3, ADC_Buffer + DMA_BUF_LEN*2, DMA_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc4, ADC_Buffer + DMA_BUF_LEN*3, DMA_BUF_LEN);
 
   HAL_TIM_Base_Start_IT(&htim2);
 
@@ -563,10 +567,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
     for (int i = 0; i < DMA_BUF_LEN; i++)
     {
-      adc1 += g_ADC_Buffer[DMA_BUF_LEN * 0 + i] & 0xfff;
-      adc2 += g_ADC_Buffer[DMA_BUF_LEN * 1 + i] & 0xfff;
-      adc3 += g_ADC_Buffer[DMA_BUF_LEN * 2 + i] & 0xfff;
-      adc4 += g_ADC_Buffer[DMA_BUF_LEN * 3 + i] & 0xfff;
+      adc1 += ADC_Buffer[DMA_BUF_LEN * 0 + i] & 0xfff;
+      adc2 += ADC_Buffer[DMA_BUF_LEN * 1 + i] & 0xfff;
+      adc3 += ADC_Buffer[DMA_BUF_LEN * 2 + i] & 0xfff;
+      adc4 += ADC_Buffer[DMA_BUF_LEN * 3 + i] & 0xfff;
     }
 
     ringbuf_push(&adc_ringbuf[0 * 16 + ADDRESS], (float)adc1 / (float)DMA_BUF_LEN);
@@ -585,6 +589,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
     //	  }
   }
+}
+
+void rgb_update_callback()
+{
+  extern uint8_t LED_Report;
+	if(LED_Report&0x02)
+    {
+	    g_rgb_colors[g_rgb_mapping[28]].r = 0xff;
+	    g_rgb_colors[g_rgb_mapping[28]].g = 0xff;
+	    g_rgb_colors[g_rgb_mapping[28]].b = 0xff;//cap lock
+	}
 }
 
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)

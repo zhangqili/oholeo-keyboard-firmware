@@ -8,26 +8,69 @@
 #ifndef RGB_H_
 #define RGB_H_
 
-#include "keyboard.h"
 #include "color.h"
+#include "keyboard.h"
+#include "keyboard_conf.h"
 
+#ifndef RGB_NUM
 #define RGB_NUM                 (ADVANCED_KEY_NUM)
-#define ONE_PULSE               (60)
-#define ZERO_PULSE              (29)
+#endif
+
+#ifndef ONE_PULSE
+#define ONE_PULSE               (7)
+#endif
+
+#ifndef ZERO_PULSE
+#define ZERO_PULSE              (3)
+#endif
+
+#ifndef NONE_PULSE
 #define NONE_PULSE              (0)
-#define RGB_RESET_LENGTH        (400)
-#define RGB_BUFFER_LENGTH       (RGB_RESET_LENGTH+3*8*(RGB_NUM))
+#endif
 
-#define RGB_MAX_DURATION 2000
+#ifndef RGB_RESET_LENGTH
+#define RGB_RESET_LENGTH        (60)
+#endif
+
+#ifndef RGB_BUFFER_LENGTH
+#define RGB_BUFFER_LENGTH       (((RGB_NUM)*(3*8))+RGB_RESET_LENGTH)
+#endif
+
+#ifndef RGB_MAX_DURATION
+#define RGB_MAX_DURATION 1000
+#endif
+
+#ifndef FADING_DISTANCE
 #define FADING_DISTANCE 5.0f
-#define JELLY_DISTANCE 10.0f
-#define PORT_LOCATION {1, 4.5}
-#define RGB_FLASH_MAX_DURATION 1000
-#define RGB_FLASH_RIPPLE_SPEED 0.03
+#endif
 
+#ifndef JELLY_DISTANCE
+#define JELLY_DISTANCE 10.0f
+#endif
+
+#ifndef PORT_LOCATION
+#define PORT_LOCATION {0, 0}
+#endif
+
+#ifndef RGB_FLASH_MAX_DURATION
+#define RGB_FLASH_MAX_DURATION 1000
+#endif
+
+#ifndef RGB_FLASH_RIPPLE_SPEED
+#define RGB_FLASH_RIPPLE_SPEED 0.03
+#endif
+
+#ifndef RGB_DEFAULT_MODE
 #define RGB_DEFAULT_MODE RGB_MODE_LINEAR
-#define RGB_DEFAULT_SPEED 0.03
+#endif
+
+#ifndef RGB_DEFAULT_SPEED
+#define RGB_DEFAULT_SPEED 0.015
+#endif
+
+#ifndef RGB_DEFAULT_COLOR_HSV
 #define RGB_DEFAULT_COLOR_HSV {273, 78, 99}
+#endif
 
 typedef enum __RGBMode
 {
@@ -91,6 +134,7 @@ extern bool g_rgb_switch;
 
 void rgb_init();
 void rgb_update();
+void rgb_update_callback();
 void rgb_set(uint8_t r,uint8_t g,uint8_t b,uint16_t index);
 void rgb_init_flash();
 void rgb_flash();

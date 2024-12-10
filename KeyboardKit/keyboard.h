@@ -14,15 +14,15 @@
 #include "keyboard_def.h"
 #include "usb_hid_keys.h"
 
-#define KEYBINDING(keycode,modifier) (((modifier)<<8)|(keycode))
-#define KEY_KEYCODE(binding) ((binding)&0xFF)
-#define KEY_MODIFIER(binding) (((binding)>>8)&0xFF)
+#define KEYBINDING(keycode, modifier) (((modifier) << 8) | (keycode))
+#define KEY_KEYCODE(binding) ((binding) & 0xFF)
+#define KEY_MODIFIER(binding) (((binding) >> 8) & 0xFF)
 
 typedef struct
 {
     uint8_t buffer[8];
     uint8_t keynum;
-}Keyboard_6KROBuffer;
+} Keyboard_6KROBuffer;
 
 typedef struct
 {
@@ -47,9 +47,9 @@ void keyboard_key_add_buffer(Key *k);
 void keyboard_buffer_send();
 void keyboard_buffer_clear();
 
-int keyboard_6KRObuffer_add(Keyboard_6KROBuffer*buf,uint16_t key);
-void keyboard_6KRObuffer_send(Keyboard_6KROBuffer*buf);
-void keyboard_6KRObuffer_clear(Keyboard_6KROBuffer*buf);
+int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, uint16_t key);
+void keyboard_6KRObuffer_send(Keyboard_6KROBuffer *buf);
+void keyboard_6KRObuffer_clear(Keyboard_6KROBuffer *buf);
 
 void keyboard_NKRObuffer_init(Keyboard_NKROBuffer*buf,uint8_t* data_buf,uint8_t length);
 int keyboard_NKRObuffer_add(Keyboard_NKROBuffer*buf,uint16_t key);

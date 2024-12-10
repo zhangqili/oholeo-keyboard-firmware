@@ -5,6 +5,7 @@
  *      Author: xq123
  */
 #include "rgb.h"
+#include "keyboard_def.h"
 #include "string.h"
 #include "math.h"
 
@@ -27,10 +28,6 @@ static RGBLoopQueueElm RGB_Argument_Buffer[ARGUMENT_BUFFER_LENGTH];
 void rgb_init()
 {
     rgb_loop_queue_init(&g_rgb_argument_queue, RGB_Argument_Buffer, ARGUMENT_BUFFER_LENGTH);
-    for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
-    {
-        key_attach(&g_keyboard_advanced_keys[i].key, KEY_EVENT_DOWN, rgb_activate);
-    }
     for (uint16_t i = 0; i < RGB_BUFFER_LENGTH; i++)
     {
         g_rgb_buffer[i] = NONE_PULSE;
@@ -186,17 +183,16 @@ void rgb_update()
             break;
         }
     }
-    extern uint8_t LED_Report;
-	if(LED_Report&0x02)
-    {
-	    g_rgb_colors[g_rgb_mapping[28]].r = 0xff;
-	    g_rgb_colors[g_rgb_mapping[28]].g = 0xff;
-	    g_rgb_colors[g_rgb_mapping[28]].b = 0xff;//cap lock
-	}
+    rgb_update_callback();
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
         rgb_set(g_rgb_colors[i].r, g_rgb_colors[i].g, g_rgb_colors[i].b, i);
     }
+}
+
+__WEAK void rgb_update_callback()
+{
+
 }
 
 void rgb_set(uint8_t r, uint8_t g, uint8_t b, uint16_t index)
