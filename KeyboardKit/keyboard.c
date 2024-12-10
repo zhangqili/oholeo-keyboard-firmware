@@ -258,8 +258,6 @@ void keyboard_send_report()
     keyboard_buffer_clear();
     mouse_buffer_clear(&g_mouse);
     
-    g_keyboard_current_layer = g_keyboard_advanced_keys[49].key.state?1:0; //Fn key
-    
     for (int i = 0; i < ADVANCED_KEY_NUM; i++)
     {
         keyboard_key_add_buffer(&g_keyboard_advanced_keys[i].key);

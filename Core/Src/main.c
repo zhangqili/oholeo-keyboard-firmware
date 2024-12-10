@@ -122,6 +122,10 @@ __attribute__((weak)) int _write(int file, char *ptr, int len)
 }
 // 重定向print end
 
+void key_down_cb(void * k)
+{
+  pulse_counter=0;
+}
 /**
  * @brief  初始化时间戳
  * @note   使用延时函数前，必须调用本函数
@@ -262,6 +266,10 @@ int main(void)
 
   HAL_GPIO_WritePin(INHIBIT_GPIO_Port, INHIBIT_Pin, GPIO_PIN_RESET);
   keyboard_init();
+  for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+  {
+    key_attach(&g_keyboard_advanced_keys[i],KEY_EVENT_DOWN,key_down_cb);
+  }
   rgb_init();
 
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
@@ -456,6 +464,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
     else
     {
+      g_keyboard_current_layer = g_keyboard_advanced_keys[49].key.state?1:0; //Fn key
       keyboard_post_process();
       keyboard_send_report();
     }

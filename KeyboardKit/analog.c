@@ -59,8 +59,6 @@ void analog_check()
 #ifdef ENABLE_RGB
             rgb_activate(&g_keyboard_advanced_keys[i].key);
 #endif
-            extern uint32_t pulse_counter;
-        	pulse_counter=0;
 #ifdef ENABLE_KPS
             record_kps_tick();
 #endif
