@@ -32,7 +32,7 @@ void analog_scan()
 {
 }
 
-void analog_average()
+__WEAK void analog_average()
 {
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {

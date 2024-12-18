@@ -17,10 +17,6 @@
 #define RING_BUF_LEN 8
 #endif
 
-#ifndef ANALOG_BUFFER_LENGTH
-#define ANALOG_BUFFER_LENGTH (ADVANCED_KEY_NUM*64)
-#endif
-
 typedef struct
 {
     uint16_t datas[RING_BUF_LEN];

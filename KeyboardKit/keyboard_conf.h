@@ -31,12 +31,11 @@
 /* Analog */
 /**********/
 #define RING_BUF_LEN            8
-#define ANALOG_BUFFER_LENGTH    (DMA_BUF_LEN*4)
 
 /*******/
 /* RGB */
 /*******/
-#define ENABLE_RGB               
+#define ENABLE_RGB              
 #define RGB_NUM                 (ADVANCED_KEY_NUM)
 #define ONE_PULSE               (60)
 #define ZERO_PULSE              (29)
@@ -56,6 +55,7 @@
 /**********/
 /* Filter */
 /**********/
+//#define TOLERANCE               3
 #define ENABLE_FILTER
 
 /**********/
@@ -67,6 +67,12 @@
 //#define ENABLE_KPS_HISTORY
 //#define ENABLE_BIT_STREAM
 //#define ENABLE_COUNTER
+
+#define KPS_HISTORY_LENGTH      65
+#define BIT_STREAM_LENGTH       128
+#define ANALOG_HISTORY_LENGTH   129
+#define RECORD_MAX_KEY_NUM      8
+#define KPS_REFRESH_RATE        144
 
 /****************/
 /* User Defines */

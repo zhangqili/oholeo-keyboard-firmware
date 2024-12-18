@@ -268,7 +268,7 @@ int main(void)
   keyboard_init();
   for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
   {
-    key_attach(&g_keyboard_advanced_keys[i],KEY_EVENT_DOWN,key_down_cb);
+    key_attach(&g_keyboard_advanced_keys[i].key,KEY_EVENT_DOWN,key_down_cb);
   }
   rgb_init();
 

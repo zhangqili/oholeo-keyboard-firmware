@@ -12,7 +12,7 @@
 #include "advanced_key.h"
 #include "keyboard_conf.h"
 #include "keyboard_def.h"
-#include "usb_hid_keys.h"
+#include "keycode.h"
 
 #define KEYBINDING(keycode, modifier) (((modifier) << 8) | (keycode))
 #define KEY_KEYCODE(binding) ((binding) & 0xFF)
