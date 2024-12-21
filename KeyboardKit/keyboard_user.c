@@ -1127,6 +1127,7 @@ static const float table[]=
 
 void keyboard_hid_send(uint8_t*report,uint16_t len)
 {
+    UNUSED(len);
     static uint8_t send_buffer[64];
     send_buffer[0] = 1;
     memcpy(send_buffer+1,report,63);

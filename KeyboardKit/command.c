@@ -68,6 +68,7 @@ void unload_cargo(uint8_t *buf)
 }
 void command_prase(uint8_t *buf, uint8_t len)
 {
+    UNUSED(len);
     switch (buf[0])
     {
     case 0x80: // Save

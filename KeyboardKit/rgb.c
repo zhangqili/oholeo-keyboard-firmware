@@ -25,7 +25,7 @@ uint32_t RGB_Tick;
 
 static RGBLoopQueueElm RGB_Argument_Buffer[ARGUMENT_BUFFER_LENGTH];
 
-void rgb_init()
+void rgb_init(void)
 {
     rgb_loop_queue_init(&g_rgb_argument_queue, RGB_Argument_Buffer, ARGUMENT_BUFFER_LENGTH);
     for (uint16_t i = 0; i < RGB_BUFFER_LENGTH; i++)
@@ -36,7 +36,7 @@ void rgb_init()
 
 #define COLOR_INTERVAL(key, low, up) (uint8_t)((key) < 0 ? (low) : ((key) > 1.0 ? (up) : (key) * (up)))
 
-void rgb_update()
+void rgb_update(void)
 {
     if (!g_rgb_switch)
     {
@@ -186,16 +186,16 @@ void rgb_update()
     rgb_update_callback();
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-        rgb_set(g_rgb_colors[i].r, g_rgb_colors[i].g, g_rgb_colors[i].b, i);
+        rgb_set(i, g_rgb_colors[i].r, g_rgb_colors[i].g, g_rgb_colors[i].b);
     }
 }
 
-__WEAK void rgb_update_callback()
+__WEAK void rgb_update_callback(void)
 {
 
 }
 
-void rgb_set(uint8_t r, uint8_t g, uint8_t b, uint16_t index)
+void rgb_set(uint16_t index, uint8_t r, uint8_t g, uint8_t b)
 {
     for (uint8_t i = 0; i < 8; i++)
     {
@@ -205,7 +205,7 @@ void rgb_set(uint8_t r, uint8_t g, uint8_t b, uint16_t index)
     }
 }
 
-void rgb_init_flash()
+void rgb_init_flash(void)
 {
     float intensity;
     ColorRGB temp_rgb;
@@ -249,14 +249,14 @@ void rgb_init_flash()
         }
         for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
         {
-            rgb_set(g_rgb_colors[i].r, g_rgb_colors[i].g, g_rgb_colors[i].b, i);
+            rgb_set(i, g_rgb_colors[i].r, g_rgb_colors[i].g, g_rgb_colors[i].b);
         }
         //keyboard_delay(1);
     }
     rgb_turn_off();
 }
 
-void rgb_flash()
+void rgb_flash(void)
 {
     float intensity;
     ColorRGB temp_rgb;
@@ -275,13 +275,13 @@ void rgb_flash()
         }
         for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
         {
-            rgb_set(g_rgb_colors[i].r, g_rgb_colors[i].g, g_rgb_colors[i].b, i);
+            rgb_set(i, g_rgb_colors[i].r, g_rgb_colors[i].g, g_rgb_colors[i].b);
         }
     }
     rgb_turn_off();
 }
 
-void rgb_turn_off()
+void rgb_turn_off(void)
 {
     for (uint8_t i = 0; i < RGB_NUM; i++)
     {
@@ -289,7 +289,7 @@ void rgb_turn_off()
     }
 }
 
-void rgb_factory_reset()
+void rgb_factory_reset(void)
 {
     ColorHSV temphsv = RGB_DEFAULT_COLOR_HSV;
     for (uint8_t i = 0; i < RGB_NUM; i++)
@@ -301,11 +301,11 @@ void rgb_factory_reset()
     }
 }
 
-void rgb_enqueue()
+void rgb_enqueue(void)
 {
 }
 
-void rgb_save()
+void rgb_save(void)
 {
 }
 

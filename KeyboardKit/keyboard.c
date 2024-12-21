@@ -89,7 +89,7 @@ void keyboard_key_add_buffer(Key *k)
     }
 }
 
-void keyboard_buffer_send()
+void keyboard_buffer_send(void)
 {
 #ifdef NKRO_ENABLE
     keyboard_NKRObuffer_send(&g_keyboard_nkro_buffer);
@@ -98,7 +98,7 @@ void keyboard_buffer_send()
 #endif
 }
 
-void keyboard_buffer_clear()
+void keyboard_buffer_clear(void)
 {
 #ifdef NKRO_ENABLE
     keyboard_NKRObuffer_clear(&g_keyboard_nkro_buffer);
@@ -159,7 +159,7 @@ void keyboard_NKRObuffer_clear(Keyboard_NKROBuffer*buf)
     memset(buf->buffer, 0, buf->length);
 }
 
-void keyboard_init()
+void keyboard_init(void)
 {
 #ifdef NKRO_ENABLE
     static uint8_t buffer[64];
@@ -167,7 +167,7 @@ void keyboard_init()
 #endif
 }
 
-void keyboard_factory_reset()
+void keyboard_factory_reset(void)
 {
     memcpy(g_keymap, g_default_keymap, sizeof(g_keymap));
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
@@ -188,15 +188,15 @@ void keyboard_factory_reset()
     //keyboard_system_reset();
 }
 
-__WEAK void keyboard_system_reset()
+__WEAK void keyboard_system_reset(void)
 {
 }
 
-__WEAK void keyboard_scan()
+__WEAK void keyboard_scan(void)
 {
 }
 
-void keyboard_recovery()
+void keyboard_recovery(void)
 {
     // mount the filesystem
     int err = lfs_mount(&lfs_w25qxx, &lfs_cfg);
@@ -227,7 +227,7 @@ void keyboard_recovery()
     // print the boot count
 }
 
-void keyboard_save()
+void keyboard_save(void)
 {
     // mount the filesystem
     int err = lfs_mount(&lfs_w25qxx, &lfs_cfg);
@@ -259,7 +259,7 @@ void keyboard_save()
     // print the boot count
 }
 
-void keyboard_send_report()
+void keyboard_send_report(void)
 {
     static uint32_t mouse_value;
     keyboard_buffer_clear();
@@ -284,7 +284,7 @@ void keyboard_send_report()
     mouse_value = *(uint32_t*)&g_mouse;
 }
 
-__WEAK void keyboard_task()
+__WEAK void keyboard_task(void)
 {
     keyboard_scan();
     analog_average();
@@ -295,10 +295,13 @@ __WEAK void keyboard_task()
 
 __WEAK void keyboard_hid_send(uint8_t *report, uint16_t len)
 {
+    UNUSED(report);
+    UNUSED(len);
 }
 __WEAK void keyboard_delay(uint32_t ms)
 {
+    UNUSED(ms);
 }
-__WEAK void keyboard_post_process()
+__WEAK void keyboard_post_process(void)
 {
 }

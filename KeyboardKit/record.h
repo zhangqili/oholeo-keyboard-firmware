@@ -62,13 +62,13 @@ LoopArrayElement loop_array_max(LoopArray *arr);
 //void record_kps_register(Key*k);
 //void record_bit_stream_register(Key*k);
 //void record_analog_register(AdvancedKey*k);
-void record_init();
-void record_bit_stream_timer();
-void record_analog_timer();
-void record_kps_timer();
-uint16_t record_get_kps();
-void record_kps_tick();
-void record_kps_timer();
-void record_kps_history_timer();
+void record_init(void);
+void record_bit_stream_timer(void);
+void record_analog_timer(void);
+void record_kps_timer(void);
+uint16_t record_get_kps(void);
+void record_kps_tick(void);
+void record_kps_timer(void);
+void record_kps_history_timer(void);
 
 #endif /* RECORD_H_ */

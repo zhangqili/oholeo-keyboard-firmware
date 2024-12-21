@@ -20,4 +20,8 @@
   #endif /* __packed */
 #endif /* __GNUC__ */
 
+#if !defined(UNUSED)
+#define UNUSED(X) (void)X      /* To avoid gcc/g++ warnings */
+#endif /* UNUSED */
+
 #endif //KEYBOARD_DEF_H

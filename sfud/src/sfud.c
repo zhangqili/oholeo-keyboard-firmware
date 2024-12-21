@@ -386,6 +386,7 @@ static sfud_err hardware_init(sfud_flash *flash) {
 static sfud_err software_init(const sfud_flash *flash) {
     sfud_err result = SFUD_SUCCESS;
 
+    (void)flash;
     SFUD_ASSERT(flash);
 
     return result;

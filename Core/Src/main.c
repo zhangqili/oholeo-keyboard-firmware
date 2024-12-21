@@ -39,6 +39,7 @@
 #include "lfs.h"
 #include "command.h"
 #include "sfud.h"
+#include "keyboard_def.h"
 
 /* USER CODE END Includes */
 
@@ -114,6 +115,7 @@ void SystemClock_Config(void);
 //_write函數在syscalls.c中， 使用__weak定义以可以直接在其他文件中定义_write函數
 __attribute__((weak)) int _write(int file, char *ptr, int len)
 {
+  UNUSED(file);
   if (HAL_UART_Transmit(&huart1, (uint8_t*)ptr, len, 0xffff) != HAL_OK)
   {
     Error_Handler();
@@ -124,6 +126,7 @@ __attribute__((weak)) int _write(int file, char *ptr, int len)
 
 void key_down_cb(void * k)
 {
+  UNUSED(k);
   pulse_counter=0;
 }
 /**
@@ -294,7 +297,7 @@ int main(void)
   {
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-        rgb_set(100, 0, 0, i);
+        rgb_set(i, 100, 0, 0);
     }
     HAL_Delay(2);
     JumpToBootloader();
@@ -420,7 +423,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     //{
     //  for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     //  {
-    //      rgb_set(100, 0, 0, i);
+    //      rgb_set(i, 100, 0, 0);
     //  }
     //  JumpToBootloader();
     //}
@@ -613,10 +616,12 @@ void rgb_update_callback()
 
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 {
+  UNUSED(hadc);
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
+  UNUSED(hadc);
 }
 
 /* USER CODE END 4 */

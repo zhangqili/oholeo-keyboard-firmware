@@ -44,8 +44,8 @@ extern volatile bool g_debug_enable;
 
 void keyboard_key_add_buffer(Key *k);
 
-void keyboard_buffer_send();
-void keyboard_buffer_clear();
+void keyboard_buffer_send(void);
+void keyboard_buffer_clear(void);
 
 int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, uint16_t key);
 void keyboard_6KRObuffer_send(Keyboard_6KROBuffer *buf);
@@ -56,16 +56,16 @@ int keyboard_NKRObuffer_add(Keyboard_NKROBuffer*buf,uint16_t key);
 void keyboard_NKRObuffer_send(Keyboard_NKROBuffer*buf);
 void keyboard_NKRObuffer_clear(Keyboard_NKROBuffer*buf);
 
-void keyboard_init();
-void keyboard_system_reset();
-void keyboard_factory_reset();
-void keyboard_scan();
-void keyboard_send_report();
-void keyboard_post_process();
-void keyboard_recovery();
-void keyboard_save();
-void keyboard_task();
-void keyboard_delay();
+void keyboard_init(void);
+void keyboard_system_reset(void);
+void keyboard_factory_reset(void);
+void keyboard_scan(void);
+void keyboard_send_report(void);
+void keyboard_post_process(void);
+void keyboard_recovery(void);
+void keyboard_save(void);
+void keyboard_task(void);
+void keyboard_delay(uint32_t ms);
 void keyboard_hid_send(uint8_t *report, uint16_t len);
 
 #endif /* KEYBOARD_H_ */

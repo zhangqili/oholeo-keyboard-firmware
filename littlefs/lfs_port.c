@@ -50,6 +50,8 @@ static int lfs_deskio_erase(const struct lfs_config *c, lfs_block_t block)
 
 static int lfs_deskio_sync(const struct lfs_config *c)
 {
+    
+    UNUSED(c);
     return LFS_ERR_OK;
 }
 

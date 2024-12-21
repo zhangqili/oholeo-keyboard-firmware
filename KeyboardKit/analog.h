@@ -32,12 +32,12 @@ extern RingBuf adc_ringbuf[ADVANCED_KEY_NUM];
 
 extern uint8_t g_analog_active_channel;
 
-void analog_init();
+void analog_init(void);
 void analog_channel_select(uint8_t x);
-void analog_scan();
-void analog_average();
-void analog_check();
-void analog_reset_range();
+void analog_scan(void);
+void analog_average(void);
+void analog_check(void);
+void analog_reset_range(void);
 
 void ringbuf_push(RingBuf *ringbuf, AnalogValue data);
 AnalogValue ringbuf_avg(RingBuf *ringbuf);

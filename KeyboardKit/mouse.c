@@ -11,5 +11,6 @@ void mouse_buffer_send(Mouse *buf)
 
 __WEAK void mouse_hid_send(uint8_t *report, uint16_t len)
 {
-    
+    UNUSED(report);
+    UNUSED(len);
 }

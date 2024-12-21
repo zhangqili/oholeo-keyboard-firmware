@@ -132,15 +132,15 @@ extern const uint8_t g_rgb_mapping[ADVANCED_KEY_NUM];
 extern const RGBLocation g_rgb_locations[RGB_NUM];
 extern bool g_rgb_switch;
 
-void rgb_init();
-void rgb_update();
-void rgb_update_callback();
-void rgb_set(uint8_t r,uint8_t g,uint8_t b,uint16_t index);
-void rgb_init_flash();
-void rgb_flash();
-void rgb_turn_off();
-void rgb_factory_reset();
-void rgb_save();
+void rgb_init(void);
+void rgb_update(void);
+void rgb_update_callback(void);
+void rgb_set(uint16_t index, uint8_t r, uint8_t g, uint8_t b);
+void rgb_init_flash(void);
+void rgb_flash(void);
+void rgb_turn_off(void);
+void rgb_factory_reset(void);
+void rgb_save(void);
 void rgb_activate(void * key);
 
 #endif /* RGB_H_ */

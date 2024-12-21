@@ -41,6 +41,7 @@ void sfud_log_debug(const char *file, const long line, const char *format, ...);
  */
 static sfud_err spi_write_read(const sfud_spi *spi, const uint8_t *write_buf, size_t write_size, uint8_t *read_buf,
         size_t read_size) {
+    UNUSED(spi);
     sfud_err result = SFUD_SUCCESS;
     /**
      * add your spi write and read code
