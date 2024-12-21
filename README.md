@@ -12,7 +12,12 @@
 - CMake
 - Ninja
 - 在ST官网上下载安装STM32Cube开发套件 <https://www.st.com.cn/zh/development-tools/stm32cubeclt.html>
-- 在该仓库文件夹打开命令行终端
+- 将该仓库克隆到本地并在该仓库文件夹打开命令行终端
+```PowerShell
+git clone --recurse-submodules https://github.com/zhangqili/oholeo-keyboard-firmware.git
+cd oholeo-keyboard-firmware
+```
+
 
 ### 设置环境变量
 以STM32CubeCLT 1.17.0为例，该开发套件默认安装至C:\ST\STM32CubeCLT_1.17.0，接下来你需要将开发套件中的编译器目录添加至环境变量
@@ -26,7 +31,8 @@ $Env:PATH += ";C:\ST\STM32CubeCLT_1.17.0\GNU-tools-for-STM32\bin"
 ```PowerShell
 mkdir build
 cd build
-cmake .. -G"Ninja"
+cmake .. -G"Ninja" --preset=Release
+cd Release
 ninja
 ```
 

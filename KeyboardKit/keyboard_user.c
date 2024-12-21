@@ -6,9 +6,12 @@
  */
 #include "keyboard.h"
 #include "rgb.h"
-#include "usbd_conf.h"
-#include "usb_device.h"
-#include "usbd_custom_hid_if.h"
+#include "gpio.h"
+#include "string.h"
+#include "usbd_user.h"
+//#include "usbd_conf.h"
+//#include "usb_device.h"
+//#include "usbd_custom_hid_if.h"
 #include "analog.h"
 
 const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM] = {
@@ -1128,10 +1131,8 @@ static const float table[]=
 void keyboard_hid_send(uint8_t*report,uint16_t len)
 {
     UNUSED(len);
-    static uint8_t send_buffer[64];
-    send_buffer[0] = 1;
-    memcpy(send_buffer+1,report,63);
-    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,send_buffer,17+1);
+    hid_keyboard_send(report);
+    //USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,send_buffer,17+1);
 }
 
 

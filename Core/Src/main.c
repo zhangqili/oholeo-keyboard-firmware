@@ -23,7 +23,7 @@
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
-#include "usb_device.h"
+#include "usb.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -34,12 +34,13 @@
 #include "rgb.h"
 #include "keyboard.h"
 #include "keyboard_conf.h"
-#include "usbd_custom_hid_if.h"
 #include "math.h"
 #include "lfs.h"
 #include "command.h"
 #include "sfud.h"
 #include "keyboard_def.h"
+#include "usbd_user.h"
+#include "stm32f303xc.h"
 
 /* USER CODE END Includes */
 
@@ -64,11 +65,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-char uart_buf[64];
-uint32_t debug;
-
-uint8_t USB_Recive_Buffer[USBD_CUSTOMHID_OUTREPORT_BUF_SIZE]; // USB接收缓存
-uint8_t USB_Received_Count;                                   // USB接收数据计数
 
 uint32_t usb_adc_send_idx = 0;
 
@@ -86,18 +82,14 @@ enum state_t
   REQUEST_PROFILE,
   REQUEST_SAVE,
   FACTORYRESET,
-};
+} global_state = NORMAL;
 int32_t state_counter = 0;
-enum state_t global_state = NORMAL;
 
 uint8_t LED_Report = 0;
-
 
 uint32_t pulse_counter = PULSE_LEN_MS;
 uint8_t beep_switch = 0;
 uint8_t em_switch = 0;
-
-uint8_t usb_raw_report_buffer[64];
 
 uint32_t ADC_Buffer[4*DMA_BUF_LEN];
 /* USER CODE END PV */
@@ -216,12 +208,35 @@ void JumpToBootloader(void)
   {
   }
 }
+
+void usb_dc_low_level_init(void)
+{
+
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  /**USB GPIO Configuration
+  PA11     ------> USB_DM
+  PA12     ------> USB_DP
+  */
+  GPIO_InitStruct.Pin = GPIO_PIN_11 | GPIO_PIN_12;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF14_USB;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  /* Peripheral clock enable */
+  __HAL_RCC_USB_CLK_ENABLE();
+  /* USB interrupt Init */
+  HAL_NVIC_SetPriority(USB_LP_CAN_RX0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(USB_LP_CAN_RX0_IRQn);
+}
+
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
 
@@ -256,9 +271,9 @@ int main(void)
   MX_TIM1_Init();
   MX_USART1_UART_Init();
   MX_TIM7_Init();
-  MX_USB_DEVICE_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
+  //MX_USB_PCD_Init();
   /* USER CODE BEGIN 2 */
 
   //!!!
@@ -307,10 +322,9 @@ int main(void)
     keyboard_factory_reset();
     keyboard_system_reset();
   }
+  hid_init();
 
   HAL_TIM_Base_Start_IT(&htim7);
-
-  memset(USB_Recive_Buffer, 0, sizeof(USB_Recive_Buffer));
 
   /* USER CODE END 2 */
 
@@ -341,9 +355,9 @@ int main(void)
 }
 
 /**
- * @brief System Clock Configuration
- * @retval None
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -351,8 +365,8 @@ void SystemClock_Config(void)
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
-   * in the RCC_OscInitTypeDef structure.
-   */
+  * in the RCC_OscInitTypeDef structure.
+  */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
@@ -366,8 +380,9 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -377,7 +392,8 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB | RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_TIM1;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB|RCC_PERIPHCLK_USART1
+                              |RCC_PERIPHCLK_TIM1;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
   PeriphClkInit.USBClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
   PeriphClkInit.Tim1ClockSelection = RCC_TIM1CLK_HCLK;
@@ -463,7 +479,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         memcpy(report_buffer + 4 + 10 * i + 4, &g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].value, sizeof(float));
       }
       report_num += 6;
-      USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, report_buffer, 64);
+      hid_raw_send(report_buffer+1,63);
+      //USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, report_buffer, 64);
     }
     else
     {
@@ -627,9 +644,9 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 /* USER CODE END 4 */
 
 /**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -641,14 +658,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef USE_FULL_ASSERT
+#ifdef  USE_FULL_ASSERT
 /**
- * @brief  Reports the name of the source file and the source line number
- *         where the assert_param error has occurred.
- * @param  file: pointer to the source file name
- * @param  line: assert_param error line source number
- * @retval None
- */
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

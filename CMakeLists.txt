@@ -11,8 +11,6 @@ cmake_minimum_required(VERSION 3.22)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
-set(CMAKE_BUILD_TYPE Release)
-
 
 # Define the build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -50,7 +48,11 @@ file(GLOB_RECURSE MY_SOURCES
     "./keyboardKit/*.c"
     "./littlefs/*.c"
     "./sfud/src/*.c"
-    "./sfud/port/*.c")
+    "./sfud/port/*.c"
+    "./CherryUSB/core/usbd_core.c"
+    "./CherryUSB/class/hid/usbd_hid.c"
+    "./CherryUSB/port/fsdev/usb_dc_fsdev.c"
+    "./usb/*.c")
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
@@ -63,6 +65,12 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ./keyboardKit/
     ./littlefs/
     ./sfud/inc/
+    ./usb/
+    ./CherryUSB/core
+    ./CherryUSB/common
+    ./CherryUSB/class/hid
+    ./CherryUSB/port/fsdev
+    ./Drivers/CMSIS/Device/ST/STM32F3xx/Include
 )
 
 # Add project symbols (macros)
