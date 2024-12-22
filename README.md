@@ -58,3 +58,24 @@ C:/ST/STM32CubeCLT_1.17.0/STM32CubeProgrammer/bin/STM32_Programmer_CLI.exe -c po
 ```PowerShell
 C:/ST/STM32CubeCLT_1.17.0/STM32CubeProgrammer/bin/STM32_Programmer_CLI.exe -c port=USB1 -w ./oholeo-keyboard-firmware.elf -v -s
 ```
+
+## 使用说明
+
+第一次烧录启动时，请在上电时按住FN键恢复出厂设置。
+
+### 上电至灯效结束后
+
+|按键|功能|
+|---|---|
+|`Esc`|进入Bootloarder|
+|`FN`|恢复出厂设置|
+
+### FN键
+
+|按键|功能|
+|---|---|
+|`FN`+`D`|进入Debug状态|
+|`FN`+`B`|使能蜂鸣器|
+|`FN`+`M`|使能电磁阀|
+|`FN`+`N`|恢复默认状态，取消使能蜂鸣器，取消使能电磁阀|
+|`FN`+`R`|重启|

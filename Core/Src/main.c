@@ -462,7 +462,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     {
       beep_switch = 1;
     }
-
+    if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[60].key.state)
+    {
+      em_switch = 1;
+    }
     
     if (g_debug_enable)
     {
@@ -488,10 +491,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       keyboard_post_process();
       keyboard_send_report();
     }
-    //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[60].key.state)
-    //{
-    //  em_switch = 1;
-    //}
     /*
     switch (global_state)
     {

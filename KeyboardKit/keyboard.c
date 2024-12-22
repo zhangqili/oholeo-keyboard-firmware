@@ -175,13 +175,10 @@ void keyboard_factory_reset(void)
         g_keyboard_advanced_keys[i].mode = DEFAULT_ADVANCED_KEY_MODE;
         g_keyboard_advanced_keys[i].trigger_distance = DEFAULT_TRIGGER_DISTANCE;
         g_keyboard_advanced_keys[i].release_distance = DEFAULT_RELEASE_DISTANCE;
-        g_keyboard_advanced_keys[i].schmitt_parameter = DEFAULT_SCHMITT_PARAMETER;
-        g_keyboard_advanced_keys[i].calibration_mode = KEY_AUTO_CALIBRATION_NEGATIVE;
-        g_keyboard_advanced_keys[i].activation_value = 0.5;
-        // Keyboard_AdvancedKeys[i].lower_deadzone = 0.32;
+        g_keyboard_advanced_keys[i].activation_value = DEFAULT_ACTIVATION_VALUE;
+        g_keyboard_advanced_keys[i].deactivation_value = DEFAULT_DEACTIVATION_VALUE;
+        g_keyboard_advanced_keys[i].calibration_mode = DEFAULT_CALIBRATION_MODE;
         advanced_key_set_deadzone(g_keyboard_advanced_keys + i, DEFAULT_UPPER_DEADZONE, DEFAULT_LOWER_DEADZONE);
-        // Keyboard_AdvancedKeys[i].phantom_lower_deadzone = 0.32;
-        // Keyboard_AdvancedKeys[i].key.keycode = default_keymap[0][Keyboard_AdvancedKeys[i].key.id];
     }
     rgb_factory_reset();
     keyboard_save();
@@ -213,8 +210,8 @@ void keyboard_recovery(void)
     {
         //lfs_file_read(&lfs_w25qxx, &lfs_file_w25qxx, &(g_keyboard_advanced_keys[i].key.id),
         //              sizeof(g_keyboard_advanced_keys[i].key.id));
-        lfs_file_read(&lfs_w25qxx, &lfs_file_w25qxx, ((void *)(&g_keyboard_advanced_keys[i])) + sizeof(Key),
-                      sizeof(AdvancedKey) - sizeof(Key));
+        lfs_file_read(&lfs_w25qxx, &lfs_file_w25qxx, ((void *)(&g_keyboard_advanced_keys[i])) + sizeof(Key) + 4*sizeof(AnalogValue),
+                      sizeof(AdvancedKey) - sizeof(Key) - 4*sizeof(AnalogValue));
     }
     lfs_file_read(&lfs_w25qxx, &lfs_file_w25qxx, g_keymap, sizeof(g_keymap));
     lfs_file_read(&lfs_w25qxx, &lfs_file_w25qxx, &g_rgb_switch, sizeof(g_rgb_switch));
@@ -245,8 +242,8 @@ void keyboard_save(void)
     {
         //lfs_file_write(&lfs_w25qxx, &lfs_file_w25qxx, &(g_keyboard_advanced_keys[i].key.id),
         //               sizeof(g_keyboard_advanced_keys[i].key.id));
-        lfs_file_write(&lfs_w25qxx, &lfs_file_w25qxx, ((void *)(&g_keyboard_advanced_keys[i])) + sizeof(Key),
-                       sizeof(AdvancedKey) - sizeof(Key));
+        lfs_file_write(&lfs_w25qxx, &lfs_file_w25qxx, ((void *)(&g_keyboard_advanced_keys[i])) + sizeof(Key) + 4*sizeof(AnalogValue),
+                       sizeof(AdvancedKey) - sizeof(Key) - 4*sizeof(AnalogValue));
     }
     lfs_file_write(&lfs_w25qxx, &lfs_file_w25qxx, g_keymap, sizeof(g_keymap));
     lfs_file_write(&lfs_w25qxx, &lfs_file_w25qxx, &g_rgb_switch, sizeof(g_rgb_switch));

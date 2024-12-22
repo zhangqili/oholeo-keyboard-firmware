@@ -28,16 +28,15 @@ void unload_cargo(uint8_t *buf)
     case 0: // Advanced Key
         g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].mode = buf[2];
         g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].activation_value = fill_in_float(&buf[3 + 4 * 0]);
-        g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].phantom_lower_deadzone = fill_in_float(&buf[3 + 4 * 1]);
+        g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].deactivation_value = fill_in_float(&buf[3 + 4 * 1]);
         g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].trigger_distance = fill_in_float(&buf[3 + 4 * 2]);
         g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].release_distance = fill_in_float(&buf[3 + 4 * 3]);
-        g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].schmitt_parameter = fill_in_float(&buf[3 + 4 * 4]);
-        g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].trigger_speed = fill_in_float(&buf[3 + 4 * 5]);
-        g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].release_speed = fill_in_float(&buf[3 + 4 * 6]);
-        g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].upper_deadzone = fill_in_float(&buf[3 + 4 * 7]);
-        g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].lower_deadzone = fill_in_float(&buf[3 + 4 * 8]);
-        //g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].upper_bound = fill_in_float(&buf[2 + 4 * 7]);
-        //g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].lower_bound = fill_in_float(&buf[2 + 4 * 8]);
+        g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].trigger_speed = fill_in_float(&buf[3 + 4 * 4]);
+        g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].release_speed = fill_in_float(&buf[3 + 4 * 5]);
+        g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].upper_deadzone = fill_in_float(&buf[3 + 4 * 6]);
+        g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].lower_deadzone = fill_in_float(&buf[3 + 4 * 7]);
+        //g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].upper_bound = fill_in_float(&buf[2 + 4 * 8]);
+        //g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].lower_bound = fill_in_float(&buf[2 + 4 * 9]);
         break;
     case 1: // Global LED
         g_rgb_switch = buf[1];

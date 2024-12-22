@@ -8,7 +8,8 @@
 
 /* ================ USB common Configuration ================ */
 
-#define CONFIG_USB_PRINTF(...) printf(__VA_ARGS__)
+#define CONFIG_USB_PRINTF(...) ((void)0)
+// #define CONFIG_USB_PRINTF(...) printf(__VA_ARGS__)
 
 #ifndef CONFIG_USB_DBG_LEVEL
 #define CONFIG_USB_DBG_LEVEL USB_DBG_INFO

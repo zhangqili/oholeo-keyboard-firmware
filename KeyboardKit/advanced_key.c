@@ -11,11 +11,11 @@ void advanced_key_update(AdvancedKey* advanced_key, AnalogValue value)
             break;
         case KEY_ANALOG_NORMAL_MODE:
             advanced_key->value = value;
-            if(advanced_key->value-advanced_key->schmitt_parameter>advanced_key->activation_value)
+            if(advanced_key->value > advanced_key->activation_value)
             {
                 state=true;
             }
-            if(advanced_key->value+advanced_key->schmitt_parameter<advanced_key->activation_value)
+            if(advanced_key->value < advanced_key->deactivation_value)
             {
                 state=false;
             }
@@ -90,13 +90,13 @@ void advanced_key_update_raw(AdvancedKey* key, AnalogValue value)
             key->lower_bound = value;
         break;
     case KEY_AUTO_CALIBRATION_UNDEFINED:
-        if (value - key->upper_bound > 500)
+        if (value - key->upper_bound > DEFAULT_ESTIMATED_RANGE)
         {
             key->calibration_mode = KEY_AUTO_CALIBRATION_POSITIVE;
             key->lower_bound = value;
             break;
         }
-        if (key->upper_bound - value > 500)
+        if (key->upper_bound - value > DEFAULT_ESTIMATED_RANGE)
         {
             key->calibration_mode = KEY_AUTO_CALIBRATION_NEGATIVE;
             key->lower_bound = value;
@@ -126,7 +126,6 @@ void advanced_key_set_range(AdvancedKey* key, AnalogValue upper, AnalogValue low
 {
     key->upper_bound = upper;
     key->lower_bound = lower;
-    //key->range = key->upper_bound - key->lower_bound;
 }
 
 void advanced_key_reset_range(AdvancedKey* key, AnalogValue value)
@@ -134,27 +133,20 @@ void advanced_key_reset_range(AdvancedKey* key, AnalogValue value)
     switch (key->calibration_mode)
     {
     case KEY_AUTO_CALIBRATION_POSITIVE:
-        advanced_key_set_range(key, value, value+500);
+        advanced_key_set_range(key, value, value+DEFAULT_ESTIMATED_RANGE);
         break;
     case KEY_AUTO_CALIBRATION_NEGATIVE:
-        advanced_key_set_range(key, value, value-500);
+        advanced_key_set_range(key, value, value-DEFAULT_ESTIMATED_RANGE);
         break;
     default:
-        advanced_key_set_range(key, value, value-500);
+        advanced_key_set_range(key, value, value-DEFAULT_ESTIMATED_RANGE);
         break;
     }
 }
 
 void advanced_key_set_deadzone(AdvancedKey* key, AnalogValue upper, AnalogValue lower)
 {
-    /*
-    key->upper_deadzone = (key->upper_bound - key->lower_bound)*upper;
-    key->lower_deadzone = (key->upper_bound - key->lower_bound)*lower;
-    key->range = (key->upper_bound - key->upper_deadzone) - (key->lower_bound+key->lower_deadzone);
-    */
     key->upper_deadzone = upper;
     key->lower_deadzone = lower;
-    //key->range = (key->upper_bound - (key->upper_bound - key->lower_bound) * key->upper_deadzone) - (
-    //                 key->lower_bound + (key->upper_bound - key->lower_bound) * key->lower_deadzone);
 }
 
