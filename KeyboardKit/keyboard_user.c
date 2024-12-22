@@ -1,8 +1,7 @@
 /*
- * keyboard_user.c
+ * Copyright (c) 2024 Zhangqi Li (@zhangqili)
  *
- *  Created on: Mar 17, 2024
- *      Author: xq123
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 #include "keyboard.h"
 #include "rgb.h"

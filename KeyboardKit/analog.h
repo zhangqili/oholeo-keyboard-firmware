@@ -1,10 +1,8 @@
 /*
- * analog.h
+ * Copyright (c) 2024 Zhangqi Li (@zhangqili)
  *
- *  Created on: 2023骞�5鏈�21鏃�
- *      Author: xq123
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
-
 #ifndef ANALOG_H_
 #define ANALOG_H_
 #include "keyboard.h"

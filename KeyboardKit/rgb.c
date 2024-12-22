@@ -1,8 +1,7 @@
 /*
- * rgb.c
+ * Copyright (c) 2024 Zhangqi Li (@zhangqili)
  *
- *  Created on: May 21, 2023
- *      Author: xq123
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 #include "rgb.h"
 #include "keyboard_def.h"

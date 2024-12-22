@@ -1,5 +1,9 @@
+/*
+ * Copyright (c) 2024 Zhangqi Li (@zhangqili)
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 #include "record.h"
-
 
 #ifdef ENABLE_ANALOG_HISTORY
 LoopArray g_analog_historys[ADVANCED_KEY_NUM];

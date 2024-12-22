@@ -1,7 +1,8 @@
-//
-// Created by xq123 on 24-3-17.
-//
-
+/*
+ * Copyright (c) 2024 Zhangqi Li (@zhangqili)
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 #ifndef KEYBOARD_DEF_H
 #define KEYBOARD_DEF_H
 #if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050) /* ARM Compiler V6 */

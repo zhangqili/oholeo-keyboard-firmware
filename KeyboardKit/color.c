@@ -1,5 +1,7 @@
 /*
- * color.c
+ * Copyright (c) 2024 Zhangqi Li (@zhangqili)
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 #include "color.h"
 #include "string.h"
@@ -44,53 +46,9 @@ void rgb_to_hsv(ColorHSV *hsv, ColorRGB *rgb)
 	}
 	hsv->v=max*100/255;
 }
-/*
-void hsv_to_rgb(ColorRGB *rgb, ColorHSV *hsv)
-{
-	uint8_t hi;
-	float f;
-	hi=hsv->h/60;
-	f=(float)hsv->h/60-hi;
-	switch(hi)
-	{
-	case 0:
-		rgb->r=hsv->v*255/100;
-		rgb->g=hsv->v*255*(100-(1-f)*hsv->s)/10000;
-		rgb->b=hsv->v*255*(100-hsv->s)/10000;
-		break;
-	case 1:
-		rgb->r=hsv->v*255*(100-f*hsv->s)/10000;
-		rgb->g=hsv->v*255/100;
-		rgb->b=hsv->v*255*(100-hsv->s)/10000;
-		break;
-	case 2:
-		rgb->r=hsv->v*255*(100-hsv->s)/10000;
-		rgb->g=hsv->v*255/100;
-		rgb->b=hsv->v*255*(100-(1-f)*hsv->s)/10000;
-		break;
-	case 3:
-		rgb->r=hsv->v*255*(100-hsv->s)/10000;
-		rgb->g=hsv->v*255*(100-f*hsv->s)/10000;
-		rgb->b=hsv->v*255/100;
-		break;
-	case 4:
-		rgb->r=hsv->v*255*(100-(1-f)*hsv->s)/10000;
-		rgb->g=hsv->v*255*(100-hsv->s)/10000;
-		rgb->b=hsv->v*255/100;
-		break;
-	case 5:
-		rgb->r=hsv->v*255/100;
-		rgb->g=hsv->v*255*(100-hsv->s)/10000;
-		rgb->b=hsv->v*255*(100-f*hsv->s)/10000;
-		break;
-	default:
-		break;
-	}
-}
-*/
-void hsv_to_rgb(ColorRGB *rgb, ColorHSV *hsv)
-{
 
+void hsv_to_rgb(ColorRGB *rgb, ColorHSV *hsv)
+{
     float c = 0;
     float x = 0;
     float y = 0;

@@ -1,10 +1,8 @@
 /*
- * keycode.h
+ * Copyright (c) 2024 Zhangqi Li (@zhangqili)
  *
- *  Created on: 2023年6月11日
- *      Author: xq123
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
-
 #ifndef KEYCODE_H_
 #define KEYCODE_H_
 
