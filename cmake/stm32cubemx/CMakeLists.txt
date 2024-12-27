@@ -28,7 +28,6 @@ target_sources(stm32cubemx INTERFACE
     ../../Core/Src/spi.c
     ../../Core/Src/tim.c
     ../../Core/Src/usart.c
-    ../../Core/Src/usb.c
     ../../Core/Src/stm32f3xx_it.c
     ../../Core/Src/stm32f3xx_hal_msp.c
     ../../Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_ll_usb.c

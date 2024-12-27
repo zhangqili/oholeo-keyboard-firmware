@@ -46,22 +46,25 @@ Memory region         Used Size  Region Size  %age Used
            FLASH:       85936 B       128 KB     65.56%
 ```
 
-### 烧录
-如果PCB之前没有烧录过固件，请使用STLink连接至PCB的STLink接口，使用以下命令烧录
+## 烧录
+
+### SWD
+将STLink连接至PCB的STLink接口，使用以下命令烧录
 
 ```PowerShell
 C:/ST/STM32CubeCLT_1.17.0/STM32CubeProgrammer/bin/STM32_Programmer_CLI.exe -c port=SWD -w ./oholeo-keyboard-firmware.elf -v -s
 
 ```
 
-如果PCB已经烧录了该固件，可以直接使用USB烧录，PCB左上角需要安装N极朝下的磁轴，在PCB上电时按住左上角的Esc键会进入Bootloader。如果成功进入Bootloader，PCB的灯光会全部变为红色，此时使用以下命令烧录
+### USB
+短接PCB上的BOOT跳线孔上电可进入Bootloader，如果PCB已经烧录了该固件，PCB左上角需要安装磁轴，在PCB上电时按住左上角的Esc键会进入Bootloader。之后使用以下命令烧录
 ```PowerShell
 C:/ST/STM32CubeCLT_1.17.0/STM32CubeProgrammer/bin/STM32_Programmer_CLI.exe -c port=USB1 -w ./oholeo-keyboard-firmware.elf -v -s
 ```
 
 ## 使用说明
 
-第一次烧录启动时，请在上电时按住FN键恢复出厂设置。
+第一次烧录启动时，请在上电时按住FN键恢复出厂设置
 
 ### 上电至灯效结束后
 

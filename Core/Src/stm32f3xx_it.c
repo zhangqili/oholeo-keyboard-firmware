@@ -59,7 +59,6 @@
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim7;
-extern PCD_HandleTypeDef hpcd_USB_FS;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -210,7 +209,6 @@ void USB_LP_CAN_RX0_IRQHandler(void)
   /* USER CODE BEGIN USB_LP_CAN_RX0_IRQn 0 */
 
   /* USER CODE END USB_LP_CAN_RX0_IRQn 0 */
-  //HAL_PCD_IRQHandler(&hpcd_USB_FS);
   /* USER CODE BEGIN USB_LP_CAN_RX0_IRQn 1 */
   extern void USBD_IRQHandler(uint8_t busid);
   USBD_IRQHandler(0);

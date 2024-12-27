@@ -40,7 +40,6 @@
 #include "sfud.h"
 #include "keyboard_def.h"
 #include "usbd_user.h"
-#include "stm32f303xc.h"
 
 /* USER CODE END Includes */
 
@@ -273,7 +272,6 @@ int main(void)
   MX_TIM7_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
-  //MX_USB_PCD_Init();
   /* USER CODE BEGIN 2 */
 
   //!!!
@@ -308,7 +306,7 @@ int main(void)
   keyboard_recovery();
   analog_reset_range();
 
-  if (g_ADC_Averages[15] < 1400)
+  if (g_ADC_Averages[15] < 1400 || g_ADC_Averages[15] > (4096 - 1400))
   {
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
@@ -317,7 +315,7 @@ int main(void)
     HAL_Delay(2);
     JumpToBootloader();
   }
-  if (g_ADC_Averages[49] < 1400)
+  if (g_ADC_Averages[49] < 1400 || g_ADC_Averages[49] > (4096 - 1400))
   {
     keyboard_factory_reset();
     keyboard_system_reset();
