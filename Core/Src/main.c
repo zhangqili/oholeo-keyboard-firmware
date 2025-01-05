@@ -73,7 +73,7 @@ sfud_flash sfud_norflash0 = {
     .chip = {"W25Q128JV", SFUD_MF_ID_WINBOND, 0x40, 0x18, 16L * 1024L * 1024L, SFUD_WM_PAGE_256B, 4096, 0x20},
 };
 
-enum state_t
+enum
 {
   NORMAL,
   ADC,
@@ -81,14 +81,15 @@ enum state_t
   REQUEST_PROFILE,
   REQUEST_SAVE,
   FACTORYRESET,
-} global_state = NORMAL;
+};
+uint8_t global_state = NORMAL;
 int32_t state_counter = 0;
 
 uint8_t LED_Report = 0;
 
 uint32_t pulse_counter = PULSE_LEN_MS;
-uint8_t beep_switch = 0;
-uint8_t em_switch = 0;
+bool beep_switch = 0;
+bool em_switch = 0;
 
 uint32_t ADC_Buffer[4*DMA_BUF_LEN];
 /* USER CODE END PV */
@@ -441,30 +442,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     //  }
     //  JumpToBootloader();
     //}
-    if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[33].key.state)
-    {
-      global_state = NORMAL;
-      beep_switch = 0;
-      em_switch = 0;
-      g_debug_enable = false;
-    }
-    if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[42].key.state)
-    {
-      keyboard_system_reset();
-    }
+    //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[33].key.state)
+    //{
+    //  global_state = NORMAL;
+    //  beep_switch = false;
+    //  em_switch = false;
+    //  g_debug_enable = false;
+    //}
     //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[61].key.state)
     //{
     //  global_state = JOYSTICK;
     //}
-    if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[39].key.state)
-    {
-      beep_switch = 1;
-    }
-    if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[60].key.state)
-    {
-      em_switch = 1;
-    }
-    
     if (g_debug_enable)
     {
       static uint32_t report_num = 0;
@@ -621,10 +609,16 @@ void rgb_update_callback()
 {
   extern uint8_t LED_Report;
 	if(LED_Report&0x02)
-    {
+  {
 	    g_rgb_colors[g_rgb_mapping[28]].r = 0xff;
 	    g_rgb_colors[g_rgb_mapping[28]].g = 0xff;
 	    g_rgb_colors[g_rgb_mapping[28]].b = 0xff;//cap lock
+	}
+	if(LED_Report&0x04)
+  {
+	    g_rgb_colors[g_rgb_mapping[26]].r = 0xff;
+	    g_rgb_colors[g_rgb_mapping[26]].g = 0xff;
+	    g_rgb_colors[g_rgb_mapping[26]].b = 0xff;//cap lock
 	}
 }
 

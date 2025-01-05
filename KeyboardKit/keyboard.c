@@ -77,6 +77,31 @@ void keyboard_event_handler(KeyboardEvent event)
         case LAYER_MOMENTARY:
             layer_toggle((keycode >> 8) & 0xFF);       
             break;
+        case KEY_SYSTEM:
+            switch ((keycode >> 8) & 0xFF)
+            {
+            case SYSTEM_RESET:
+                keyboard_system_reset();
+                break;
+            case SYSTEM_FACTORY_RESET:
+                keyboard_factory_reset();
+                break;
+            case SYSTEM_SAVE:
+                keyboard_save();
+                break;
+            case SYSTEM_BOOTLOADER:
+                keyboard_jump_to_bootloader();
+                break;
+            case SYSTEM_DEBUG:
+                g_debug_enable = !g_debug_enable;
+                break;
+            default:
+                break;
+            }       
+            break;
+        case KEY_USER:
+            keyboard_user_handler((keycode >> 8) & 0xFF);
+            break;
         default:
             break;
         }
@@ -248,6 +273,15 @@ void keyboard_factory_reset(void)
 __WEAK void keyboard_system_reset(void)
 {
 }
+
+__WEAK void keyboard_jump_to_bootloader(void)
+{
+}
+
+__WEAK void keyboard_user_handler(uint8_t code)
+{
+}
+
 
 __WEAK void keyboard_scan(void)
 {

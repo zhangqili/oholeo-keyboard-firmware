@@ -71,6 +71,8 @@ void keyboard_NKRObuffer_clear(Keyboard_NKROBuffer*buf);
 void keyboard_init(void);
 void keyboard_system_reset(void);
 void keyboard_factory_reset(void);
+void keyboard_jump_to_bootloader(void);
+void keyboard_user_handler(uint8_t code);
 void keyboard_scan(void);
 void keyboard_send_report(void);
 void keyboard_post_process(void);
