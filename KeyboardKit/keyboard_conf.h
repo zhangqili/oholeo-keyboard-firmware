@@ -14,6 +14,7 @@
 #define KEY_NUM                 0
 #define USE_FLOAT_VALUE
 #define NKRO_ENABLE
+//#define CONTINOUS_POLL
 
 /********************/
 /* Keyboard Default */

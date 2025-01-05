@@ -32,6 +32,7 @@ uint8_t g_keyboard_knob_flag;
 volatile bool g_keyboard_send_report_enable = true;
 
 volatile bool g_debug_enable;
+volatile bool g_keyboard_send_flag;
 
 void keyboard_key_add_buffer(Key *k)
 {
@@ -269,8 +270,15 @@ void keyboard_send_report(void)
     {
         keyboard_key_add_buffer(&g_keyboard_keys[i]);
     }
-    if (g_keyboard_send_report_enable)
+    if (g_keyboard_send_report_enable 
+#ifndef CONTINUOUS_POLL
+        && g_keyboard_send_flag
+#endif
+    )
     {
+#ifndef CONTINUOUS_POLL
+        g_keyboard_send_flag = false;
+#endif
         keyboard_buffer_send();
         if ((*(uint32_t*)&g_mouse)!=mouse_value)
         {

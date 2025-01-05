@@ -16,7 +16,7 @@ enum USB_HID_MODIFIER
 };
 
 enum USB_HID_KEYCODES {
-  KEY_NO_EVENT                 = 0x00,   // Keyboard ErrorRollOver
+  KEY_NO_EVENT                 = 0x00,   // Keyboard NoEvent
   KEY_ERR_OVF                  = 0x01,   // Keyboard ErrorRollOver
   KEY_POST_FAIL                = 0x02,   // Keyboard POSTFail
   KEY_ERR_UNDEF                = 0x03,   // Keyboard ErrorUndefined
@@ -184,6 +184,7 @@ enum USB_HID_KEYCODES {
   //Reserved b5-DF
   MOUSE_COLLECTION = 0xa5,
   FN = 0xB0,
+  KEY_TRANSPARENT = 0xFF,
 } ;
 
 enum USB_HID_MOUSE_KEYCODES {

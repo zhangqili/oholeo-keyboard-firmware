@@ -53,6 +53,7 @@ void analog_check(void)
         {
             advanced_key_update_raw(g_keyboard_advanced_keys + i, g_ADC_Averages[i]);
         }
+        g_keyboard_send_flag |= (g_keyboard_advanced_keys[i].key.state != state);
         if (g_keyboard_advanced_keys[i].key.state && !state)
         {
             

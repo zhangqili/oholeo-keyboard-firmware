@@ -39,6 +39,7 @@ extern uint8_t g_keyboard_knob_flag;
 extern volatile bool g_keyboard_send_report_enable;
 
 extern volatile bool g_debug_enable;
+extern volatile bool g_keyboard_send_flag;
 
 void keyboard_key_add_buffer(Key *k);
 
