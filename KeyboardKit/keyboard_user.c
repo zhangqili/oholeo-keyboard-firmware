@@ -19,14 +19,21 @@ const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM] = {
         KEY_TAB/*14*/,          KEY_Q/*15*/,    KEY_W/*16*/,    KEY_E/*17*/,    KEY_R/*18*/,    KEY_T/*19*/,    KEY_Y/*20*/,    KEY_U/*21*/,    KEY_I/*22*/,    KEY_O/*23*/,    KEY_P/*24*/,        KEY_LEFT_BRACE/*25*/,   KEY_RIGHT_BRACE/*26*/,  KEY_BACKSLASH/*27*/,
         KEY_CAPS_LOCK/*28*/,    KEY_A/*29*/,    KEY_S/*30*/,    KEY_D/*31*/,    KEY_F/*32*/,    KEY_G/*33*/,    KEY_H/*34*/,    KEY_J/*35*/,    KEY_K/*36*/,    KEY_L/*37*/,    KEY_SEMICOLON/*38*/,KEY_APOSTROPHE/*39*/,   KEY_ENTER/*40*/,
         KEY_LEFT_SHIFT<<8/*41*/,KEY_Z/*42*/,    KEY_X/*43*/,    KEY_C/*44*/,    KEY_V/*45*/,    KEY_B/*46*/,    KEY_N/*47*/,    KEY_M/*48*/,    KEY_COMMA/*49*/,KEY_DOT/*50*/,  KEY_SLASH/*51*/,    KEY_RIGHT_SHIFT<<8/*52*/,KEY_UP_ARROW/*53*/,    KEY_DELETE/*54*/,
-        KEY_LEFT_CTRL<<8/*55*/, KEY_LEFT_GUI<<8/*56*/, KEY_LEFT_ALT<<8/*57*/, KEY_SPACEBAR/*58*/, KEY_RIGHT_ALT<<8/*59*/, FN/*60*/, KEY_LEFT_ARROW/*61*/, KEY_DOWN_ARROW/*62*/, KEY_RIGHT_ARROW/*63*/,
+        KEY_LEFT_CTRL<<8/*55*/, KEY_LEFT_GUI<<8/*56*/, KEY_LEFT_ALT<<8/*57*/, KEY_SPACEBAR/*58*/, KEY_RIGHT_ALT<<8/*59*/, LAYER_MOMENTARY | (1 << 8)/*60*/, KEY_LEFT_ARROW/*61*/, KEY_DOWN_ARROW/*62*/, KEY_RIGHT_ARROW/*63*/,
     },
     {
-        KEY_GRAVE,              KEY_F1,         KEY_F2,         KEY_F3,         KEY_F4,         KEY_F5,         KEY_F6,         KEY_F7,         KEY_F8,         KEY_F9,         KEY_F10,            KEY_F11,                KEY_F12,                KEY_BACKSPACE,
-        KEY_TAB,                KEY_Q,          KEY_W,          KEY_E,          KEY_R,          KEY_T,          KEY_Y,          KEY_U,          KEY_I,          KEY_O,          KEY_P,              KEY_LEFT_BRACE,         KEY_RIGHT_BRACE,        KEY_BACKSLASH,
-        KEY_CAPS_LOCK,          KEY_A,          KEY_S,          KEY_D,          KEY_F,          KEY_G,          KEY_H,          KEY_J,          KEY_K,          KEY_L,          KEY_SEMICOLON,      KEY_APOSTROPHE,         KEY_ENTER,
-        KEY_LEFT_SHIFT<<8,      KEY_Z,          KEY_X,          KEY_C,          KEY_V,          KEY_B,          KEY_N,          KEY_M,          KEY_COMMA,      KEY_DOT,        KEY_SLASH,          KEY_RIGHT_SHIFT<<8,     KEY_PAGE_UP,            KEY_PRINT_SCREEN,
-        KEY_LEFT_CTRL<<8, KEY_LEFT_GUI<<8, KEY_LEFT_ALT<<8, KEY_SPACEBAR, KEY_RIGHT_ALT<<8, FN, KEY_HOME, KEY_PAGE_DOWN, KEY_END,
+        KEY_GRAVE,              KEY_F1,         KEY_F2,         KEY_F3,         KEY_F4,         KEY_F5,         KEY_F6,         KEY_F7,         KEY_F8,         KEY_F9,         KEY_F10,            KEY_F11,            KEY_F12,                KEY_TRANSPARENT,
+        KEY_TRANSPARENT,        KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_PRINT_SCREEN,   KEY_SCROLL_LOCK,        KEY_PAUSE,
+        KEY_TRANSPARENT,        KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEY_TRANSPARENT,
+        KEY_TRANSPARENT,        KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_INSERT,         KEY_PAGE_UP,            LAYER_MOMENTARY | (2 << 8),
+        KEY_TRANSPARENT,        KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_HOME,       KEY_PAGE_DOWN,  KEY_END,
+    },
+    {
+        KEY_SYSTEM | (SYSTEM_BOOTLOADER << 8),  KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                    KEY_TRANSPARENT,                            KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,        KEY_TRANSPARENT,
+        KEY_TRANSPARENT,                        KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                    KEY_SYSTEM | (SYSTEM_RESET << 8),           KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,        KEY_TRANSPARENT,
+        KEY_TRANSPARENT,                        KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_SYSTEM | (SYSTEM_DEBUG << 8),   KEY_SYSTEM | (SYSTEM_FACTORY_RESET << 8),   KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,
+        KEY_TRANSPARENT,                        KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                    KEY_USER | (USER_EM << 8),                  KEY_USER | (USER_BEEP << 8), KEY_USER | (USER_RESET << 8),  KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,        KEY_TRANSPARENT,
+        KEY_TRANSPARENT,                        KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                    KEY_TRANSPARENT,                            KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,  KEY_TRANSPARENT,
     }
 
 };
@@ -1181,4 +1188,32 @@ void analog_channel_select(uint8_t x)
     HAL_GPIO_WritePin(B_GPIO_Port, B_Pin, x&0x02);
     HAL_GPIO_WritePin(C_GPIO_Port, C_Pin, x&0x04);
     HAL_GPIO_WritePin(D_GPIO_Port, D_Pin, x&0x08);
+}
+
+void keyboard_jump_to_bootloader(void)
+{
+    void JumpToBootloader(void);
+    JumpToBootloader();
+}
+
+void keyboard_user_handler(uint8_t code)
+{
+    extern bool beep_switch;
+    extern bool em_switch;
+    switch (code)
+    {
+    case USER_BEEP:
+        beep_switch = !beep_switch;
+        break;
+    case USER_EM:
+        em_switch = !em_switch;
+        break;
+    default:
+        extern uint8_t global_state;
+        global_state = 0;
+        beep_switch = false;
+        em_switch = false;
+        g_debug_enable = false;
+        break;
+    }
 }

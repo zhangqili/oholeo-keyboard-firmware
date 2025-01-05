@@ -82,4 +82,10 @@
 #define PULSE 1000
 #define PULSE_LEN_MS 40
 
+enum USER_KEYCODE {
+    USER_BEEP = 0,
+    USER_EM = 1,
+    USER_RESET = 0xFF,
+};
+
 #endif /* KEYBOARD_CONF_H_ */

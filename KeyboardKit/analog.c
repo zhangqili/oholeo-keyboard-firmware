@@ -9,6 +9,7 @@
 #include "analog.h"
 #include "record.h"
 #include "advanced_key.h"
+#include "layer.h"
 
 uint16_t g_ADC_Conversion_Count;
 AnalogValue g_ADC_Averages[ADVANCED_KEY_NUM];
@@ -54,18 +55,14 @@ void analog_check(void)
             advanced_key_update_raw(g_keyboard_advanced_keys + i, g_ADC_Averages[i]);
         }
         g_keyboard_send_flag |= (g_keyboard_advanced_keys[i].key.state != state);
+        
+        if (!g_keyboard_advanced_keys[i].key.state && state)
+        {
+            keyboard_event_handler(MK_EVENT(g_keyboard_advanced_keys[i].key.id, KEY_EVENT_UP));
+        }
         if (g_keyboard_advanced_keys[i].key.state && !state)
         {
-            
-#ifdef ENABLE_RGB
-            rgb_activate(&g_keyboard_advanced_keys[i].key);
-#endif
-#ifdef ENABLE_KPS
-            record_kps_tick();
-#endif
-#ifdef ENABLE_COUNTER
-            g_key_counts[i]++;
-#endif
+            keyboard_event_handler(MK_EVENT(g_keyboard_advanced_keys[i].key.id, KEY_EVENT_DOWN));
         }
     }
 }

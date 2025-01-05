@@ -183,9 +183,12 @@ enum USB_HID_KEYCODES {
   KEY_EXSEL                    = 0xa4,   // Keyboard ExSel
   //Reserved b5-DF
   MOUSE_COLLECTION = 0xa5,
+  LAYER_MOMENTARY = 0xa6,
   FN = 0xB0,
+  KEY_USER = 0xFD,
+  KEY_SYSTEM = 0xFE,
   KEY_TRANSPARENT = 0xFF,
-} ;
+};
 
 enum USB_HID_MOUSE_KEYCODES {
   MOUSE_LBUTTON = 0x00,
@@ -197,4 +200,12 @@ enum USB_HID_MOUSE_KEYCODES {
   MOUSE_WHEEL_DOWN = 0x06,
 };
 
-#endif /* USB_HID_KEYS_H_ */
+enum SYSTEM_KEYCODES {
+  SYSTEM_RESET = 0x00,
+  SYSTEM_FACTORY_RESET = 0x01,
+  SYSTEM_SAVE = 0x02,
+  SYSTEM_BOOTLOADER = 0x03,
+  SYSTEM_DEBUG = 0x04,
+};
+
+#endif /* KEYCODE_H_ */

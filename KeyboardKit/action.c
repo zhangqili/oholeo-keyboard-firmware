@@ -37,7 +37,7 @@ void action_rs_execute(Key*key, Action*action)
         ((g_keyboard_advanced_keys[action_rs->key1_id].value>= (1.0 - g_keyboard_advanced_keys[action_rs->key1_id].lower_deadzone))&&
         (g_keyboard_advanced_keys[action_rs->key2_id].value>= (1.0 - g_keyboard_advanced_keys[action_rs->key2_id].lower_deadzone))))
         {
-            //KEYBOARD_REPORT_BUFFER_ADD(g_keymap[g_keyboard_current_layer][key->id]);
+            //KEYBOARD_REPORT_BUFFER_ADD(g_keymap[g_current_layer][key->id]);
         }
     }
     else if  (key->id == action_rs->key2_id)
@@ -47,7 +47,7 @@ void action_rs_execute(Key*key, Action*action)
         ((g_keyboard_advanced_keys[action_rs->key1_id].value>= (1.0 - g_keyboard_advanced_keys[action_rs->key1_id].lower_deadzone))&&
         (g_keyboard_advanced_keys[action_rs->key2_id].value>= (1.0 - g_keyboard_advanced_keys[action_rs->key2_id].lower_deadzone))))
         {
-            //KEYBOARD_REPORT_BUFFER_ADD(g_keymap[g_keyboard_current_layer][key->id]);
+            //KEYBOARD_REPORT_BUFFER_ADD(g_keymap[g_current_layer][key->id]);
         }
     }
 }
