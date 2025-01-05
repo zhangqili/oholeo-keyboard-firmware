@@ -19,7 +19,6 @@ __WEAK Key g_keyboard_keys[KEY_NUM];
 
 Action *g_keyboard_actions[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 
-uint8_t g_keyboard_current_layer;
 uint16_t g_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 
 #ifdef NKRO_ENABLE
@@ -34,57 +33,95 @@ volatile bool g_keyboard_send_report_enable = true;
 volatile bool g_debug_enable;
 volatile bool g_keyboard_send_flag;
 
-void keyboard_key_add_buffer(Key *k)
+uint16_t keyboard_get_keycode(uint8_t id)
 {
-    if (g_keyboard_actions[g_keyboard_current_layer][k->id])
+    return g_keymap[layer_cache_get(id)][id];
+}
+
+void keyboard_event_handler(KeyboardEvent event)
+{
+    uint16_t keycode = 0;
+    switch (event.event)
     {
-        action_execute(k, g_keyboard_actions[g_keyboard_current_layer][k->id]);
-    }
-    else if (k->state)
-    {
-        if ((g_keymap[g_keyboard_current_layer][k->id] & 0xFF) <= KEY_EXSEL)
+    case KEY_EVENT_UP:
+        //layer_cache_set(event.id, g_current_layer);
+        keycode = keyboard_get_keycode(event.id);
+        switch (keycode & 0xFF)
         {
-#ifdef NKRO_ENABLE
-            keyboard_NKRObuffer_add(&g_keyboard_nkro_buffer, (g_keymap[g_keyboard_current_layer][k->id]));
-#else
-            keyboard_6KRObuffer_add(&g_keyboard_6kro_buffer, (g_keymap[g_keyboard_current_layer][k->id]));
-#endif
+        case LAYER_MOMENTARY:
+            layer_toggle((keycode >> 8) & 0xFF);
+            break;
+        default:
+            break;
         }
-        else
+        break;
+    case KEY_EVENT_DOWN:
+        layer_cache_set(event.id, g_current_layer);
+        keycode = keyboard_get_keycode(event.id);
+        switch (keycode & 0xFF)
         {
-            switch (g_keymap[g_keyboard_current_layer][k->id] & 0xFF)
+        case LAYER_MOMENTARY:
+            layer_toggle((keycode >> 8) & 0xFF);       
+            break;
+        default:
+            break;
+        }
+        break;
+    case KEY_EVENT_TRUE:
+        keycode = keyboard_get_keycode(event.id);
+        keyboard_key_add_buffer(keycode);
+        break;
+    case KEY_EVENT_FALSE:
+        break;
+    default:
+        break;
+    }
+}
+
+void keyboard_key_add_buffer(uint16_t keycode)
+{
+    if ((keycode & 0xFF) <= KEY_EXSEL)
+    {
+#ifdef NKRO_ENABLE
+        keyboard_NKRObuffer_add(&g_keyboard_nkro_buffer, keycode);
+#else
+        keyboard_6KRObuffer_add(&g_keyboard_6kro_buffer, keycode);
+#endif
+    }
+    else
+    {
+        switch (keycode & 0xFF)
+        {
+        case MOUSE_COLLECTION:
+            switch ((keycode >> 8) & 0xFF)
             {
-            case MOUSE_COLLECTION:
-                switch ((g_keymap[g_keyboard_current_layer][k->id] >> 8) & 0xFF)
-                {
-                case MOUSE_LBUTTON:
-                    g_mouse.buttons |= 0x01;
-                    break;
-                case MOUSE_RBUTTON:
-                    g_mouse.buttons |= 0x02;
-                    break;
-                case MOUSE_MBUTTON:
-                    g_mouse.buttons |= 0x04;
-                    break;
-                case MOUSE_FORWARD:
-                    g_mouse.buttons |= 0x08;
-                    break;
-                case MOUSE_BACK:
-                    g_mouse.buttons |= 0x10;
-                    break;
-                case MOUSE_WHEEL_UP:
-                    g_mouse.wheel = 1;
-                    break;
-                case MOUSE_WHEEL_DOWN:
-                    g_mouse.wheel = -1;
-                    break;
-                default:
-                    break;
-                }
+            case MOUSE_LBUTTON:
+                g_mouse.buttons |= 0x01;
+                break;
+            case MOUSE_RBUTTON:
+                g_mouse.buttons |= 0x02;
+                break;
+            case MOUSE_MBUTTON:
+                g_mouse.buttons |= 0x04;
+                break;
+            case MOUSE_FORWARD:
+                g_mouse.buttons |= 0x08;
+                break;
+            case MOUSE_BACK:
+                g_mouse.buttons |= 0x10;
+                break;
+            case MOUSE_WHEEL_UP:
+                g_mouse.wheel = 1;
+                break;
+            case MOUSE_WHEEL_DOWN:
+                g_mouse.wheel = -1;
                 break;
             default:
                 break;
             }
+            break;
+        default:
+            break;
         }
     }
 }
@@ -264,11 +301,11 @@ void keyboard_send_report(void)
     
     for (int i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-        keyboard_key_add_buffer(&g_keyboard_advanced_keys[i].key);
+        keyboard_event_handler(MK_EVENT(g_keyboard_advanced_keys[i].key.id, g_keyboard_advanced_keys[i].key.state ? KEY_EVENT_TRUE : KEY_EVENT_FALSE));
     }
     for (int i = 0; i < KEY_NUM; i++)
-    {
-        keyboard_key_add_buffer(&g_keyboard_keys[i]);
+    {        
+        keyboard_event_handler(MK_EVENT(g_keyboard_keys[i].id, g_keyboard_keys[i].state ? KEY_EVENT_TRUE : KEY_EVENT_FALSE));
     }
     if (g_keyboard_send_report_enable 
 #ifndef CONTINUOUS_POLL

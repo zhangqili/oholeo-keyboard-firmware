@@ -485,7 +485,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
     else
     {
-      g_keyboard_current_layer = g_keyboard_advanced_keys[49].key.state?1:0; //Fn key
+      //g_current_layer = g_keyboard_advanced_keys[49].key.state?1:0; //Fn key
       keyboard_post_process();
       keyboard_send_report();
     }

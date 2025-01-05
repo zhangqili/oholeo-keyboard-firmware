@@ -10,6 +10,7 @@
 #include "advanced_key.h"
 #include "keyboard_conf.h"
 #include "keyboard_def.h"
+#include "layer.h"
 #include "keycode.h"
 
 #define KEYBINDING(keycode, modifier) (((modifier) << 8) | (keycode))
@@ -26,13 +27,21 @@ typedef struct
 {
     uint8_t *buffer;
     uint8_t length;
-}Keyboard_NKROBuffer;
+} Keyboard_NKROBuffer;
+
+typedef struct
+{
+    uint16_t id;
+    uint8_t event;
+} KeyboardEvent;
+#define MK_EVENT(id, event) ((KeyboardEvent){(id), (event)})
+
 
 extern Key g_keyboard_keys[KEY_NUM];
 extern AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM];
-extern uint8_t g_keyboard_current_layer;
 extern const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 extern uint16_t g_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
+
 extern Keyboard_6KROBuffer g_keyboard_6kro_buffer;
 
 extern uint8_t g_keyboard_knob_flag;
@@ -41,7 +50,11 @@ extern volatile bool g_keyboard_send_report_enable;
 extern volatile bool g_debug_enable;
 extern volatile bool g_keyboard_send_flag;
 
-void keyboard_key_add_buffer(Key *k);
+
+void keyboard_event_handler(KeyboardEvent event);
+
+uint16_t keyboard_get_keycode(uint8_t id);
+void keyboard_key_add_buffer(uint16_t keycode);
 
 void keyboard_buffer_send(void);
 void keyboard_buffer_clear(void);
