@@ -308,12 +308,16 @@ void rgb_save(void)
 {
 }
 
-void rgb_activate(void *key)
+void rgb_activate(uint16_t id)
 {
+    if (id >= RGB_NUM)
+    {
+        return;
+    }
     RGBArgument a;
-    a.rgb_ptr = g_rgb_mapping[((Key *)key)->id];
+    a.rgb_ptr = g_rgb_mapping[id];
     a.begin_time = RGB_Tick;
-    switch (g_rgb_configs[g_rgb_mapping[((Key *)key)->id]].mode)
+    switch (g_rgb_configs[a.rgb_ptr].mode)
     {
     case RGB_MODE_STRING:
     case RGB_MODE_FADING_STRING:

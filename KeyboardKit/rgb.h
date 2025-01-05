@@ -139,6 +139,6 @@ void rgb_flash(void);
 void rgb_turn_off(void);
 void rgb_factory_reset(void);
 void rgb_save(void);
-void rgb_activate(void * key);
+void rgb_activate(uint16_t id);
 
 #endif /* RGB_H_ */

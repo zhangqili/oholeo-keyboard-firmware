@@ -63,15 +63,6 @@ void analog_check(void)
         if (g_keyboard_advanced_keys[i].key.state && !state)
         {
             keyboard_event_handler(MK_EVENT(g_keyboard_advanced_keys[i].key.id, KEY_EVENT_DOWN));
-#ifdef ENABLE_RGB
-            rgb_activate(&g_keyboard_advanced_keys[i].key);
-#endif
-#ifdef ENABLE_KPS
-            record_kps_tick();
-#endif
-#ifdef ENABLE_COUNTER
-            g_key_counts[i]++;
-#endif
         }
     }
 }

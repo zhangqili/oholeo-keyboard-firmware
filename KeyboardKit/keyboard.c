@@ -35,7 +35,21 @@ volatile bool g_keyboard_send_flag;
 
 uint16_t keyboard_get_keycode(uint8_t id)
 {
-    return g_keymap[layer_cache_get(id)][id];
+    int8_t layer = layer_cache_get(id);
+    uint16_t keycode = 0;
+    while (layer>=0)
+    {
+        keycode = g_keymap[layer][id];
+        if ((keycode & 0xFF ) == KEY_TRANSPARENT)
+        {
+            layer--;
+        }
+        else
+        {
+            return keycode;
+        }
+    }
+    return KEY_NO_EVENT;
 }
 
 void keyboard_event_handler(KeyboardEvent event)
@@ -66,6 +80,15 @@ void keyboard_event_handler(KeyboardEvent event)
         default:
             break;
         }
+#ifdef ENABLE_RGB
+            rgb_activate(event.id);
+#endif
+#ifdef ENABLE_KPS
+            record_kps_tick();
+#endif
+#ifdef ENABLE_COUNTER
+            g_key_counts[i]++;
+#endif
         break;
     case KEY_EVENT_TRUE:
         keycode = keyboard_get_keycode(event.id);
