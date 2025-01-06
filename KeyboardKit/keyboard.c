@@ -62,8 +62,8 @@ void keyboard_event_handler(KeyboardEvent event)
         keycode = keyboard_get_keycode(event.id);
         switch (keycode & 0xFF)
         {
-        case LAYER_MOMENTARY:
-            layer_toggle((keycode >> 8) & 0xFF);
+        case LAYER_CONTROL:
+            layer_control(keycode,event.event);
             break;
         default:
             break;
@@ -74,8 +74,8 @@ void keyboard_event_handler(KeyboardEvent event)
         keycode = keyboard_get_keycode(event.id);
         switch (keycode & 0xFF)
         {
-        case LAYER_MOMENTARY:
-            layer_toggle((keycode >> 8) & 0xFF);       
+        case LAYER_CONTROL:
+            layer_control(keycode,event.event);     
             break;
         case KEY_SYSTEM:
             switch ((keycode >> 8) & 0xFF)
@@ -117,7 +117,7 @@ void keyboard_event_handler(KeyboardEvent event)
         break;
     case KEY_EVENT_TRUE:
         keycode = keyboard_get_keycode(event.id);
-        keyboard_key_add_buffer(keycode);
+        keyboard_add_buffer(keycode);
         break;
     case KEY_EVENT_FALSE:
         break;
@@ -126,7 +126,7 @@ void keyboard_event_handler(KeyboardEvent event)
     }
 }
 
-void keyboard_key_add_buffer(uint16_t keycode)
+void keyboard_add_buffer(uint16_t keycode)
 {
     if ((keycode & 0xFF) <= KEY_EXSEL)
     {
@@ -141,32 +141,7 @@ void keyboard_key_add_buffer(uint16_t keycode)
         switch (keycode & 0xFF)
         {
         case MOUSE_COLLECTION:
-            switch ((keycode >> 8) & 0xFF)
-            {
-            case MOUSE_LBUTTON:
-                g_mouse.buttons |= 0x01;
-                break;
-            case MOUSE_RBUTTON:
-                g_mouse.buttons |= 0x02;
-                break;
-            case MOUSE_MBUTTON:
-                g_mouse.buttons |= 0x04;
-                break;
-            case MOUSE_FORWARD:
-                g_mouse.buttons |= 0x08;
-                break;
-            case MOUSE_BACK:
-                g_mouse.buttons |= 0x10;
-                break;
-            case MOUSE_WHEEL_UP:
-                g_mouse.wheel = 1;
-                break;
-            case MOUSE_WHEEL_DOWN:
-                g_mouse.wheel = -1;
-                break;
-            default:
-                break;
-            }
+            mouse_add_buffer(keycode >> 8);
             break;
         default:
             break;

@@ -19,6 +19,7 @@ typedef struct __Mouse {
 #define mouse_buffer_clear(x) memset((x), 0, sizeof(Mouse))
 //void mouse_buffer_clear(Mouse*mouse);
 
+void mouse_add_buffer(uint16_t keycode);
 void mouse_buffer_send(Mouse *buf);
 void mouse_hid_send(uint8_t *report, uint16_t len);
 
