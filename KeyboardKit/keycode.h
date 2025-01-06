@@ -6,6 +6,15 @@
 #ifndef KEYCODE_H_
 #define KEYCODE_H_
 
+enum LAYER_CONTROL_KEYCODE {
+  LAYER_MOMENTARY = 0x00,
+  LAYER_TURN_ON = 0x01,
+  LAYER_TURN_OFF = 0x02,
+  LAYER_TOGGLE = 0x03,
+};
+
+#define LAYER(code,layer) (((code) << 12) | ((layer) << 8) | LAYER_CONTROL)
+
 enum USB_HID_MODIFIER
 {
     /*------------------------- HID report data -------------------------*/
@@ -183,7 +192,7 @@ enum USB_HID_KEYCODES {
   KEY_EXSEL                    = 0xa4,   // Keyboard ExSel
   //Reserved b5-DF
   MOUSE_COLLECTION = 0xa5,
-  LAYER_MOMENTARY = 0xa6,
+  LAYER_CONTROL = 0xa6,
   FN = 0xB0,
   KEY_USER = 0xFD,
   KEY_SYSTEM = 0xFE,

@@ -54,7 +54,7 @@ extern volatile bool g_keyboard_send_flag;
 void keyboard_event_handler(KeyboardEvent event);
 
 uint16_t keyboard_get_keycode(uint8_t id);
-void keyboard_key_add_buffer(uint16_t keycode);
+void keyboard_add_buffer(uint16_t keycode);
 
 void keyboard_buffer_send(void);
 void keyboard_buffer_clear(void);
