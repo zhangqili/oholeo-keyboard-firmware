@@ -61,10 +61,17 @@ void unload_cargo(uint8_t *buf)
             
         }
         break;
+#define LAYER_PAGE_LENGTH 16
+#define LAYER_PAGE_EXPECTED_NUM ((ADVANCED_KEY_NUM + KEY_NUM + 15) / 16)
     case 3: // Keymap
         uint8_t layer_index = buf[1];
         uint8_t layer_page_index = buf[2];
-        memcpy(&g_keymap[layer_index][layer_page_index*16], buf + 3, 32);
+        if (layer_index < LAYER_NUM && layer_page_index < LAYER_PAGE_EXPECTED_NUM)
+        {
+            uint8_t size = ((ADVANCED_KEY_NUM + KEY_NUM)-layer_page_index*LAYER_PAGE_LENGTH)*sizeof(uint16_t);
+            size = size > LAYER_PAGE_LENGTH*sizeof(uint16_t) ? LAYER_PAGE_LENGTH*sizeof(uint16_t) : size;
+            memcpy(&g_keymap[layer_index][layer_page_index*16], buf + 3, size);
+        }
         break;
     default:
         break;
