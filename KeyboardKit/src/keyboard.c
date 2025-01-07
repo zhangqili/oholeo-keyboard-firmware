@@ -59,6 +59,7 @@ void keyboard_event_handler(KeyboardEvent event)
     switch (event.event)
     {
     case KEYBOARD_EVENT_KEY_UP:
+        g_keyboard_send_flag = true;
         //layer_cache_set(event.id, g_current_layer);
         keycode = keyboard_get_keycode(event.id);
         switch (keycode & 0xFF)
@@ -71,6 +72,7 @@ void keyboard_event_handler(KeyboardEvent event)
         }
         break;
     case KEYBOARD_EVENT_KEY_DOWN:
+        g_keyboard_send_flag = true;
         layer_cache_set(event.id, g_current_layer);
         keycode = keyboard_get_keycode(event.id);
         switch (keycode & 0xFF)
@@ -271,8 +273,6 @@ void keyboard_recovery(void)
     lfs_file_rewind(&g_lfs, &g_lfs_file);
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-        //lfs_file_read(&g_lfs, &g_lfs_file, &(g_keyboard_advanced_keys[i].key.id),
-        //              sizeof(g_keyboard_advanced_keys[i].key.id));
         lfs_file_read(&g_lfs, &g_lfs_file, ((void *)(&g_keyboard_advanced_keys[i])) + sizeof(Key) + 4*sizeof(AnalogValue),
                       sizeof(AdvancedKey) - sizeof(Key) - 4*sizeof(AnalogValue));
     }
@@ -303,8 +303,6 @@ void keyboard_save(void)
     lfs_file_rewind(&g_lfs, &g_lfs_file);
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-        //lfs_file_write(&g_lfs, &g_lfs_file, &(g_keyboard_advanced_keys[i].key.id),
-        //               sizeof(g_keyboard_advanced_keys[i].key.id));
         lfs_file_write(&g_lfs, &g_lfs_file, ((void *)(&g_keyboard_advanced_keys[i])) + sizeof(Key) + 4*sizeof(AnalogValue),
                        sizeof(AdvancedKey) - sizeof(Key) - 4*sizeof(AnalogValue));
     }
@@ -375,7 +373,6 @@ __WEAK void keyboard_post_process(void)
 
 void keyboard_key_update(Key *key, bool state)
 {
-    g_keyboard_send_flag |= (key->state != state);
     if (!key->state && state)
     {
         keyboard_event_handler(MK_EVENT(key->id, KEYBOARD_EVENT_KEY_DOWN));
@@ -389,7 +386,6 @@ void keyboard_key_update(Key *key, bool state)
 
 void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
 {
-    g_keyboard_send_flag |= (key->key.state != state);
     if (!key->key.state && state)
     {
         keyboard_event_handler(MK_EVENT(key->key.id, KEYBOARD_EVENT_KEY_DOWN));
