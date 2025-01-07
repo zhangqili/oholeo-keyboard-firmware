@@ -71,7 +71,8 @@ C:/ST/STM32CubeCLT_1.17.0/STM32CubeProgrammer/bin/STM32_Programmer_CLI.exe -c po
 |按键|功能|
 |---|---|
 |`Esc`|进入Bootloarder|
-|`FN`|恢复出厂设置|
+|`FN`|清除所有数据，恢复出厂设置并重启|
+|`Backspace`|恢复默认配置并重启|
 
 ### 特殊快捷键
 
@@ -82,6 +83,11 @@ C:/ST/STM32CubeCLT_1.17.0/STM32CubeProgrammer/bin/STM32_Programmer_CLI.exe -c po
 |`FN`+`DEL`+`M`|切换使能电磁阀|
 |`FN`+`DEL`+`N`|恢复默认状态，取消使能蜂鸣器，取消使能电磁阀|
 |`FN`+`DEL`+`R`|重启|
-|`FN`+`DEL`+`F`|恢复默认设置|
+|`FN`+`DEL`+`F`|清除所有数据并恢复出厂设置|
 |`FN`+`DEL`+`S`|将当前配置写入至Flash|
 |`FN`+`DEL`+`Esc`|进入Bootloader|
+|`FN`+`DEL`+`Backspace`|恢复默认配置|
+|`FN`+`DEL`+`1`|使用配置文件0|
+|`FN`+`DEL`+`2`|使用配置文件1|
+|`FN`+`DEL`+`3`|使用配置文件2|
+|`FN`+`DEL`+`4`|使用配置文件3|

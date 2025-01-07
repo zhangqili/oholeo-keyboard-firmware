@@ -790,7 +790,6 @@ int lfs_migrate(lfs_t *lfs, const struct lfs_config *cfg);
 #endif
 
 extern lfs_t g_lfs;
-extern lfs_file_t g_lfs_file;
 extern const struct lfs_config g_lfs_config;
 
 #ifdef __cplusplus

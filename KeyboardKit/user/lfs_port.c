@@ -66,7 +66,6 @@ static uint8_t lookahead_buffer[16];
 // lfs句柄
 lfs_t g_lfs;
 
-lfs_file_t g_lfs_file;
 
 const struct lfs_config g_lfs_config =
 {
@@ -97,6 +96,7 @@ const struct lfs_config g_lfs_config =
 // entry point
 void lfs_test(void)
 {
+    lfs_file_t lfs_file;
     // mount the filesystem
     int err = lfs_mount(&g_lfs, &g_lfs_config);
 
@@ -112,16 +112,16 @@ void lfs_test(void)
     uint32_t boot_count = 0;
 
 
-    lfs_file_open(&g_lfs, &g_lfs_file, "boot_count", LFS_O_RDWR | LFS_O_CREAT);
-    lfs_file_read(&g_lfs, &g_lfs_file, &boot_count, sizeof(boot_count));
+    lfs_file_open(&g_lfs, &lfs_file, "boot_count", LFS_O_RDWR | LFS_O_CREAT);
+    lfs_file_read(&g_lfs, &lfs_file, &boot_count, sizeof(boot_count));
 
     // update boot count
     boot_count += 1;
-    lfs_file_rewind(&g_lfs, &g_lfs_file);
-    lfs_file_write(&g_lfs, &g_lfs_file, &boot_count, sizeof(boot_count));
+    lfs_file_rewind(&g_lfs, &lfs_file);
+    lfs_file_write(&g_lfs, &lfs_file, &boot_count, sizeof(boot_count));
 
     // remember the storage is not updated until the file is closed successfully
-    lfs_file_close(&g_lfs, &g_lfs_file);
+    lfs_file_close(&g_lfs, &lfs_file);
 
     // release any resources we were using
     lfs_unmount(&g_lfs);

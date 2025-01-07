@@ -59,6 +59,7 @@ extern volatile bool g_keyboard_send_report_enable;
 extern volatile bool g_debug_enable;
 extern volatile bool g_keyboard_send_flag;
 
+extern uint8_t g_current_config_index;
 
 void keyboard_event_handler(KeyboardEvent event);
 
@@ -83,6 +84,7 @@ void keyboard_advanced_key_update_state(AdvancedKey *key, bool state);
 
 void keyboard_init(void);
 void keyboard_system_reset(void);
+void keyboard_reset_to_default(void);
 void keyboard_factory_reset(void);
 void keyboard_jump_to_bootloader(void);
 void keyboard_user_handler(uint8_t code);
@@ -91,6 +93,7 @@ void keyboard_send_report(void);
 void keyboard_post_process(void);
 void keyboard_recovery(void);
 void keyboard_save(void);
+void keyboard_set_config_index(uint8_t index);
 void keyboard_task(void);
 void keyboard_delay(uint32_t ms);
 void keyboard_hid_send(uint8_t *report, uint16_t len);

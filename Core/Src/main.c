@@ -316,6 +316,12 @@ int main(void)
     HAL_Delay(2);
     JumpToBootloader();
   }
+  if (g_ADC_Averages[28] < 1400 || g_ADC_Averages[28] > (4096 - 1400))
+  {
+    keyboard_reset_to_default();
+    keyboard_save();
+    keyboard_system_reset();
+  }
   if (g_ADC_Averages[49] < 1400 || g_ADC_Averages[49] > (4096 - 1400))
   {
     keyboard_factory_reset();
@@ -430,25 +436,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 0);
       HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
     }
-    if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[0].key.state)
-    {
-      g_debug_enable = true;
-    }
-    //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[15].key.state)
-    //{
-    //  for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
-    //  {
-    //      rgb_set(i, 100, 0, 0);
-    //  }
-    //  JumpToBootloader();
-    //}
-    //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[33].key.state)
-    //{
-    //  global_state = NORMAL;
-    //  beep_switch = false;
-    //  em_switch = false;
-    //  g_debug_enable = false;
-    //}
     //if (g_keyboard_advanced_keys[49].key.state & g_keyboard_advanced_keys[61].key.state)
     //{
     //  global_state = JOYSTICK;
@@ -468,12 +455,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         memcpy(report_buffer + 4 + 10 * i + 4, &g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].value, sizeof(float));
       }
       report_num += 6;
-      hid_raw_send(report_buffer+1,63);
-      //USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, report_buffer, 64);
+      hid_raw_send(report_buffer+1,63);;
     }
     else
     {
-      //g_current_layer = g_keyboard_advanced_keys[49].key.state?1:0; //Fn key
       keyboard_post_process();
       keyboard_send_report();
     }
@@ -484,18 +469,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       keyboard_send_report();
       break;
     case ADC:
-      g_usb_report_buffer[0] = 2;
-      g_usb_report_buffer[1] = usb_adc_send_idx;
-      for (int i = 0; i < 16; i++)
-      {
-        //Keyboard_ReportBuffer[i+2] = i%2?(uint32_t)g_ADC_Averages[i/2 + usb_adc_send_idx*8]:((uint32_t)g_ADC_Averages[i/2 + usb_adc_send_idx*8])>>8;
-        g_usb_report_buffer[i + 2] = i % 2 ? (uint32_t)g_keyboard_advanced_keys[i / 2 + usb_adc_send_idx * 8].raw : ((uint32_t)g_keyboard_advanced_keys[i / 2 + usb_adc_send_idx * 8].raw) >> 8;
-      }
-
-      usb_adc_send_idx++;
-      if (usb_adc_send_idx >= 8)
-        usb_adc_send_idx = 0;
-      USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, g_usb_report_buffer, 17 + 1);
       break;
     case JOYSTICK:
       int8_t Ry, Rx, y, x;
@@ -610,16 +583,36 @@ void rgb_update_callback()
   extern uint8_t LED_Report;
 	if(LED_Report&0x02)
   {
-	    g_rgb_colors[g_rgb_mapping[28]].r = 0xff;
-	    g_rgb_colors[g_rgb_mapping[28]].g = 0xff;
-	    g_rgb_colors[g_rgb_mapping[28]].b = 0xff;//cap lock
+	  g_rgb_colors[g_rgb_mapping[28]].r = 0xff;
+	  g_rgb_colors[g_rgb_mapping[28]].g = 0xff;
+	  g_rgb_colors[g_rgb_mapping[28]].b = 0xff;//cap lock
 	}
 	if(LED_Report&0x04)
   {
-	    g_rgb_colors[g_rgb_mapping[26]].r = 0xff;
-	    g_rgb_colors[g_rgb_mapping[26]].g = 0xff;
-	    g_rgb_colors[g_rgb_mapping[26]].b = 0xff;//cap lock
+	  g_rgb_colors[g_rgb_mapping[26]].r = 0xff;
+	  g_rgb_colors[g_rgb_mapping[26]].g = 0xff;
+	  g_rgb_colors[g_rgb_mapping[26]].b = 0xff;//cap lock
 	}
+  if (g_current_layer == 2)
+  {
+	  g_rgb_colors[g_rgb_mapping[0]].r = 0xff;
+	  g_rgb_colors[g_rgb_mapping[1]].r = 0;
+	  g_rgb_colors[g_rgb_mapping[1]].g = 0;
+	  g_rgb_colors[g_rgb_mapping[1]].b = 0;
+	  g_rgb_colors[g_rgb_mapping[2]].r = 0;
+	  g_rgb_colors[g_rgb_mapping[2]].g = 0;
+	  g_rgb_colors[g_rgb_mapping[2]].b = 0;
+	  g_rgb_colors[g_rgb_mapping[3]].r = 0;
+	  g_rgb_colors[g_rgb_mapping[3]].g = 0;
+	  g_rgb_colors[g_rgb_mapping[3]].b = 0;
+	  g_rgb_colors[g_rgb_mapping[4]].r = 0;
+	  g_rgb_colors[g_rgb_mapping[4]].g = 0;
+	  g_rgb_colors[g_rgb_mapping[4]].b = 0;
+	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].r = 0xff;
+	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].g = 0xff;
+	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].b = 0xff;
+  }
+  
 }
 
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)

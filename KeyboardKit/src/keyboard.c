@@ -7,12 +7,14 @@
 #include "analog.h"
 #include "keyboard_conf.h"
 #include "rgb.h"
-#include "stdio.h"
-#include "lfs.h"
 #include "action.h"
 #include "filter.h"
 #include "mouse.h"
 #include "record.h"
+#include "storage.h"
+
+#include "stdio.h"
+#include "string.h"
 
 __WEAK const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 __WEAK AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM];
@@ -33,6 +35,8 @@ volatile bool g_keyboard_send_report_enable = true;
 
 volatile bool g_debug_enable;
 volatile bool g_keyboard_send_flag;
+
+uint8_t g_current_config_index;
 
 uint16_t keyboard_get_keycode(uint8_t id)
 {
@@ -97,6 +101,15 @@ void keyboard_event_handler(KeyboardEvent event)
                 break;
             case SYSTEM_DEBUG:
                 g_debug_enable = !g_debug_enable;
+                break;
+            case SYSTEM_RESET_TO_DEFAULT:
+                keyboard_reset_to_default();
+                break;
+            case SYSTEM_CONFIG0:
+            case SYSTEM_CONFIG1:
+            case SYSTEM_CONFIG2:
+            case SYSTEM_CONFIG3:
+                keyboard_set_config_index((keycode >> 8) & 0x0F);
                 break;
             default:
                 break;
@@ -215,13 +228,15 @@ void keyboard_NKRObuffer_clear(Keyboard_NKROBuffer*buf)
 
 void keyboard_init(void)
 {
+    storage_mount();
+    g_current_config_index = storage_read_config_index();
 #ifdef NKRO_ENABLE
     static uint8_t buffer[64];
     keyboard_NKRObuffer_init(&g_keyboard_nkro_buffer, buffer, sizeof(buffer));
 #endif
 }
 
-void keyboard_factory_reset(void)
+void keyboard_reset_to_default(void)
 {
     memcpy(g_keymap, g_default_keymap, sizeof(g_keymap));
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
@@ -235,8 +250,15 @@ void keyboard_factory_reset(void)
         advanced_key_set_deadzone(g_keyboard_advanced_keys + i, DEFAULT_UPPER_DEADZONE, DEFAULT_LOWER_DEADZONE);
     }
     rgb_factory_reset();
-    keyboard_save();
-    //keyboard_system_reset();
+}
+
+void keyboard_factory_reset(void)
+{
+    keyboard_reset_to_default();
+    for (int i = 0; i < 4; i++)
+    {
+        storage_save_config(i);
+    }
 }
 
 __WEAK void keyboard_system_reset(void)
@@ -260,61 +282,22 @@ __WEAK void keyboard_scan(void)
 
 void keyboard_recovery(void)
 {
-    // mount the filesystem
-    int err = lfs_mount(&g_lfs, &g_lfs_config);
-    // reformat if we can't mount the filesystem
-    // this should only happen on the first boot
-    if (err)
-    {
-        lfs_format(&g_lfs, &g_lfs_config);
-        lfs_mount(&g_lfs, &g_lfs_config);
-    }
-    lfs_file_open(&g_lfs, &g_lfs_file, "config1.dat", LFS_O_RDWR | LFS_O_CREAT);
-    lfs_file_rewind(&g_lfs, &g_lfs_file);
-    for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
-    {
-        lfs_file_read(&g_lfs, &g_lfs_file, ((void *)(&g_keyboard_advanced_keys[i])) + sizeof(Key) + 4*sizeof(AnalogValue),
-                      sizeof(AdvancedKey) - sizeof(Key) - 4*sizeof(AnalogValue));
-    }
-    lfs_file_read(&g_lfs, &g_lfs_file, g_keymap, sizeof(g_keymap));
-    lfs_file_read(&g_lfs, &g_lfs_file, &g_rgb_switch, sizeof(g_rgb_switch));
-    lfs_file_read(&g_lfs, &g_lfs_file, &g_rgb_configs, sizeof(g_rgb_configs));
-    // remember the storage is not updated until the file is closed successfully
-    lfs_file_close(&g_lfs, &g_lfs_file);
-    printf("recovery = %d", err);
-    // release any resources we were using
-    lfs_unmount(&g_lfs);
-    // print the boot count
+    storage_read_config(g_current_config_index);
 }
 
 void keyboard_save(void)
 {
-    // mount the filesystem
-    int err = lfs_mount(&g_lfs, &g_lfs_config);
-    // reformat if we can't mount the filesystem
-    // this should only happen on the first boot
-    if (err)
+    storage_save_config(g_current_config_index);
+}
+
+void keyboard_set_config_index(uint8_t index)
+{
+    if (index < 4)
     {
-        lfs_format(&g_lfs, &g_lfs_config);
-        lfs_mount(&g_lfs, &g_lfs_config);
+        g_current_config_index = index;
     }
-    // read current count
-    lfs_file_open(&g_lfs, &g_lfs_file, "config1.dat", LFS_O_RDWR | LFS_O_CREAT);
-    lfs_file_rewind(&g_lfs, &g_lfs_file);
-    for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
-    {
-        lfs_file_write(&g_lfs, &g_lfs_file, ((void *)(&g_keyboard_advanced_keys[i])) + sizeof(Key) + 4*sizeof(AnalogValue),
-                       sizeof(AdvancedKey) - sizeof(Key) - 4*sizeof(AnalogValue));
-    }
-    lfs_file_write(&g_lfs, &g_lfs_file, g_keymap, sizeof(g_keymap));
-    lfs_file_write(&g_lfs, &g_lfs_file, &g_rgb_switch, sizeof(g_rgb_switch));
-    lfs_file_write(&g_lfs, &g_lfs_file, &g_rgb_configs, sizeof(g_rgb_configs));
-    // remember the storage is not updated until the file is closed successfully
-    err = lfs_file_close(&g_lfs, &g_lfs_file);
-    printf("save = %d", err);
-    // release any resources we were using
-    lfs_unmount(&g_lfs);
-    // print the boot count
+    storage_save_config_index(g_current_config_index);
+    keyboard_recovery();
 }
 
 void keyboard_send_report(void)
