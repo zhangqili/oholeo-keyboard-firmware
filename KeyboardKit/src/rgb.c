@@ -56,6 +56,10 @@ void rgb_update(void)
         {
             rgb_loop_queue_pop(&g_rgb_argument_queue);
         }
+        if (distance > 20)
+        {
+            continue;
+        }
         switch (config->mode)
         {
         case RGB_MODE_FIXED:

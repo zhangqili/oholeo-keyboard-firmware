@@ -285,7 +285,7 @@ void hid_keyboard_send(uint8_t *buffer)
 {
     if (custom_state == HID_STATE_BUSY)
     {
-        return;
+        //return;
     }
     else
     {
@@ -325,7 +325,7 @@ void hid_raw_send(uint8_t *buffer, int size)
 {
     if (custom_state == HID_STATE_BUSY)
     {
-        return;
+        //return;
     }
     else
     {

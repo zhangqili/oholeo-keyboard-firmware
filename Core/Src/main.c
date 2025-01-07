@@ -596,6 +596,8 @@ void rgb_update_callback()
   if (g_current_layer == 2)
   {
 	  g_rgb_colors[g_rgb_mapping[0]].r = 0xff;
+	  g_rgb_colors[g_rgb_mapping[0]].g = 0;
+	  g_rgb_colors[g_rgb_mapping[0]].b = 0;
 	  g_rgb_colors[g_rgb_mapping[1]].r = 0;
 	  g_rgb_colors[g_rgb_mapping[1]].g = 0;
 	  g_rgb_colors[g_rgb_mapping[1]].b = 0;
