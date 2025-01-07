@@ -29,6 +29,15 @@ typedef struct
     uint8_t length;
 } Keyboard_NKROBuffer;
 
+typedef enum
+{
+    KEYBOARD_EVENT_KEY_UP,
+    KEYBOARD_EVENT_KEY_DOWN,
+    KEYBOARD_EVENT_KEY_TRUE,
+    KEYBOARD_EVENT_KEY_FALSE,
+    KEYBOARD_EVENT_NUM
+} KEYBOARD_EVENT;
+
 typedef struct
 {
     uint16_t id;
@@ -67,6 +76,10 @@ void keyboard_NKRObuffer_init(Keyboard_NKROBuffer*buf,uint8_t* data_buf,uint8_t 
 int keyboard_NKRObuffer_add(Keyboard_NKROBuffer*buf,uint16_t key);
 void keyboard_NKRObuffer_send(Keyboard_NKROBuffer*buf);
 void keyboard_NKRObuffer_clear(Keyboard_NKROBuffer*buf);
+
+
+void keyboard_key_update(Key *key, bool state);
+void keyboard_advanced_key_update_state(AdvancedKey *key, bool state);
 
 void keyboard_init(void);
 void keyboard_system_reset(void);

@@ -1,6 +1,6 @@
 #include "lfs.h"
 #include "sfud.h"
-#include "main.h"
+#include "keyboard_def.h"
 
 extern sfud_flash sfud_norflash0;
 /**
@@ -64,11 +64,11 @@ static uint8_t prog_buffer[16];
 static uint8_t lookahead_buffer[16];
 
 // lfs句柄
-lfs_t lfs_w25qxx;
+lfs_t g_lfs;
 
-lfs_file_t lfs_file_w25qxx;
+lfs_file_t g_lfs_file;
 
-const struct lfs_config lfs_cfg =
+const struct lfs_config g_lfs_config =
 {
     // block device operations
     .read  = lfs_deskio_read,
@@ -98,33 +98,33 @@ const struct lfs_config lfs_cfg =
 void lfs_test(void)
 {
     // mount the filesystem
-    int err = lfs_mount(&lfs_w25qxx, &lfs_cfg);
+    int err = lfs_mount(&g_lfs, &g_lfs_config);
 
     // reformat if we can't mount the filesystem
     // this should only happen on the first boot
     if (err)
     {
-        lfs_format(&lfs_w25qxx, &lfs_cfg);
-        lfs_mount(&lfs_w25qxx, &lfs_cfg);
+        lfs_format(&g_lfs, &g_lfs_config);
+        lfs_mount(&g_lfs, &g_lfs_config);
     }
 
     // read current count
     uint32_t boot_count = 0;
 
 
-    lfs_file_open(&lfs_w25qxx, &lfs_file_w25qxx, "boot_count", LFS_O_RDWR | LFS_O_CREAT);
-    lfs_file_read(&lfs_w25qxx, &lfs_file_w25qxx, &boot_count, sizeof(boot_count));
+    lfs_file_open(&g_lfs, &g_lfs_file, "boot_count", LFS_O_RDWR | LFS_O_CREAT);
+    lfs_file_read(&g_lfs, &g_lfs_file, &boot_count, sizeof(boot_count));
 
     // update boot count
     boot_count += 1;
-    lfs_file_rewind(&lfs_w25qxx, &lfs_file_w25qxx);
-    lfs_file_write(&lfs_w25qxx, &lfs_file_w25qxx, &boot_count, sizeof(boot_count));
+    lfs_file_rewind(&g_lfs, &g_lfs_file);
+    lfs_file_write(&g_lfs, &g_lfs_file, &boot_count, sizeof(boot_count));
 
     // remember the storage is not updated until the file is closed successfully
-    lfs_file_close(&lfs_w25qxx, &lfs_file_w25qxx);
+    lfs_file_close(&g_lfs, &g_lfs_file);
 
     // release any resources we were using
-    lfs_unmount(&lfs_w25qxx);
+    lfs_unmount(&g_lfs);
 
     // print the boot count
     printf("boot_count: %ld\n", boot_count);

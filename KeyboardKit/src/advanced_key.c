@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 #include "advanced_key.h"
+#include "keyboard.h"
 #include "keyboard_def.h"
 
 void advanced_key_update(AdvancedKey* advanced_key, AnalogValue value)
@@ -78,7 +79,7 @@ void advanced_key_update(AdvancedKey* advanced_key, AnalogValue value)
             advanced_key->value = value;
             break;
     }
-    key_update(&(advanced_key->key), state);
+    keyboard_advanced_key_update_state(advanced_key, state);
 }
 
 void advanced_key_update_raw(AdvancedKey* key, AnalogValue value)

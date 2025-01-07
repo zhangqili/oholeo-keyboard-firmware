@@ -7,7 +7,6 @@
 #include "stdio.h"
 #include "rgb.h"
 #include "analog.h"
-#include "record.h"
 #include "advanced_key.h"
 #include "layer.h"
 
@@ -46,23 +45,11 @@ __WEAK void analog_average(void)
 
 void analog_check(void)
 {
-    bool state;
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-        state = g_keyboard_advanced_keys[i].key.state;
         if (g_keyboard_advanced_keys[i].mode != KEY_DIGITAL_MODE)
         {
             advanced_key_update_raw(g_keyboard_advanced_keys + i, g_ADC_Averages[i]);
-        }
-        g_keyboard_send_flag |= (g_keyboard_advanced_keys[i].key.state != state);
-        
-        if (!g_keyboard_advanced_keys[i].key.state && state)
-        {
-            keyboard_event_handler(MK_EVENT(g_keyboard_advanced_keys[i].key.id, KEY_EVENT_UP));
-        }
-        if (g_keyboard_advanced_keys[i].key.state && !state)
-        {
-            keyboard_event_handler(MK_EVENT(g_keyboard_advanced_keys[i].key.id, KEY_EVENT_DOWN));
         }
     }
 }

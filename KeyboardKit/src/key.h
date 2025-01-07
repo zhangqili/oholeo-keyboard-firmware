@@ -14,8 +14,6 @@ typedef enum
 {
     KEY_EVENT_UP,
     KEY_EVENT_DOWN,
-    KEY_EVENT_TRUE,
-    KEY_EVENT_FALSE,
     KEY_EVENT_NUM
 } KEY_EVENT;
 typedef void (*key_cb_t)(void *);

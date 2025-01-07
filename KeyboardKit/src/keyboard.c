@@ -12,6 +12,7 @@
 #include "action.h"
 #include "filter.h"
 #include "mouse.h"
+#include "record.h"
 
 __WEAK const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 __WEAK AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM];
@@ -57,7 +58,7 @@ void keyboard_event_handler(KeyboardEvent event)
     uint16_t keycode = 0;
     switch (event.event)
     {
-    case KEY_EVENT_UP:
+    case KEYBOARD_EVENT_KEY_UP:
         //layer_cache_set(event.id, g_current_layer);
         keycode = keyboard_get_keycode(event.id);
         switch (keycode & 0xFF)
@@ -69,7 +70,7 @@ void keyboard_event_handler(KeyboardEvent event)
             break;
         }
         break;
-    case KEY_EVENT_DOWN:
+    case KEYBOARD_EVENT_KEY_DOWN:
         layer_cache_set(event.id, g_current_layer);
         keycode = keyboard_get_keycode(event.id);
         switch (keycode & 0xFF)
@@ -105,21 +106,12 @@ void keyboard_event_handler(KeyboardEvent event)
         default:
             break;
         }
-#ifdef ENABLE_RGB
-            rgb_activate(event.id);
-#endif
-#ifdef ENABLE_KPS
-            record_kps_tick();
-#endif
-#ifdef ENABLE_COUNTER
-            g_key_counts[i]++;
-#endif
         break;
-    case KEY_EVENT_TRUE:
+    case KEYBOARD_EVENT_KEY_TRUE:
         keycode = keyboard_get_keycode(event.id);
         keyboard_add_buffer(keycode);
         break;
-    case KEY_EVENT_FALSE:
+    case KEYBOARD_EVENT_KEY_FALSE:
         break;
     default:
         break;
@@ -255,90 +247,81 @@ __WEAK void keyboard_jump_to_bootloader(void)
 
 __WEAK void keyboard_user_handler(uint8_t code)
 {
+    UNUSED(code);
 }
 
 
 __WEAK void keyboard_scan(void)
 {
+
 }
 
 void keyboard_recovery(void)
 {
     // mount the filesystem
-    int err = lfs_mount(&lfs_w25qxx, &lfs_cfg);
+    int err = lfs_mount(&g_lfs, &g_lfs_config);
     // reformat if we can't mount the filesystem
     // this should only happen on the first boot
     if (err)
     {
-        lfs_format(&lfs_w25qxx, &lfs_cfg);
-        lfs_mount(&lfs_w25qxx, &lfs_cfg);
+        lfs_format(&g_lfs, &g_lfs_config);
+        lfs_mount(&g_lfs, &g_lfs_config);
     }
-    lfs_file_open(&lfs_w25qxx, &lfs_file_w25qxx, "config1.dat", LFS_O_RDWR | LFS_O_CREAT);
-    lfs_file_rewind(&lfs_w25qxx, &lfs_file_w25qxx);
+    lfs_file_open(&g_lfs, &g_lfs_file, "config1.dat", LFS_O_RDWR | LFS_O_CREAT);
+    lfs_file_rewind(&g_lfs, &g_lfs_file);
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-        //lfs_file_read(&lfs_w25qxx, &lfs_file_w25qxx, &(g_keyboard_advanced_keys[i].key.id),
+        //lfs_file_read(&g_lfs, &g_lfs_file, &(g_keyboard_advanced_keys[i].key.id),
         //              sizeof(g_keyboard_advanced_keys[i].key.id));
-        lfs_file_read(&lfs_w25qxx, &lfs_file_w25qxx, ((void *)(&g_keyboard_advanced_keys[i])) + sizeof(Key) + 4*sizeof(AnalogValue),
+        lfs_file_read(&g_lfs, &g_lfs_file, ((void *)(&g_keyboard_advanced_keys[i])) + sizeof(Key) + 4*sizeof(AnalogValue),
                       sizeof(AdvancedKey) - sizeof(Key) - 4*sizeof(AnalogValue));
     }
-    lfs_file_read(&lfs_w25qxx, &lfs_file_w25qxx, g_keymap, sizeof(g_keymap));
-    lfs_file_read(&lfs_w25qxx, &lfs_file_w25qxx, &g_rgb_switch, sizeof(g_rgb_switch));
-    lfs_file_read(&lfs_w25qxx, &lfs_file_w25qxx, &g_rgb_configs, sizeof(g_rgb_configs));
+    lfs_file_read(&g_lfs, &g_lfs_file, g_keymap, sizeof(g_keymap));
+    lfs_file_read(&g_lfs, &g_lfs_file, &g_rgb_switch, sizeof(g_rgb_switch));
+    lfs_file_read(&g_lfs, &g_lfs_file, &g_rgb_configs, sizeof(g_rgb_configs));
     // remember the storage is not updated until the file is closed successfully
-    lfs_file_close(&lfs_w25qxx, &lfs_file_w25qxx);
+    lfs_file_close(&g_lfs, &g_lfs_file);
     printf("recovery = %d", err);
     // release any resources we were using
-    lfs_unmount(&lfs_w25qxx);
+    lfs_unmount(&g_lfs);
     // print the boot count
 }
 
 void keyboard_save(void)
 {
     // mount the filesystem
-    int err = lfs_mount(&lfs_w25qxx, &lfs_cfg);
+    int err = lfs_mount(&g_lfs, &g_lfs_config);
     // reformat if we can't mount the filesystem
     // this should only happen on the first boot
     if (err)
     {
-        lfs_format(&lfs_w25qxx, &lfs_cfg);
-        lfs_mount(&lfs_w25qxx, &lfs_cfg);
+        lfs_format(&g_lfs, &g_lfs_config);
+        lfs_mount(&g_lfs, &g_lfs_config);
     }
     // read current count
-    lfs_file_open(&lfs_w25qxx, &lfs_file_w25qxx, "config1.dat", LFS_O_RDWR | LFS_O_CREAT);
-    lfs_file_rewind(&lfs_w25qxx, &lfs_file_w25qxx);
+    lfs_file_open(&g_lfs, &g_lfs_file, "config1.dat", LFS_O_RDWR | LFS_O_CREAT);
+    lfs_file_rewind(&g_lfs, &g_lfs_file);
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-        //lfs_file_write(&lfs_w25qxx, &lfs_file_w25qxx, &(g_keyboard_advanced_keys[i].key.id),
+        //lfs_file_write(&g_lfs, &g_lfs_file, &(g_keyboard_advanced_keys[i].key.id),
         //               sizeof(g_keyboard_advanced_keys[i].key.id));
-        lfs_file_write(&lfs_w25qxx, &lfs_file_w25qxx, ((void *)(&g_keyboard_advanced_keys[i])) + sizeof(Key) + 4*sizeof(AnalogValue),
+        lfs_file_write(&g_lfs, &g_lfs_file, ((void *)(&g_keyboard_advanced_keys[i])) + sizeof(Key) + 4*sizeof(AnalogValue),
                        sizeof(AdvancedKey) - sizeof(Key) - 4*sizeof(AnalogValue));
     }
-    lfs_file_write(&lfs_w25qxx, &lfs_file_w25qxx, g_keymap, sizeof(g_keymap));
-    lfs_file_write(&lfs_w25qxx, &lfs_file_w25qxx, &g_rgb_switch, sizeof(g_rgb_switch));
-    lfs_file_write(&lfs_w25qxx, &lfs_file_w25qxx, &g_rgb_configs, sizeof(g_rgb_configs));
+    lfs_file_write(&g_lfs, &g_lfs_file, g_keymap, sizeof(g_keymap));
+    lfs_file_write(&g_lfs, &g_lfs_file, &g_rgb_switch, sizeof(g_rgb_switch));
+    lfs_file_write(&g_lfs, &g_lfs_file, &g_rgb_configs, sizeof(g_rgb_configs));
     // remember the storage is not updated until the file is closed successfully
-    err = lfs_file_close(&lfs_w25qxx, &lfs_file_w25qxx);
+    err = lfs_file_close(&g_lfs, &g_lfs_file);
     printf("save = %d", err);
     // release any resources we were using
-    lfs_unmount(&lfs_w25qxx);
+    lfs_unmount(&g_lfs);
     // print the boot count
 }
 
 void keyboard_send_report(void)
 {
     static uint32_t mouse_value;
-    keyboard_buffer_clear();
-    mouse_buffer_clear(&g_mouse);
-    
-    for (int i = 0; i < ADVANCED_KEY_NUM; i++)
-    {
-        keyboard_event_handler(MK_EVENT(g_keyboard_advanced_keys[i].key.id, g_keyboard_advanced_keys[i].key.state ? KEY_EVENT_TRUE : KEY_EVENT_FALSE));
-    }
-    for (int i = 0; i < KEY_NUM; i++)
-    {        
-        keyboard_event_handler(MK_EVENT(g_keyboard_keys[i].id, g_keyboard_keys[i].state ? KEY_EVENT_TRUE : KEY_EVENT_FALSE));
-    }
     if (g_keyboard_send_report_enable 
 #ifndef CONTINUOUS_POLL
         && g_keyboard_send_flag
@@ -348,13 +331,24 @@ void keyboard_send_report(void)
 #ifndef CONTINUOUS_POLL
         g_keyboard_send_flag = false;
 #endif
+        keyboard_buffer_clear();
+        mouse_buffer_clear(&g_mouse);
+
+        for (int i = 0; i < ADVANCED_KEY_NUM; i++)
+        {
+            keyboard_event_handler(MK_EVENT(g_keyboard_advanced_keys[i].key.id, g_keyboard_advanced_keys[i].key.state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
+        }
+        for (int i = 0; i < KEY_NUM; i++)
+        {        
+            keyboard_event_handler(MK_EVENT(g_keyboard_keys[i].id, g_keyboard_keys[i].state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
+        }
         keyboard_buffer_send();
         if ((*(uint32_t*)&g_mouse)!=mouse_value)
         {
             mouse_buffer_send(&g_mouse);
         }
+        mouse_value = *(uint32_t*)&g_mouse;
     }
-    mouse_value = *(uint32_t*)&g_mouse;
 }
 
 __WEAK void keyboard_task(void)
@@ -377,4 +371,41 @@ __WEAK void keyboard_delay(uint32_t ms)
 }
 __WEAK void keyboard_post_process(void)
 {
+}
+
+void keyboard_key_update(Key *key, bool state)
+{
+    g_keyboard_send_flag |= (key->state != state);
+    if (!key->state && state)
+    {
+        keyboard_event_handler(MK_EVENT(key->id, KEYBOARD_EVENT_KEY_DOWN));
+    }
+    if (key->state && !state)
+    {
+        keyboard_event_handler(MK_EVENT(key->id, KEYBOARD_EVENT_KEY_UP));
+    }
+    key_update(key, state);
+}
+
+void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
+{
+    g_keyboard_send_flag |= (key->key.state != state);
+    if (!key->key.state && state)
+    {
+        keyboard_event_handler(MK_EVENT(key->key.id, KEYBOARD_EVENT_KEY_DOWN));
+#ifdef ENABLE_RGB
+        rgb_activate(key->key.id);
+#endif
+#ifdef ENABLE_KPS
+        record_kps_tick();
+#endif
+#ifdef ENABLE_COUNTER
+        g_key_counts[key->key.id]++;
+#endif
+    }
+    if (key->key.state && !state)
+    {
+        keyboard_event_handler(MK_EVENT(key->key.id, KEYBOARD_EVENT_KEY_UP));
+    }
+    advanced_key_update_state(key, state);
 }

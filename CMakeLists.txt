@@ -46,8 +46,9 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 file(GLOB_RECURSE MY_SOURCES
-    "./keyboardKit/*.c"
-    "./littlefs/*.c"
+    "./keyboardKit/src/*.c"
+    "./keyboardKit/user/*.c"
+    "./keyboardKit/littlefs/*.c"
     "./sfud/src/*.c"
     "./sfud/port/*.c"
     "./CherryUSB/core/usbd_core.c"
@@ -63,8 +64,9 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
-    ./keyboardKit/
-    ./littlefs/
+    ./keyboardKit/src/
+    ./keyboardKit/user/
+    ./keyboardKit/littlefs/
     ./sfud/inc/
     ./usb/
     ./CherryUSB/core
