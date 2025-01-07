@@ -108,6 +108,7 @@ void advanced_key_update_raw(AdvancedKey* key, AnalogValue value)
             key->lower_bound = value;
             break;
         }
+        advanced_key_update(key, 0.0f);
         return;
     default:
         break;
