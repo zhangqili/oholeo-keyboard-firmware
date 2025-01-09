@@ -8,10 +8,8 @@
 #include "gpio.h"
 #include "string.h"
 #include "usbd_user.h"
-//#include "usbd_conf.h"
-//#include "usb_device.h"
-//#include "usbd_custom_hid_if.h"
 #include "analog.h"
+#include "tim.h"
 
 const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM] = {
     {
@@ -1216,4 +1214,9 @@ void keyboard_user_handler(uint8_t code)
         g_debug_enable = false;
         break;
     }
+}
+
+void rgb_flush(void)
+{
+    HAL_TIM_PWM_Start_DMA(&htim1, TIM_CHANNEL_1, (uint32_t *)g_rgb_buffer, RGB_BUFFER_LENGTH);
 }

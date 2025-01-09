@@ -10,8 +10,7 @@
 
 #define rgb_loop_queue_foreach(q, type, item) for (uint16_t __index = (q)->front; __index != (q)->rear; __index = (__index + 1) % (q)->len)\
                                               for (type *item = &((q)->data[__index]); item; item = NULL)
-#define rgb_forward_list_foreach(list, type, item) for (int16_t __index = (list)->head; __index >= 0; __index = (list)->data[__index].next)\
-                                              for (type *item = &((list)->data[__index]); item; item = NULL)
+
 #define MANHATTAN_DISTANCE(m, n) (fabsf((m)->x - (n)->x) + fabsf((m)->y - (n)->y))
 #define MANHATTAN_DISTANCE_DIRECT(x1, y1, x2, y2) (fabsf((x1) - (x2)) + fabsf((y1) - (y2)))
 
@@ -24,15 +23,21 @@ ColorRGB g_rgb_colors[RGB_NUM];
 bool g_rgb_switch = true;
 uint32_t RGB_Tick;
 
-//static RGBLoopQueue rgb_argument_queue;
+#ifdef RGB_USE_LIST_EXPERIMENTAL
 static RGBArgumentList rgb_argument_list;
-//static RGBLoopQueueElm RGB_Argument_Buffer[ARGUMENT_BUFFER_LENGTH];
 static RGBArgumentListNode RGB_Argument_List_Buffer[ARGUMENT_BUFFER_LENGTH];
+#else
+static RGBLoopQueue rgb_argument_queue;
+static RGBLoopQueueElm RGB_Argument_Buffer[ARGUMENT_BUFFER_LENGTH];
+#endif
 
 void rgb_init(void)
 {
-    //rgb_loop_queue_init(&rgb_argument_queue, RGB_Argument_Buffer, ARGUMENT_BUFFER_LENGTH);
+#ifdef RGB_USE_LIST_EXPERIMENTAL
     rgb_forward_list_init(&rgb_argument_list, RGB_Argument_List_Buffer, ARGUMENT_BUFFER_LENGTH);
+#else
+    rgb_loop_queue_init(&rgb_argument_queue, RGB_Argument_Buffer, ARGUMENT_BUFFER_LENGTH);
+#endif
     for (uint16_t i = 0; i < RGB_BUFFER_LENGTH; i++)
     {
         g_rgb_buffer[i] = NONE_PULSE;
@@ -65,29 +70,37 @@ void rgb_update(void)
     ColorRGB temp_rgb;
     float intensity;
     memset(g_rgb_colors, 0, sizeof(g_rgb_colors));
+    
+#ifdef RGB_USE_LIST_EXPERIMENTAL
     RGBArgumentListNode * last_node = NULL;
-    //rgb_loop_queue_foreach(&rgb_argument_queue, RGBLoopQueueElm, item)
     for (int16_t iterator = rgb_argument_list.head; iterator >= 0;)
     {
         RGBArgumentListNode* node = &(rgb_argument_list.data[iterator]);
         RGBArgument * item = &(node->data);
-
+#else
+    rgb_loop_queue_foreach(&rgb_argument_queue, RGBLoopQueueElm, item)
+    {
+#endif
         RGBConfig *config = g_rgb_configs + item->rgb_ptr;
         RGBLocation *location = (RGBLocation *)&g_rgb_locations[item->rgb_ptr];
         uint32_t duration = RGB_Tick - item->begin_time;
         float distance = duration * config->speed;
+#ifndef RGB_USE_LIST_EXPERIMENTAL
         if (duration > RGB_MAX_DURATION)
         {
-            //rgb_loop_queue_pop(&rgb_argument_queue);
-            //rgb_forward_list_erase_after(&rgb_argument_list, last_node);
+            rgb_loop_queue_pop(&rgb_argument_queue);
         }
+#endif
         if (MANHATTAN_DISTANCE_DIRECT(location->x, RGB_LEFT, location->y, RGB_TOP) < distance - 5 &&
             MANHATTAN_DISTANCE_DIRECT(location->x, RGB_LEFT, location->y, RGB_BOTTOM) < distance - 5 &&
             MANHATTAN_DISTANCE_DIRECT(location->x, RGB_RIGHT, location->y, RGB_TOP) < distance - 5 &&
             MANHATTAN_DISTANCE_DIRECT(location->x, RGB_RIGHT, location->y, RGB_BOTTOM) < distance - 5)
         // if (distance > 25)
         {
+#ifdef RGB_USE_LIST_EXPERIMENTAL
             FORWARD_LINK_SKIP_AND_REMOVE_THIS(iterator);
+#endif
+            continue;
         }
         switch (config->mode)
         {
@@ -158,8 +171,10 @@ void rgb_update(void)
         default:
             break;
         }
+#ifdef RGB_USE_LIST_EXPERIMENTAL
         last_node = node;
         iterator = (&rgb_argument_list)->data[iterator].next;
+#endif
     }
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
@@ -358,8 +373,12 @@ void rgb_activate(uint16_t id)
     case RGB_MODE_FADING_STRING:
     case RGB_MODE_DIAMOND_RIPPLE:
     case RGB_MODE_FADING_DIAMOND_RIPPLE:
-        //rgb_loop_queue_push(&rgb_argument_queue, a);
+    
+#ifdef RGB_USE_LIST_EXPERIMENTAL
         rgb_forward_list_push(&rgb_argument_list, a);
+#else
+        rgb_loop_queue_push(&rgb_argument_queue, a);
+#endif
         break;
     default:
         break;

@@ -304,12 +304,12 @@ void keyboard_send_report(void)
 {
     static uint32_t mouse_value;
     if (g_keyboard_send_report_enable 
-#ifndef CONTINUOUS_POLL
+#ifndef CONTINOUS_POLL
         && g_keyboard_send_flag
 #endif
     )
     {
-#ifndef CONTINUOUS_POLL
+#ifndef CONTINOUS_POLL
         g_keyboard_send_flag = false;
 #endif
         keyboard_buffer_clear();

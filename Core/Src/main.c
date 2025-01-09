@@ -416,9 +416,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if (htim->Instance == TIM7)
   {
     keyboard_scan();
-    analog_average();
-    analog_check();
-
+    for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+    {
+        g_ADC_Averages[i] = ringbuf_avg(&adc_ringbuf[i]);
+#ifdef ENABLE_FILTER
+        g_ADC_Averages[i] = adaptive_schimidt_filter(g_analog_filters+i,g_ADC_Averages[i]);
+#endif
+        if (g_keyboard_advanced_keys[i].mode != KEY_DIGITAL_MODE)
+        {
+            advanced_key_update_raw(g_keyboard_advanced_keys + i, g_ADC_Averages[i]);
+        }
+    }
     if (pulse_counter < PULSE_LEN_MS)
     {
       pulse_counter++;

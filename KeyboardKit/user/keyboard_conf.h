@@ -53,6 +53,12 @@
 #define RGB_DEFAULT_MODE        RGB_MODE_LINEAR
 #define RGB_DEFAULT_SPEED       0.03
 #define RGB_DEFAULT_COLOR_HSV   {273, 78, 99}
+#define RGB_LEFT                0.0f
+#define RGB_TOP                 4.5f
+#define RGB_RIGHT               15.0f
+#define RGB_BOTTOM              -0.5f
+//#define RGB_USE_LIST_EXPERIMENTAL
+
 
 /**********/
 /* Filter */
