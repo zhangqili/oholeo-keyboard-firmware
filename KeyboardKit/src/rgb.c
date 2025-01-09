@@ -8,9 +8,12 @@
 #include "string.h"
 #include "math.h"
 
-#define loop_queue_foreach(q, i) for (uint16_t(i) = (q)->front; (i) != (q)->rear; (i) = (i + 1) % (q)->len)
-
+#define rgb_loop_queue_foreach(q, type, item) for (uint16_t __index = (q)->front; __index != (q)->rear; __index = (__index + 1) % (q)->len)\
+                                              for (type *item = &((q)->data[__index]); item; item = NULL)
+#define rgb_forward_list_foreach(list, type, item) for (int16_t __index = (list)->head; __index >= 0; __index = (list)->data[__index].next)\
+                                              for (type *item = &((list)->data[__index]); item; item = NULL)
 #define MANHATTAN_DISTANCE(m, n) (fabsf((m)->x - (n)->x) + fabsf((m)->y - (n)->y))
+#define MANHATTAN_DISTANCE_DIRECT(x1, y1, x2, y2) (fabsf((x1) - (x2)) + fabsf((y1) - (y2)))
 
 __WEAK const uint8_t g_rgb_mapping[ADVANCED_KEY_NUM];
 __WEAK const RGBLocation g_rgb_locations[RGB_NUM];
@@ -18,15 +21,18 @@ __WEAK const RGBLocation g_rgb_locations[RGB_NUM];
 uint8_t g_rgb_buffer[RGB_BUFFER_LENGTH];
 RGBConfig g_rgb_configs[RGB_NUM];
 ColorRGB g_rgb_colors[RGB_NUM];
-RGBLoopQueue g_rgb_argument_queue;
 bool g_rgb_switch = true;
 uint32_t RGB_Tick;
 
-static RGBLoopQueueElm RGB_Argument_Buffer[ARGUMENT_BUFFER_LENGTH];
+//static RGBLoopQueue rgb_argument_queue;
+static RGBArgumentList rgb_argument_list;
+//static RGBLoopQueueElm RGB_Argument_Buffer[ARGUMENT_BUFFER_LENGTH];
+static RGBArgumentListNode RGB_Argument_List_Buffer[ARGUMENT_BUFFER_LENGTH];
 
 void rgb_init(void)
 {
-    rgb_loop_queue_init(&g_rgb_argument_queue, RGB_Argument_Buffer, ARGUMENT_BUFFER_LENGTH);
+    //rgb_loop_queue_init(&rgb_argument_queue, RGB_Argument_Buffer, ARGUMENT_BUFFER_LENGTH);
+    rgb_forward_list_init(&rgb_argument_list, RGB_Argument_List_Buffer, ARGUMENT_BUFFER_LENGTH);
     for (uint16_t i = 0; i < RGB_BUFFER_LENGTH; i++)
     {
         g_rgb_buffer[i] = NONE_PULSE;
@@ -34,6 +40,19 @@ void rgb_init(void)
 }
 
 #define COLOR_INTERVAL(key, low, up) (uint8_t)((key) < 0 ? (low) : ((key) > 1.0 ? (up) : (key) * (up)))
+#define FORWARD_LINK_SKIP_AND_REMOVE_THIS(__index)\
+            if ((__index) == rgb_argument_list.head)\
+            {\
+                rgb_forward_list_erase_after(&rgb_argument_list, NULL);\
+                (__index) = rgb_argument_list.head;\
+                continue;\
+            }\
+            else\
+            {\
+                rgb_forward_list_erase_after(&rgb_argument_list, last_node);\
+                (__index) = last_node->next;\
+                continue;\
+            }\
 
 void rgb_update(void)
 {
@@ -46,19 +65,29 @@ void rgb_update(void)
     ColorRGB temp_rgb;
     float intensity;
     memset(g_rgb_colors, 0, sizeof(g_rgb_colors));
-    loop_queue_foreach(&g_rgb_argument_queue, i)
+    RGBArgumentListNode * last_node = NULL;
+    //rgb_loop_queue_foreach(&rgb_argument_queue, RGBLoopQueueElm, item)
+    for (int16_t iterator = rgb_argument_list.head; iterator >= 0;)
     {
-        RGBConfig *config = g_rgb_configs + g_rgb_argument_queue.data[i].rgb_ptr;
-        RGBLocation *location = (RGBLocation *)&g_rgb_locations[g_rgb_argument_queue.data[i].rgb_ptr];
-        uint32_t duration = RGB_Tick - g_rgb_argument_queue.data[i].begin_time;
+        RGBArgumentListNode* node = &(rgb_argument_list.data[iterator]);
+        RGBArgument * item = &(node->data);
+
+        RGBConfig *config = g_rgb_configs + item->rgb_ptr;
+        RGBLocation *location = (RGBLocation *)&g_rgb_locations[item->rgb_ptr];
+        uint32_t duration = RGB_Tick - item->begin_time;
         float distance = duration * config->speed;
         if (duration > RGB_MAX_DURATION)
         {
-            rgb_loop_queue_pop(&g_rgb_argument_queue);
+            //rgb_loop_queue_pop(&rgb_argument_queue);
+            //rgb_forward_list_erase_after(&rgb_argument_list, last_node);
         }
-        if (distance > 20)
+        if (MANHATTAN_DISTANCE_DIRECT(location->x, RGB_LEFT, location->y, RGB_TOP) < distance - 5 &&
+            MANHATTAN_DISTANCE_DIRECT(location->x, RGB_LEFT, location->y, RGB_BOTTOM) < distance - 5 &&
+            MANHATTAN_DISTANCE_DIRECT(location->x, RGB_RIGHT, location->y, RGB_TOP) < distance - 5 &&
+            MANHATTAN_DISTANCE_DIRECT(location->x, RGB_RIGHT, location->y, RGB_BOTTOM) < distance - 5)
+        // if (distance > 25)
         {
-            continue;
+            FORWARD_LINK_SKIP_AND_REMOVE_THIS(iterator);
         }
         switch (config->mode)
         {
@@ -129,6 +158,8 @@ void rgb_update(void)
         default:
             break;
         }
+        last_node = node;
+        iterator = (&rgb_argument_list)->data[iterator].next;
     }
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
@@ -327,7 +358,8 @@ void rgb_activate(uint16_t id)
     case RGB_MODE_FADING_STRING:
     case RGB_MODE_DIAMOND_RIPPLE:
     case RGB_MODE_FADING_DIAMOND_RIPPLE:
-        rgb_loop_queue_push(&g_rgb_argument_queue, a);
+        //rgb_loop_queue_push(&rgb_argument_queue, a);
+        rgb_forward_list_push(&rgb_argument_list, a);
         break;
     default:
         break;
@@ -357,4 +389,57 @@ void rgb_loop_queue_push(RGBLoopQueue *q, RGBLoopQueueElm t)
         return;
     q->data[q->rear] = t;
     q->rear = (q->rear + 1) % (q->len);
+}
+
+void rgb_forward_list_init(RGBArgumentList* list, RGBArgumentListNode* data, uint16_t len)
+{
+    list->data = data;
+    list->head = -1;
+    list->tail = 0;
+    list->len = len;
+    for (int i = 0; i < len; i++)
+    {
+        list->data[i].next = i + 1;
+    }
+    list->data[len - 1].next = -1;
+    list->free_node = 0;
+}
+
+void rgb_forward_list_erase_after(RGBArgumentList* list, RGBArgumentListNode* data)
+{
+    int16_t target = 0;
+    if (data == NULL)
+    {
+		target = list->head;
+        if (target < 0)
+        {
+            return;
+        }
+		data = &list->data[list->head];
+        list->head = list->data[target].next;
+        list->data[target].next = list->free_node;
+        list->free_node = target;
+    }
+    else
+    {
+        target = data->next;
+        data->next = list->data[target].next;
+        list->data[target].next = list->free_node;
+        list->free_node = target;
+    }
+}
+
+void rgb_forward_list_push(RGBArgumentList* list, RGBArgument t)
+{
+    if (list->free_node == -1)
+    {
+        return;
+    }
+    int16_t new_node = list->free_node;
+    list->free_node = list->data[list->free_node].next;
+
+    list->data[new_node].data = t;
+    list->data[new_node].next = list->head;
+
+    list->head = new_node;
 }

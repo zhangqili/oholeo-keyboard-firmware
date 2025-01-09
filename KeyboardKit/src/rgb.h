@@ -70,6 +70,22 @@
 #define RGB_DEFAULT_COLOR_HSV {273, 78, 99}
 #endif
 
+#ifndef RGB_LEFT
+#define RGB_LEFT 0.0f
+#endif
+
+#ifndef RGB_TOP
+#define RGB_TOP 4.5f
+#endif
+
+#ifndef RGB_RIGHT
+#define RGB_RIGHT 15.0f
+#endif
+
+#ifndef RGB_BOTTOM
+#define RGB_BOTTOM -0.5f
+#endif
+
 typedef enum __RGBMode
 {
     RGB_MODE_FIXED,
@@ -101,11 +117,26 @@ typedef struct __RGBLocation
 
 typedef struct __RGBArgument
 {
-    uint8_t rgb_ptr;
     uint32_t begin_time;
+    uint8_t rgb_ptr;
 }RGBArgument;
 
 typedef RGBArgument RGBLoopQueueElm;
+
+typedef struct __RGBArgumentListNode
+{
+    RGBArgument data;
+    int16_t next;
+} RGBArgumentListNode;
+
+typedef struct __RGBArgumentList
+{
+    RGBArgumentListNode *data;
+    int16_t head;
+    int16_t tail;
+    int16_t len;
+    int16_t free_node;
+} RGBArgumentList;
 
 typedef struct __RGBLoopQueue
 {
@@ -118,14 +149,19 @@ typedef struct __RGBLoopQueue
 void rgb_loop_queue_init(RGBLoopQueue* q, RGBLoopQueueElm*data, uint16_t len);
 RGBLoopQueueElm rgb_loop_queue_pop(RGBLoopQueue* q);
 void rgb_loop_queue_push(RGBLoopQueue* q, RGBLoopQueueElm t);
-extern uint32_t RGB_Tick;
-//#define loop_queue_foreach(q,i) for(uint16_t (i)=(q)->front;(i)!=(q)->rear;(i)=(i+1)%(q)->len)
+
+void rgb_forward_list_init(RGBArgumentList* list, RGBArgumentListNode*data, uint16_t len);
+void rgb_forward_list_erase_after(RGBArgumentList* list, RGBArgumentListNode*data);
+void rgb_forward_list_push(RGBArgumentList* list, RGBArgument t);
 
 #define ARGUMENT_BUFFER_LENGTH 64
+
+extern uint32_t RGB_Tick;
+
 extern uint8_t g_rgb_buffer[RGB_BUFFER_LENGTH];
 extern ColorRGB g_rgb_colors[RGB_NUM];
 extern RGBConfig g_rgb_configs[RGB_NUM];
-extern RGBLoopQueue g_rgb_argument_queue;
+
 extern const uint8_t g_rgb_mapping[ADVANCED_KEY_NUM];
 extern const RGBLocation g_rgb_locations[RGB_NUM];
 extern bool g_rgb_switch;
