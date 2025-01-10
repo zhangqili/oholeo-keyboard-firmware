@@ -281,13 +281,13 @@ void hid_init(void)
     usbd_initialize(0, USB_BASE, usbd_event_handler);
 }
 
-void hid_keyboard_send(uint8_t *buffer)
+int hid_keyboard_send(uint8_t *buffer)
 {
     memcpy(send_buffer + 1, buffer, 17);
     send_buffer[0] = 1;
     if (custom_state == HID_STATE_BUSY)
     {
-        return;
+        return 1;
     }
     else
     {
@@ -295,9 +295,10 @@ void hid_keyboard_send(uint8_t *buffer)
     int ret = usbd_ep_start_write(0, CUSTOM_HID_EPIN_ADDR, send_buffer, 64);
     if (ret < 0)
     {
-        return;
+        return 1;
     }
     custom_state = HID_STATE_BUSY;
+    return 0;
 }
 
 void hid_keyboard_test()

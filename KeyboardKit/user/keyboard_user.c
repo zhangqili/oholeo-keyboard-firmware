@@ -1131,11 +1131,10 @@ static const float table[]=
     1.000000
 };
 
-void keyboard_hid_send(uint8_t*report,uint16_t len)
+int keyboard_hid_send(uint8_t*report,uint16_t len)
 {
     UNUSED(len);
-    hid_keyboard_send(report);
-    //USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,send_buffer,17+1);
+    return hid_keyboard_send(report);
 }
 
 
@@ -1147,7 +1146,7 @@ float advanced_key_normalize(AdvancedKey* key, float value)
         return table[index];
     if (index > 5000)
         return 0;
-    return 1.1;
+    return 1.0;
     /*
     if (x<0.225)
     {

@@ -300,7 +300,6 @@ void rgb_init_flash(void)
         {
             rgb_set(i, g_rgb_colors[i].r, g_rgb_colors[i].g, g_rgb_colors[i].b);
         }
-        //keyboard_delay(1);
     }
     rgb_turn_off();
 }

@@ -156,12 +156,12 @@ void keyboard_add_buffer(uint16_t keycode)
     }
 }
 
-void keyboard_buffer_send(void)
+int keyboard_buffer_send(void)
 {
 #ifdef NKRO_ENABLE
-    keyboard_NKRObuffer_send(&g_keyboard_nkro_buffer);
+    return keyboard_NKRObuffer_send(&g_keyboard_nkro_buffer);
 #else
-    keyboard_6KRObuffer_send(&g_keyboard_6kro_buffer);
+    return keyboard_6KRObuffer_send(&g_keyboard_6kro_buffer);
 #endif
 }
 
@@ -189,9 +189,9 @@ int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, uint16_t key)
     }
 }
 
-void keyboard_6KRObuffer_send(Keyboard_6KROBuffer* buf)
+int keyboard_6KRObuffer_send(Keyboard_6KROBuffer* buf)
 {
-    keyboard_hid_send(buf->buffer, sizeof(buf->buffer));
+    return keyboard_hid_send(buf->buffer, sizeof(buf->buffer));
 }
 
 void keyboard_6KRObuffer_clear(Keyboard_6KROBuffer* buf)
@@ -216,9 +216,9 @@ int keyboard_NKRObuffer_add(Keyboard_NKROBuffer*buf,uint16_t key)
     return 0;
 }
 
-void keyboard_NKRObuffer_send(Keyboard_NKROBuffer*buf)
+int keyboard_NKRObuffer_send(Keyboard_NKROBuffer*buf)
 {
-    keyboard_hid_send(buf->buffer, buf->length);
+    return keyboard_hid_send(buf->buffer, buf->length);
 }
 
 void keyboard_NKRObuffer_clear(Keyboard_NKROBuffer*buf)
@@ -323,7 +323,10 @@ void keyboard_send_report(void)
         {        
             keyboard_event_handler(MK_EVENT(g_keyboard_keys[i].id, g_keyboard_keys[i].state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
         }
-        keyboard_buffer_send();
+        if (keyboard_buffer_send())
+        {
+            g_keyboard_send_flag = true;
+        }
         if ((*(uint32_t*)&g_mouse)!=mouse_value)
         {
             mouse_buffer_send(&g_mouse);
@@ -341,10 +344,11 @@ __WEAK void keyboard_task(void)
     keyboard_send_report();
 }
 
-__WEAK void keyboard_hid_send(uint8_t *report, uint16_t len)
+__WEAK int keyboard_hid_send(uint8_t *report, uint16_t len)
 {
     UNUSED(report);
     UNUSED(len);
+    return 0;
 }
 __WEAK void keyboard_delay(uint32_t ms)
 {
