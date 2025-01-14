@@ -46,6 +46,10 @@ Memory region         Used Size  Region Size  %age Used
            FLASH:       85936 B       128 KB     65.56%
 ```
 
+### 使用Keil uVision(不推荐)
+
+使用Keil uVision打开`MDK-ARM/oholeo-keyboard-firmware.uvprojx`，工程默认使用ARM Compiler 5，推荐改为使用ARM Compiler 6
+
 ## 烧录
 
 ### SWD

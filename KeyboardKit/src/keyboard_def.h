@@ -5,7 +5,7 @@
  */
 #ifndef KEYBOARD_DEF_H
 #define KEYBOARD_DEF_H
-#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050) /* ARM Compiler V6 */
+#if defined (__ARMCC_VERSION) /* ARM Compiler */
   #ifndef __WEAK
     #define __WEAK  __attribute__((weak))
   #endif

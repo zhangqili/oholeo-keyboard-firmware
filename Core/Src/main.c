@@ -102,8 +102,17 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 // 重定向print start
-// 重定向printf start
+#if defined (__ARMCC_VERSION) /* ARM Compiler */
+int fputc(int ch, FILE *f)
+{
+  while ((USART1->ISR & USART_ISR_TXE) == 0)
+      ;
+  USART1->TDR = ch;
+  return ch;
+}
+#elif defined ( __GNUC__ ) && !defined (__CC_ARM) /* GNU Compiler */
 //_write函數在syscalls.c中， 使用__weak定义以可以直接在其他文件中定义_write函數
 __attribute__((weak)) int _write(int file, char *ptr, int len)
 {
@@ -114,6 +123,7 @@ __attribute__((weak)) int _write(int file, char *ptr, int len)
   }
   return HAL_OK;
 }
+#endif
 // 重定向print end
 
 void key_down_cb(void * k)
