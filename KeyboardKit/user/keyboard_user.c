@@ -1210,7 +1210,7 @@ void keyboard_user_handler(uint8_t code)
         global_state = 0;
         beep_switch = false;
         em_switch = false;
-        g_debug_enable = false;
+        g_keyboard_state = KEYBOARD_IDLE;
         break;
     }
 }
@@ -1218,4 +1218,9 @@ void keyboard_user_handler(uint8_t code)
 void rgb_flush(void)
 {
     HAL_TIM_PWM_Start_DMA(&htim1, TIM_CHANNEL_1, (uint32_t *)g_rgb_buffer, RGB_BUFFER_LENGTH);
+}
+
+int hid_send(uint8_t *report, uint16_t len)
+{
+    return hid_raw_send(report, len);
 }

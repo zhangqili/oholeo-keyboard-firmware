@@ -322,11 +322,11 @@ void hid_keyboard_test()
     custom_state = HID_STATE_BUSY;
 }
 
-void hid_raw_send(uint8_t *buffer, int size)
+int hid_raw_send(uint8_t *buffer, int size)
 {
     if (custom_state == HID_STATE_BUSY)
     {
-        return;
+        return 1;
     }
     else
     {
@@ -337,14 +337,15 @@ void hid_raw_send(uint8_t *buffer, int size)
     }
     else
     {
-        return;
+        return 1;
     }
 
     send_buffer[0] = 2;
     int ret = usbd_ep_start_write(0, CUSTOM_HID_EPIN_ADDR, send_buffer, 64);
     if (ret < 0)
     {
-        return;
+        return 1;
     }
     custom_state = HID_STATE_BUSY;
+    return 0;
 }

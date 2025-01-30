@@ -45,6 +45,12 @@ typedef struct
 } KeyboardEvent;
 #define MK_EVENT(id, event) ((KeyboardEvent){(id), (event)})
 
+typedef enum
+{
+    KEYBOARD_IDLE,
+    KEYBOARD_DEBUG,
+    KEYBOARD_UPLOAD_CONFIG
+} KEYBOARD_STATE;
 
 extern Key g_keyboard_keys[KEY_NUM];
 extern AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM];
@@ -56,7 +62,7 @@ extern Keyboard_6KROBuffer g_keyboard_6kro_buffer;
 extern uint8_t g_keyboard_knob_flag;
 extern volatile bool g_keyboard_send_report_enable;
 
-extern volatile bool g_debug_enable;
+extern KEYBOARD_STATE g_keyboard_state;
 extern volatile bool g_keyboard_send_flag;
 
 extern uint8_t g_current_config_index;

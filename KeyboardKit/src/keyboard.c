@@ -33,7 +33,7 @@ Keyboard_6KROBuffer g_keyboard_6kro_buffer;
 uint8_t g_keyboard_knob_flag;
 volatile bool g_keyboard_send_report_enable = true;
 
-volatile bool g_debug_enable;
+KEYBOARD_STATE g_keyboard_state;
 volatile bool g_keyboard_send_flag;
 
 uint8_t g_current_config_index;
@@ -100,7 +100,7 @@ void keyboard_event_handler(KeyboardEvent event)
                 keyboard_jump_to_bootloader();
                 break;
             case SYSTEM_DEBUG:
-                g_debug_enable = !g_debug_enable;
+                g_keyboard_state = (g_keyboard_state != KEYBOARD_DEBUG);
                 break;
             case SYSTEM_RESET_TO_DEFAULT:
                 keyboard_reset_to_default();
@@ -255,7 +255,7 @@ void keyboard_reset_to_default(void)
 void keyboard_factory_reset(void)
 {
     keyboard_reset_to_default();
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < STORAGE_CONFIG_FILE_NUM; i++)
     {
         storage_save_config(i);
     }
@@ -292,7 +292,7 @@ void keyboard_save(void)
 
 void keyboard_set_config_index(uint8_t index)
 {
-    if (index < 4)
+    if (index < STORAGE_CONFIG_FILE_NUM)
     {
         g_current_config_index = index;
     }

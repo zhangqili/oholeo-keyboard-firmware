@@ -153,3 +153,5 @@ $RECYCLE.BIN/
 
 build/
 .idea/
+
+.vscode/

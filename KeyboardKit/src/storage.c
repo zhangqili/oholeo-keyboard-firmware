@@ -35,7 +35,7 @@ uint8_t storage_read_config_index(void)
     lfs_file_rewind(&g_lfs, &lfs_file);
     lfs_file_read(&g_lfs, &lfs_file, &index, sizeof(index));
     lfs_file_close(&g_lfs, &lfs_file);
-    if (index >= 4)
+    if (index >= STORAGE_CONFIG_FILE_NUM)
     {
         index = 0;
     }

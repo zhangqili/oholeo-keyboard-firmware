@@ -8,6 +8,10 @@
 
 #include "stdint.h"
 
+#ifndef STORAGE_CONFIG_FILE_NUM
+#define STORAGE_CONFIG_FILE_NUM 4
+#endif
+
 int storage_mount(void);
 void storage_unmount(void);
 uint8_t storage_read_config_index(void);

@@ -48,7 +48,7 @@ extern uint32_t g_usb_keyboard_interval;
 void hid_init(void);
 int hid_keyboard_send(uint8_t*buffer);
 void hid_mouse_send(uint8_t*buffer);
-void hid_raw_send(uint8_t*buffer,int size);
+int hid_raw_send(uint8_t*buffer,int size);
 void hid_keyboard_test(void);
 void hid_mouse_test(void);
 

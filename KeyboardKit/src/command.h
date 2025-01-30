@@ -12,5 +12,8 @@
 extern const uint8_t command_advanced_key_mapping[ADVANCED_KEY_NUM];
 
 void command_prase(uint8_t *buf,uint8_t len);
+void start_load_cargo(void);
+int load_cargo(void);
+int hid_send(uint8_t *report, uint16_t len);
 
 #endif

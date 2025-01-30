@@ -40,6 +40,7 @@
 #include "sfud.h"
 #include "keyboard_def.h"
 #include "usbd_user.h"
+#include "command.h"
 
 /* USER CODE END Includes */
 
@@ -458,12 +459,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     //{
     //  global_state = JOYSTICK;
     //}
-    if (g_debug_enable)
+    switch (g_keyboard_state)
     {
+    case KEYBOARD_DEBUG:
       static uint32_t report_num = 0;
       memset(report_buffer,0,sizeof(report_buffer));
       report_buffer[0] = 0x02;
-      report_buffer[1] = 0xFF;
+      report_buffer[1] = 0xFE;
       for (int i = 0; i < 6; i++)
       {
         uint8_t key_index = (report_num + i) % 64;
@@ -473,12 +475,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         memcpy(report_buffer + 4 + 10 * i + 4, &g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].value, sizeof(float));
       }
       report_num += 6;
-      hid_raw_send(report_buffer+1,63);;
-    }
-    else
-    {
+      hid_send(report_buffer+1,63);
+      break;
+    case KEYBOARD_UPLOAD_CONFIG:
+      if (!load_cargo())
+      {
+        g_keyboard_state = KEYBOARD_IDLE;
+      }
+      break;
+    default:
       keyboard_post_process();
       keyboard_send_report();
+      break;
     }
     /*
     switch (global_state)
