@@ -26,18 +26,16 @@ uint32_t RGB_Tick;
 #ifdef RGB_USE_LIST_EXPERIMENTAL
 static RGBArgumentList rgb_argument_list;
 static RGBArgumentListNode RGB_Argument_List_Buffer[ARGUMENT_BUFFER_LENGTH];
-#else
+#endif
 static RGBLoopQueue rgb_argument_queue;
 static RGBLoopQueueElm RGB_Argument_Buffer[ARGUMENT_BUFFER_LENGTH];
-#endif
 
 void rgb_init(void)
 {
 #ifdef RGB_USE_LIST_EXPERIMENTAL
     rgb_forward_list_init(&rgb_argument_list, RGB_Argument_List_Buffer, ARGUMENT_BUFFER_LENGTH);
-#else
-    rgb_loop_queue_init(&rgb_argument_queue, RGB_Argument_Buffer, ARGUMENT_BUFFER_LENGTH);
 #endif
+    rgb_loop_queue_init(&rgb_argument_queue, RGB_Argument_Buffer, ARGUMENT_BUFFER_LENGTH);
     for (uint16_t i = 0; i < RGB_BUFFER_LENGTH; i++)
     {
         g_rgb_buffer[i] = NONE_PULSE;
@@ -72,6 +70,11 @@ void rgb_update(void)
     memset(g_rgb_colors, 0, sizeof(g_rgb_colors));
     
 #ifdef RGB_USE_LIST_EXPERIMENTAL
+    rgb_loop_queue_foreach(&rgb_argument_queue, RGBLoopQueueElm, item)
+    {
+        rgb_forward_list_push(&rgb_argument_list, *item);
+        rgb_loop_queue_pop(&rgb_argument_queue);
+    }
     RGBArgumentListNode * last_node = NULL;
     for (int16_t iterator = rgb_argument_list.head; iterator >= 0;)
     {
@@ -372,12 +375,7 @@ void rgb_activate(uint16_t id)
     case RGB_MODE_FADING_STRING:
     case RGB_MODE_DIAMOND_RIPPLE:
     case RGB_MODE_FADING_DIAMOND_RIPPLE:
-    
-#ifdef RGB_USE_LIST_EXPERIMENTAL
-        rgb_forward_list_push(&rgb_argument_list, a);
-#else
         rgb_loop_queue_push(&rgb_argument_queue, a);
-#endif
         break;
     default:
         break;
