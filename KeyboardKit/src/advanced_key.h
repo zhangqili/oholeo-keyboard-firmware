@@ -11,8 +11,20 @@
 
 #ifdef USE_FLOAT_VALUE
 typedef float AnalogValue;
+#ifndef ANALOG_VALUE_MAX
+#define ANALOG_VALUE_MAX 1.0f
+#endif
+#ifndef ANALOG_VALUE_MIN
+#define ANALOG_VALUE_MIN 0.0f
+#endif
 #else
-typedef uint AnalogValue;
+typedef uint16_t AnalogValue;
+#ifndef ANALOG_VALUE_MAX
+#define ANALOG_VALUE_MAX 65535
+#endif
+#ifndef ANALOG_VALUE_MIN
+#define ANALOG_VALUE_MIN 0
+#endif
 #endif
 
 typedef enum

@@ -1138,15 +1138,15 @@ int keyboard_hid_send(uint8_t*report,uint16_t len)
 }
 
 
-float advanced_key_normalize(AdvancedKey* advanced_key, float value)
+AnalogValue advanced_key_normalize(AdvancedKey* advanced_key, AnalogValue value)
 {
     float x = (advanced_key->upper_bound - value) / (advanced_key->upper_bound - advanced_key->lower_bound);
     uint16_t index = x * 1000.0f;
     if (index < 1000)
-        return table[index];
+        return (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN)*table[index];
     if (index > 5000)
-        return 0;
-    return 1.0;
+        return ANALOG_VALUE_MIN;
+    return ANALOG_VALUE_MAX;
     /*
     if (x<0.225)
     {

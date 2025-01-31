@@ -42,7 +42,7 @@ void rgb_init(void)
     }
 }
 
-#define COLOR_INTERVAL(key, low, up) (uint8_t)((key) < 0 ? (low) : ((key) > 1.0 ? (up) : (key) * (up)))
+#define COLOR_INTERVAL(key, low, up) (uint8_t)((key) < 0 ? (low) : ((key) > ANALOG_VALUE_MAX ? (up) : (key) * (up)))
 #define FORWARD_LINK_SKIP_AND_REMOVE_THIS(__index)\
             if ((__index) == rgb_argument_list.head)\
             {\
@@ -184,7 +184,7 @@ void rgb_update(void)
         uint8_t rgb_index = g_rgb_mapping[g_keyboard_advanced_keys[i].key.id];
         intensity = g_keyboard_advanced_keys[i].value < g_keyboard_advanced_keys[i].upper_deadzone
                         ? 0
-                    : g_keyboard_advanced_keys[i].value > 1.0
+                    : g_keyboard_advanced_keys[i].value > ANALOG_VALUE_MAX
                         ? 1.0
                         : g_keyboard_advanced_keys[i].value;
         switch (g_rgb_configs[rgb_index].mode)

@@ -84,8 +84,8 @@ void dynamic_key_rs_update(DynamicKey*dynamic_key, AdvancedKey*key)
     {
         if (((key1->value > key2->value)&&
         (key1->value > key1->upper_deadzone)) || 
-        ((key1->value>= (1.0 - key1->lower_deadzone))&&
-        (key2->value>= (1.0 - key2->lower_deadzone))))
+        ((key1->value>= (ANALOG_VALUE_MAX - key1->lower_deadzone))&&
+        (key2->value>= (ANALOG_VALUE_MAX - key2->lower_deadzone))))
         {
             dynamic_key_rs->key1_state = true;
         }
@@ -94,8 +94,8 @@ void dynamic_key_rs_update(DynamicKey*dynamic_key, AdvancedKey*key)
     {
         if (((key1->value < key2->value)&&
         (key2->value > key2->upper_deadzone)) || 
-        ((key1->value>= (1.0 - key1->lower_deadzone))&&
-        (key2->value>= (1.0 - key2->lower_deadzone))))
+        ((key1->value>= (ANALOG_VALUE_MAX - key1->lower_deadzone))&&
+        (key2->value>= (ANALOG_VALUE_MAX - key2->lower_deadzone))))
         {
             dynamic_key_rs->key2_state = true;
         }

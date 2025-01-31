@@ -34,7 +34,7 @@ void advanced_key_update(AdvancedKey* advanced_key, AnalogValue value)
                 advanced_key->minimum = advanced_key->value;
                 break;
             }
-            if (advanced_key->value >= 1.0 - advanced_key->lower_deadzone)
+            if (advanced_key->value >= ANALOG_VALUE_MAX - advanced_key->lower_deadzone)
             {
                 state = true;
                 advanced_key->maximum = advanced_key->value;
@@ -110,7 +110,7 @@ void advanced_key_update_raw(AdvancedKey* advanced_key, AnalogValue value)
             advanced_key->lower_bound = value;
             break;
         }
-        advanced_key_update(advanced_key, 0.0f);
+        advanced_key_update(advanced_key, ANALOG_VALUE_MIN);
         return;
     default:
         break;
@@ -128,7 +128,7 @@ void advanced_key_update_state(AdvancedKey* advanced_key, bool state)
 
 __WEAK AnalogValue advanced_key_normalize(AdvancedKey* advanced_key, AnalogValue value)
 {
-    return (advanced_key->upper_bound - value) / (advanced_key->upper_bound - advanced_key->lower_bound);
+    return  (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN) * (advanced_key->upper_bound - value) / (advanced_key->upper_bound - advanced_key->lower_bound);
 }
 
 void advanced_key_set_range(AdvancedKey* advanced_key, AnalogValue upper, AnalogValue lower)
