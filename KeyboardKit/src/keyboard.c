@@ -7,7 +7,7 @@
 #include "analog.h"
 #include "keyboard_conf.h"
 #include "rgb.h"
-#include "action.h"
+#include "dynamic_key.h"
 #include "filter.h"
 #include "mouse.h"
 #include "record.h"
@@ -20,9 +20,11 @@ __WEAK const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 __WEAK AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM];
 __WEAK Key g_keyboard_keys[KEY_NUM];
 
-Action *g_keyboard_actions[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
-
 uint16_t g_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
+
+uint8_t g_keyboard_dynamic_keys[DYNAMIC_KEY_NUM][44];
+
+uint8_t g_keyboard_led_state;
 
 #ifdef NKRO_ENABLE
 Keyboard_NKROBuffer g_keyboard_nkro_buffer;
@@ -57,19 +59,25 @@ uint16_t keyboard_get_keycode(uint8_t id)
     return KEY_NO_EVENT;
 }
 
+
+KeyboardEvent keyboard_make_event(Key*key, uint8_t event)
+{
+    if (event == KEYBOARD_EVENT_KEY_DOWN)
+        layer_cache_set(key->id, g_current_layer);
+    uint16_t keycode = keyboard_get_keycode(key->id);
+    return MK_EVENT(keycode, event);
+}
+
 void keyboard_event_handler(KeyboardEvent event)
 {
-    uint16_t keycode = 0;
     switch (event.event)
     {
     case KEYBOARD_EVENT_KEY_UP:
         g_keyboard_send_flag = true;
-        //layer_cache_set(event.id, g_current_layer);
-        keycode = keyboard_get_keycode(event.id);
-        switch (keycode & 0xFF)
+        switch (event.keycode & 0xFF)
         {
         case LAYER_CONTROL:
-            layer_control(keycode,event.event);
+            layer_control(event.keycode,event.event);
             break;
         default:
             break;
@@ -77,15 +85,13 @@ void keyboard_event_handler(KeyboardEvent event)
         break;
     case KEYBOARD_EVENT_KEY_DOWN:
         g_keyboard_send_flag = true;
-        layer_cache_set(event.id, g_current_layer);
-        keycode = keyboard_get_keycode(event.id);
-        switch (keycode & 0xFF)
+        switch (event.keycode & 0xFF)
         {
         case LAYER_CONTROL:
-            layer_control(keycode,event.event);     
+            layer_control(event.keycode,event.event);
             break;
         case KEY_SYSTEM:
-            switch ((keycode >> 8) & 0xFF)
+            switch ((event.keycode >> 8) & 0xFF)
             {
             case SYSTEM_RESET:
                 keyboard_system_reset();
@@ -109,22 +115,21 @@ void keyboard_event_handler(KeyboardEvent event)
             case SYSTEM_CONFIG1:
             case SYSTEM_CONFIG2:
             case SYSTEM_CONFIG3:
-                keyboard_set_config_index((keycode >> 8) & 0x0F);
+                keyboard_set_config_index((event.keycode >> 8) & 0x0F);
                 break;
             default:
                 break;
             }       
             break;
         case KEY_USER:
-            keyboard_user_handler((keycode >> 8) & 0xFF);
+            keyboard_user_handler((event.keycode >> 8) & 0xFF);
             break;
         default:
             break;
         }
         break;
     case KEYBOARD_EVENT_KEY_TRUE:
-        keycode = keyboard_get_keycode(event.id);
-        keyboard_add_buffer(keycode);
+        keyboard_add_buffer(event.keycode);
         break;
     case KEYBOARD_EVENT_KEY_FALSE:
         break;
@@ -149,6 +154,9 @@ void keyboard_add_buffer(uint16_t keycode)
         {
         case MOUSE_COLLECTION:
             mouse_add_buffer(keycode >> 8);
+            break;
+        case DYNAMIC_KEY:
+            dynamic_key_add_buffer(g_keyboard_dynamic_keys[keycode >> 8]);
             break;
         default:
             break;
@@ -317,11 +325,11 @@ void keyboard_send_report(void)
 
         for (int i = 0; i < ADVANCED_KEY_NUM; i++)
         {
-            keyboard_event_handler(MK_EVENT(g_keyboard_advanced_keys[i].key.id, g_keyboard_advanced_keys[i].key.state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
+            keyboard_event_handler(keyboard_make_event(&g_keyboard_advanced_keys[i].key, g_keyboard_advanced_keys[i].key.state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
         }
         for (int i = 0; i < KEY_NUM; i++)
         {        
-            keyboard_event_handler(MK_EVENT(g_keyboard_keys[i].id, g_keyboard_keys[i].state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
+            keyboard_event_handler(keyboard_make_event(&g_keyboard_keys[i], g_keyboard_keys[i].state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
         }
         if (keyboard_buffer_send())
         {
@@ -362,11 +370,11 @@ void keyboard_key_update(Key *key, bool state)
 {
     if (!key->state && state)
     {
-        keyboard_event_handler(MK_EVENT(key->id, KEYBOARD_EVENT_KEY_DOWN));
+        keyboard_event_handler(keyboard_make_event(key, KEYBOARD_EVENT_KEY_DOWN));
     }
     if (key->state && !state)
     {
-        keyboard_event_handler(MK_EVENT(key->id, KEYBOARD_EVENT_KEY_UP));
+        keyboard_event_handler(keyboard_make_event(key, KEYBOARD_EVENT_KEY_UP));
     }
     key_update(key, state);
 }
@@ -375,7 +383,7 @@ void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
 {
     if (!key->key.state && state)
     {
-        keyboard_event_handler(MK_EVENT(key->key.id, KEYBOARD_EVENT_KEY_DOWN));
+        keyboard_event_handler(keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_DOWN));
 #ifdef ENABLE_RGB
         rgb_activate(key->key.id);
 #endif
@@ -388,7 +396,13 @@ void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
     }
     if (key->key.state && !state)
     {
-        keyboard_event_handler(MK_EVENT(key->key.id, KEYBOARD_EVENT_KEY_UP));
+        keyboard_event_handler(keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_UP));
+    }
+    const uint16_t keycode = keyboard_get_keycode(key->key.id);
+    if ((keycode & 0xFF)==DYNAMIC_KEY)
+    {
+        const uint8_t dynamic_key_index = (keycode>>8)&0xFF;
+        dynamic_key_update(g_keyboard_dynamic_keys[dynamic_key_index], key);
     }
     advanced_key_update_state(key, state);
 }

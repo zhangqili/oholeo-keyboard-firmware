@@ -193,6 +193,7 @@ enum USB_HID_KEYCODES {
   //Reserved b5-DF
   MOUSE_COLLECTION = 0xa5,
   LAYER_CONTROL = 0xa6,
+  DYNAMIC_KEY = 0xa7,
   FN = 0xB0,
   KEY_USER = 0xFD,
   KEY_SYSTEM = 0xFE,

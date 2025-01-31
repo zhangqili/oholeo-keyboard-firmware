@@ -12,6 +12,7 @@
 #include "keyboard_def.h"
 #include "layer.h"
 #include "keycode.h"
+#include "dynamic_key.h"
 
 #define KEYBINDING(keycode, modifier) (((modifier) << 8) | (keycode))
 #define KEY_KEYCODE(binding) ((binding) & 0xFF)
@@ -40,10 +41,10 @@ typedef enum
 
 typedef struct
 {
-    uint16_t id;
+    uint16_t keycode;
     uint8_t event;
 } KeyboardEvent;
-#define MK_EVENT(id, event) ((KeyboardEvent){(id), (event)})
+#define MK_EVENT(keycode, event) ((KeyboardEvent){(keycode), (event)})
 
 typedef enum
 {
@@ -56,6 +57,10 @@ extern Key g_keyboard_keys[KEY_NUM];
 extern AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM];
 extern const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 extern uint16_t g_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
+
+extern uint8_t g_keyboard_dynamic_keys[DYNAMIC_KEY_NUM][44];
+
+extern uint8_t g_keyboard_led_state;
 
 extern Keyboard_6KROBuffer g_keyboard_6kro_buffer;
 

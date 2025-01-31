@@ -25,4 +25,8 @@
 #define UNUSED(X) (void)X      /* To avoid gcc/g++ warnings */
 #endif /* UNUSED */
 
+#ifndef BIT
+#define BIT(x)  (1UL << (x))
+#endif
+
 #endif //KEYBOARD_DEF_H

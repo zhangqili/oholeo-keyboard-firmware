@@ -8,7 +8,6 @@
 #include "rgb.h"
 #include "analog.h"
 #include "advanced_key.h"
-#include "layer.h"
 
 uint16_t g_ADC_Conversion_Count;
 AnalogValue g_ADC_Averages[ADVANCED_KEY_NUM];

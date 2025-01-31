@@ -1138,9 +1138,9 @@ int keyboard_hid_send(uint8_t*report,uint16_t len)
 }
 
 
-float advanced_key_normalize(AdvancedKey* key, float value)
+float advanced_key_normalize(AdvancedKey* advanced_key, float value)
 {
-    float x = (key->upper_bound - value) / (key->upper_bound - key->lower_bound);
+    float x = (advanced_key->upper_bound - value) / (advanced_key->upper_bound - advanced_key->lower_bound);
     uint16_t index = x * 1000.0f;
     if (index < 1000)
         return table[index];
@@ -1206,8 +1206,6 @@ void keyboard_user_handler(uint8_t code)
         em_switch = !em_switch;
         break;
     default:
-        extern uint8_t global_state;
-        global_state = 0;
         beep_switch = false;
         em_switch = false;
         g_keyboard_state = KEYBOARD_IDLE;
