@@ -401,8 +401,12 @@ void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
     const uint16_t keycode = keyboard_get_keycode(key->key.id);
     if ((keycode & 0xFF)==DYNAMIC_KEY)
     {
+        key->key.state = true;
         const uint8_t dynamic_key_index = (keycode>>8)&0xFF;
         dynamic_key_update(g_keyboard_dynamic_keys[dynamic_key_index], key);
     }
-    advanced_key_update_state(key, state);
+    else
+    {
+        advanced_key_update_state(key, state);
+    }
 }

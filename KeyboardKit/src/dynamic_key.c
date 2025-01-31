@@ -6,6 +6,7 @@
 
 
 #include "dynamic_key.h"
+#include "command.h"
 #include "keyboard.h"
 
 static uint8_t g_keyboard_dynamic_keys_length;
@@ -76,44 +77,52 @@ void dynamic_key_add_buffer(DynamicKey*dynamic_key)
 void dynamic_key_rs_update(DynamicKey*dynamic_key, AdvancedKey*key)
 {
     DynamicKeyRappySnappy*dynamic_key_rs=(DynamicKeyRappySnappy*)dynamic_key;
-    AdvancedKey*key1 = &g_keyboard_advanced_keys[dynamic_key_rs->key1_id];
-    AdvancedKey*key2 = &g_keyboard_advanced_keys[dynamic_key_rs->key2_id];
-    uint8_t last_key1_state = dynamic_key_rs->key1_state;
-    uint8_t last_key2_state = dynamic_key_rs->key2_state;
+    AdvancedKey*key1 = &g_keyboard_advanced_keys[command_advanced_key_mapping[dynamic_key_rs->key1_id]];
+    AdvancedKey*key2 = &g_keyboard_advanced_keys[command_advanced_key_mapping[dynamic_key_rs->key2_id]];
     if (key->key.id == dynamic_key_rs->key1_id)
     {
+        uint8_t last_key1_state = dynamic_key_rs->key1_state;
         if (((key1->value > key2->value)&&
-        (key1->value > key1->upper_deadzone)) || 
+        (key1->value > key1->upper_deadzone)) ||
         ((key1->value>= (ANALOG_VALUE_MAX - key1->lower_deadzone))&&
         (key2->value>= (ANALOG_VALUE_MAX - key2->lower_deadzone))))
         {
             dynamic_key_rs->key1_state = true;
         }
+        else
+        {
+            dynamic_key_rs->key1_state = false;
+        }
+        if (dynamic_key_rs->key1_state && !last_key1_state)
+        {
+            keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_DOWN));
+        }
+        if (!dynamic_key_rs->key1_state && last_key1_state)
+        {
+            keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_UP));
+        }
     }
     else if  (key->key.id == dynamic_key_rs->key2_id)
     {
+        uint8_t last_key2_state = dynamic_key_rs->key2_state;
         if (((key1->value < key2->value)&&
-        (key2->value > key2->upper_deadzone)) || 
+        (key2->value > key2->upper_deadzone)) ||
         ((key1->value>= (ANALOG_VALUE_MAX - key1->lower_deadzone))&&
         (key2->value>= (ANALOG_VALUE_MAX - key2->lower_deadzone))))
         {
             dynamic_key_rs->key2_state = true;
         }
-    }
-    if (dynamic_key_rs->key1_state && !last_key1_state)
-    {
-        keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_DOWN));
-    }
-    if (!dynamic_key_rs->key1_state && last_key1_state)
-    {
-        keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_UP));
-    }
-    if (dynamic_key_rs->key2_state && !last_key2_state)
-    {
-        keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_DOWN));
-    }
-    if (!dynamic_key_rs->key2_state && last_key2_state)
-    {
-        keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_UP));
+        else
+        {
+            dynamic_key_rs->key2_state = false;
+        }
+        if (dynamic_key_rs->key2_state && !last_key2_state)
+        {
+            keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_DOWN));
+        }
+        if (!dynamic_key_rs->key2_state && last_key2_state)
+        {
+            keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_UP));
+        }
     }
 }

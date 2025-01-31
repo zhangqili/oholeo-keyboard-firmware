@@ -31,7 +31,6 @@ typedef struct __DynamicKeyStroke4x4
     AnalogValue press_fully_distance;
     AnalogValue release_begin_distance;
     AnalogValue release_fully_distance;
-    AnalogValue last_value;
     uint8_t key_state;
 } DynamicKeyStroke4x4;
 
@@ -51,10 +50,10 @@ typedef struct __attribute__((packed))  __DynamicKeyRappySnappy
 {
     DynamicKey type;
     uint16_t key1_id;
-    uint16_t key2_id;
     uint16_t key1_binding;
-    uint16_t key2_binding;
     bool key1_state;
+    uint16_t key2_id;
+    uint16_t key2_binding;
     bool key2_state;
 } DynamicKeyRappySnappy;
 
