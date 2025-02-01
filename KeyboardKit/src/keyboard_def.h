@@ -29,4 +29,20 @@
 #define BIT(x)  (1UL << (x))
 #endif
 
+#ifndef BIT_SET
+#define BIT_SET(value, bit) ((value) |= BIT(bit))
+#endif
+
+#ifndef BIT_RESET
+#define BIT_RESET(value, bit) ((value) &= ~BIT(bit))
+#endif
+
+#ifndef BIT_TOGGLE
+#define BIT_TOGGLE(value, bit) ((value) ^= BIT(bit))
+#endif
+
+#ifndef BIT_GET
+#define BIT_GET(value, bit) ((value) & (BIT(bit)))
+#endif
+
 #endif //KEYBOARD_DEF_H

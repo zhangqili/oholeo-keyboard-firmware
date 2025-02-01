@@ -58,9 +58,11 @@ extern AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM];
 extern const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 extern uint16_t g_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 
-extern uint8_t g_keyboard_dynamic_keys[DYNAMIC_KEY_NUM][44];
+extern uint8_t g_keyboard_dynamic_keys[DYNAMIC_KEY_NUM][64];
 
 extern uint8_t g_keyboard_led_state;
+
+extern uint32_t g_keyboard_tick;
 
 extern Keyboard_6KROBuffer g_keyboard_6kro_buffer;
 

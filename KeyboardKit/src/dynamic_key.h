@@ -31,6 +31,8 @@ typedef struct __DynamicKeyStroke4x4
     AnalogValue press_fully_distance;
     AnalogValue release_begin_distance;
     AnalogValue release_fully_distance;
+    AnalogValue value;
+    uint32_t key_end_time[4];
     uint8_t key_state;
 } DynamicKeyStroke4x4;
 

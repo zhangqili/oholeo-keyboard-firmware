@@ -6,6 +6,7 @@
 #include "layer.h"
 #include "keycode.h"
 #include "key.h"
+#include "keyboard_def.h"
 
 uint8_t g_layer_cache[ADVANCED_KEY_NUM + KEY_NUM];
 uint8_t g_current_layer;
@@ -53,7 +54,7 @@ uint8_t layer_get(void)
 {
     for (int i = 15; i > 0; i--)
     {
-        if (layer_state & (1 << i))
+        if (BIT_GET(layer_state,i))
         {
             return i;
         }
@@ -63,19 +64,19 @@ uint8_t layer_get(void)
 
 void layer_set(uint8_t layer)
 {
-    layer_state |= 1 << layer;
+    BIT_SET(layer_state,layer);
     g_current_layer = layer_get();
 }
 
 void layer_reset(uint8_t layer)
 {
-    layer_state &= (~(1 << layer));
+    BIT_RESET(layer_state,layer);
     g_current_layer = layer_get();
 }
 
 void layer_toggle(uint8_t layer)
 {
-    layer_state ^= 1 << layer;
+    BIT_TOGGLE(layer_state,layer);
     g_current_layer = layer_get();
 }
 

@@ -22,9 +22,11 @@ __WEAK Key g_keyboard_keys[KEY_NUM];
 
 uint16_t g_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 
-uint8_t g_keyboard_dynamic_keys[DYNAMIC_KEY_NUM][44];
+uint8_t g_keyboard_dynamic_keys[DYNAMIC_KEY_NUM][64];
 
 uint8_t g_keyboard_led_state;
+
+uint32_t g_keyboard_tick;
 
 #ifdef NKRO_ENABLE
 Keyboard_NKROBuffer g_keyboard_nkro_buffer;
