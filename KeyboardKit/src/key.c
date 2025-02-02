@@ -5,7 +5,6 @@
  */
 
 #include "key.h"
-#include "keyboard_def.h"
 
 void key_update(Key* key,bool state)
 {

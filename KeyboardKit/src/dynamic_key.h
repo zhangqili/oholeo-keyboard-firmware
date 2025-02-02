@@ -10,6 +10,7 @@
 #include "stddef.h"
 #include "stdbool.h"
 #include "key.h"
+#include "keycode.h"
 #include "advanced_key.h"
 
 #define DYNAMIC_KEY_NUM 32
@@ -34,7 +35,7 @@ enum
 typedef struct __DynamicKeyStroke4x4
 {
     DynamicKeyType type;
-    uint16_t key_binding[4];
+    Keycode key_binding[4];
     uint16_t key_control[4];
     AnalogValue press_begin_distance;
     AnalogValue press_fully_distance;
@@ -48,7 +49,7 @@ typedef struct __DynamicKeyStroke4x4
 typedef struct __DynamicKeyModTap
 {
     DynamicKeyType type;
-    uint16_t key_binding[2];
+    Keycode key_binding[2];
     uint32_t duration;
     uint32_t begin_time;
     uint32_t end_time;
@@ -58,7 +59,7 @@ typedef struct __DynamicKeyModTap
 typedef struct __DynamicKeyToggleKey
 {
     DynamicKeyType type;
-    uint16_t key_binding;
+    Keycode key_binding;
     bool state;
 } DynamicKeyToggleKey;
 
@@ -66,9 +67,9 @@ typedef struct __attribute__((packed))  __DynamicKeyRappySnappy
 {
     DynamicKeyType type;
     uint16_t key1_id;
-    uint16_t key1_binding;
+    Keycode key1_binding;
     uint16_t key2_id;
-    uint16_t key2_binding;
+    Keycode key2_binding;
     bool key1_state;
     bool key2_state;
     bool trigger_state;
@@ -81,10 +82,10 @@ typedef union __DynamicKey
     DynamicKeyModTap mt;
     DynamicKeyToggleKey tk;
     DynamicKeyRappySnappy rs;
-    uint32_t aligned_buffer[16];
+    uint32_t aligned_buffer[15];
 } DynamicKey;
 
-void dynamic_key_update(DynamicKey*key, AdvancedKey*advanced_key, bool state);
+void dynamic_key_update(DynamicKey*dynamic_key, AdvancedKey*advanced_key, bool state);
 void dynamic_key_add_buffer(DynamicKey*dynamic_key);
 void dynamic_key_s_update (DynamicKey*dynamic_key, AdvancedKey*key, bool state);
 void dynamic_key_mt_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state);

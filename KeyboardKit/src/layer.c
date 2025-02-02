@@ -12,7 +12,7 @@ uint8_t g_layer_cache[ADVANCED_KEY_NUM + KEY_NUM];
 uint8_t g_current_layer;
 static uint16_t layer_state;
 
-void layer_control(uint16_t keycode, uint8_t event)
+void layer_control(Keycode keycode, uint8_t event)
 {
     uint8_t layer = (keycode >> 8 & 0x0F);
     if (event == KEY_EVENT_DOWN)

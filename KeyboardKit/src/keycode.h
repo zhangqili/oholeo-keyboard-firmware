@@ -6,6 +6,10 @@
 #ifndef KEYCODE_H_
 #define KEYCODE_H_
 
+#include "stdint.h"
+
+typedef uint16_t Keycode;
+
 enum LAYER_CONTROL_KEYCODE {
   LAYER_MOMENTARY = 0x00,
   LAYER_TURN_ON = 0x01,

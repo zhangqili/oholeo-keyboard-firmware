@@ -18,8 +18,6 @@
 #define KEY_KEYCODE(binding) ((binding) & 0xFF)
 #define KEY_MODIFIER(binding) (((binding) >> 8) & 0xFF)
 
-typedef uint16_t KeyBinding;
-
 typedef struct
 {
     uint8_t buffer[8];
@@ -43,7 +41,7 @@ typedef enum
 
 typedef struct
 {
-    uint16_t keycode;
+    Keycode keycode;
     uint8_t event;
 } KeyboardEvent;
 #define MK_EVENT(keycode, event) ((KeyboardEvent){(keycode), (event)})
@@ -57,8 +55,8 @@ typedef enum
 
 extern Key g_keyboard_keys[KEY_NUM];
 extern AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM];
-extern const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
-extern uint16_t g_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
+extern const Keycode g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
+extern Keycode g_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 
 extern DynamicKey g_keyboard_dynamic_keys[DYNAMIC_KEY_NUM];
 
@@ -78,18 +76,18 @@ extern uint8_t g_current_config_index;
 
 void keyboard_event_handler(KeyboardEvent event);
 
-uint16_t keyboard_get_keycode(uint8_t id);
-void keyboard_add_buffer(uint16_t keycode);
+Keycode keyboard_get_keycode(uint8_t id);
+void keyboard_add_buffer(Keycode keycode);
 
 int keyboard_buffer_send(void);
 void keyboard_buffer_clear(void);
 
-int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, uint16_t key);
+int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, Keycode keycode);
 int keyboard_6KRObuffer_send(Keyboard_6KROBuffer *buf);
 void keyboard_6KRObuffer_clear(Keyboard_6KROBuffer *buf);
 
 void keyboard_NKRObuffer_init(Keyboard_NKROBuffer*buf,uint8_t* data_buf,uint8_t length);
-int keyboard_NKRObuffer_add(Keyboard_NKROBuffer*buf,uint16_t key);
+int keyboard_NKRObuffer_add(Keyboard_NKROBuffer*buf,Keycode keycode);
 int keyboard_NKRObuffer_send(Keyboard_NKROBuffer*buf);
 void keyboard_NKRObuffer_clear(Keyboard_NKROBuffer*buf);
 

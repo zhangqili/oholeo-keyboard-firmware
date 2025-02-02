@@ -8,7 +8,6 @@
 #include "keyboard_conf.h"
 #include "rgb.h"
 #include "dynamic_key.h"
-#include "filter.h"
 #include "mouse.h"
 #include "record.h"
 #include "storage.h"
@@ -16,7 +15,7 @@
 #include "stdio.h"
 #include "string.h"
 
-__WEAK const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
+__WEAK const Keycode g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 __WEAK AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM];
 __WEAK Key g_keyboard_keys[KEY_NUM];
 
@@ -42,10 +41,10 @@ volatile bool g_keyboard_send_flag;
 
 uint8_t g_current_config_index;
 
-uint16_t keyboard_get_keycode(uint8_t id)
+Keycode keyboard_get_keycode(uint8_t id)
 {
     int8_t layer = layer_cache_get(id);
-    uint16_t keycode = 0;
+    Keycode keycode = 0;
     while (layer>=0)
     {
         keycode = g_keymap[layer][id];
@@ -66,7 +65,7 @@ KeyboardEvent keyboard_make_event(Key*key, uint8_t event)
 {
     if (event == KEYBOARD_EVENT_KEY_DOWN)
         layer_cache_set(key->id, g_current_layer);
-    uint16_t keycode = keyboard_get_keycode(key->id);
+    Keycode keycode = keyboard_get_keycode(key->id);
     return MK_EVENT(keycode, event);
 }
 
@@ -184,12 +183,12 @@ void keyboard_buffer_clear(void)
 #endif
 }
 
-int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, uint16_t key)
+int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, Keycode keycode)
 {
-    buf->buffer[0] |= KEY_MODIFIER(key);
-    if (KEY_KEYCODE(key) != KEY_NO_EVENT && buf->keynum < 6)
+    buf->buffer[0] |= KEY_MODIFIER(keycode);
+    if (KEY_KEYCODE(keycode) != KEY_NO_EVENT && buf->keynum < 6)
     {
-        buf->buffer[2 + buf->keynum] = KEY_KEYCODE(key);
+        buf->buffer[2 + buf->keynum] = KEY_KEYCODE(keycode);
         buf->keynum++;
         return 0;
     }
@@ -215,14 +214,14 @@ void keyboard_NKRObuffer_init(Keyboard_NKROBuffer*buf,uint8_t* data_buf,uint8_t 
     buf->length = length;
 }
 
-int keyboard_NKRObuffer_add(Keyboard_NKROBuffer*buf,uint16_t key)
+int keyboard_NKRObuffer_add(Keyboard_NKROBuffer*buf,Keycode keycode)
 {
-    uint8_t index = KEY_KEYCODE(key)/8+1;
+    uint8_t index = KEY_KEYCODE(keycode)/8+1;
     if (index<buf->length)
     {
-        buf->buffer[index] |= (1 << (KEY_KEYCODE(key)%8));
+        buf->buffer[index] |= (1 << (KEY_KEYCODE(keycode)%8));
     }
-    buf->buffer[0] |= KEY_MODIFIER(key);
+    buf->buffer[0] |= KEY_MODIFIER(keycode);
     return 0;
 }
 
@@ -401,7 +400,7 @@ void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
     {
         keyboard_event_handler(keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_UP));
     }
-    const uint16_t keycode = keyboard_get_keycode(key->key.id);
+    const Keycode keycode = keyboard_get_keycode(key->key.id);
     if ((keycode & 0xFF)==DYNAMIC_KEY)
     {
         const uint8_t dynamic_key_index = (keycode>>8)&0xFF;
