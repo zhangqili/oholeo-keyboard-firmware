@@ -9,21 +9,25 @@
 #include "command.h"
 #include "keyboard.h"
 
+#define DK_TAP_DURATION 5
+
 //static uint8_t g_keyboard_dynamic_keys_length;
 
-void dynamic_key_update(DynamicKey*dynamic_key,AdvancedKey*advanced_key)
+void dynamic_key_update(DynamicKey*dynamic_key,AdvancedKey*advanced_key, bool state)
 {
-    switch (*dynamic_key)
+    switch (dynamic_key->type)
     {
     case DYNAMIC_KEY_STROKE:
-        dynamic_key_s_update(dynamic_key, advanced_key);
+        dynamic_key_s_update(dynamic_key, advanced_key, state);
         break;
     case DYNAMIC_KEY_MOD_TAP:
+        dynamic_key_mt_update(dynamic_key, advanced_key, state);
         break;
     case DYNAMIC_KEY_TOGGLE_KEY:
+        dynamic_key_tk_update(dynamic_key, advanced_key, state);
         break;
     case DYNAMIC_KEY_RAPPY_SNAPPY:
-        dynamic_key_rs_update(dynamic_key, advanced_key);
+        dynamic_key_rs_update(dynamic_key, advanced_key, state);
         break;
     default:
         break;
@@ -33,7 +37,7 @@ void dynamic_key_update(DynamicKey*dynamic_key,AdvancedKey*advanced_key)
 
 void dynamic_key_add_buffer(DynamicKey*dynamic_key)
 {
-    switch (*dynamic_key)
+    switch (dynamic_key->type)
     {
     case DYNAMIC_KEY_STROKE:
         DynamicKeyStroke4x4*dynamic_key_s=(DynamicKeyStroke4x4*)dynamic_key;
@@ -44,15 +48,15 @@ void dynamic_key_add_buffer(DynamicKey*dynamic_key)
         }
         break;
     case DYNAMIC_KEY_MOD_TAP:
+        DynamicKeyModTap*dynamic_key_mt=(DynamicKeyModTap*)dynamic_key;
+        keyboard_event_handler(MK_EVENT(dynamic_key_mt->key_binding[dynamic_key_mt->state], KEYBOARD_EVENT_KEY_TRUE));
         break;
     case DYNAMIC_KEY_TOGGLE_KEY:
+        DynamicKeyToggleKey*dynamic_key_tk=(DynamicKeyToggleKey*)dynamic_key;
+        keyboard_event_handler(MK_EVENT(dynamic_key_tk->key_binding, KEYBOARD_EVENT_KEY_TRUE));
         break;
     case DYNAMIC_KEY_RAPPY_SNAPPY:
         {
-            static uint8_t t;
-            t=!t;
-            if (t)
-                break;
             DynamicKeyRappySnappy*dynamic_key_rs=(DynamicKeyRappySnappy*)dynamic_key;
             if (dynamic_key_rs->key1_state)
                 keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_TRUE));
@@ -65,13 +69,13 @@ void dynamic_key_add_buffer(DynamicKey*dynamic_key)
     }
 }
 
-#define DKS_PRESS_DURATION 5
 #define DKS_PRESS_BEGIN 0
 #define DKS_PRESS_FULLY 4
 #define DKS_RELEASE_BEGIN 8
 #define DKS_RELEASE_FULLY 12
-void dynamic_key_s_update(DynamicKey*dynamic_key, AdvancedKey*key)
+void dynamic_key_s_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
 {
+    UNUSED(state);
     DynamicKeyStroke4x4*dynamic_key_s=(DynamicKeyStroke4x4*)dynamic_key;
     AnalogValue last_value = dynamic_key_s->value;
     AnalogValue current_value = key->value;
@@ -91,7 +95,7 @@ void dynamic_key_s_update(DynamicKey*dynamic_key, AdvancedKey*key)
                     }
                     else
                     {
-                        dynamic_key_s->key_end_time[i] = g_keyboard_tick + DKS_PRESS_DURATION;
+                        dynamic_key_s->key_end_time[i] = g_keyboard_tick + DK_TAP_DURATION;
                     }
                     BIT_SET(dynamic_key_s->key_state, i);
                 }
@@ -114,7 +118,7 @@ void dynamic_key_s_update(DynamicKey*dynamic_key, AdvancedKey*key)
                     }
                     else
                     {
-                        dynamic_key_s->key_end_time[i] = g_keyboard_tick + DKS_PRESS_DURATION;
+                        dynamic_key_s->key_end_time[i] = g_keyboard_tick + DK_TAP_DURATION;
                     }
                     BIT_SET(dynamic_key_s->key_state, i);
                 }
@@ -140,7 +144,7 @@ void dynamic_key_s_update(DynamicKey*dynamic_key, AdvancedKey*key)
                     }
                     else
                     {
-                        dynamic_key_s->key_end_time[i] = g_keyboard_tick + DKS_PRESS_DURATION;
+                        dynamic_key_s->key_end_time[i] = g_keyboard_tick + DK_TAP_DURATION;
                     }
                     BIT_SET(dynamic_key_s->key_state, i);
                 }
@@ -163,7 +167,7 @@ void dynamic_key_s_update(DynamicKey*dynamic_key, AdvancedKey*key)
                     }
                     else
                     {
-                        dynamic_key_s->key_end_time[i] = g_keyboard_tick + DKS_PRESS_DURATION;
+                        dynamic_key_s->key_end_time[i] = g_keyboard_tick + DK_TAP_DURATION;
                     }
                     BIT_SET(dynamic_key_s->key_state, i);
                 }
@@ -183,63 +187,129 @@ void dynamic_key_s_update(DynamicKey*dynamic_key, AdvancedKey*key)
         }
         if (BIT_GET(dynamic_key_s->key_state, i) && !BIT_GET(last_key_state, i))
         {
+            layer_cache_set(key->key.id, g_current_layer);
             keyboard_event_handler(MK_EVENT(dynamic_key_s->key_binding[i], KEYBOARD_EVENT_KEY_DOWN));
         }
         if (!BIT_GET(dynamic_key_s->key_state, i) && BIT_GET(last_key_state, i))
         {
-            keyboard_event_handler(MK_EVENT(dynamic_key_s->key_binding[i], KEYBOARD_EVENT_KEY_DOWN));
+            keyboard_event_handler(MK_EVENT(dynamic_key_s->key_binding[i], KEYBOARD_EVENT_KEY_UP));
         }
     }
+    advanced_key_update_state(key, dynamic_key_s->key_state > 0);
+    key->key.report_state = key->key.state;
     dynamic_key_s->value = current_value;
 }
 
-void dynamic_key_rs_update(DynamicKey*dynamic_key, AdvancedKey*key)
+void dynamic_key_mt_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
 {
+    DynamicKeyModTap*dynamic_key_mt=(DynamicKeyModTap*)dynamic_key;
+    if (!(key->key.state) && state)
+    {
+        dynamic_key_mt->begin_time = g_keyboard_tick;
+    }
+    if ((key->key.state) && !state)
+    {
+        if (g_keyboard_tick - dynamic_key_mt->begin_time < dynamic_key_mt->duration)
+        {
+            dynamic_key_mt->end_time = g_keyboard_tick+DK_TAP_DURATION;
+            dynamic_key_mt->state = DYNAMIC_KEY_ACTION_TAP;
+            layer_cache_set(key->key.id, g_current_layer);
+            keyboard_event_handler(MK_EVENT(dynamic_key_mt->key_binding[1], KEYBOARD_EVENT_KEY_DOWN));
+            key->key.report_state = true;
+        }
+        else
+        {
+            keyboard_event_handler(MK_EVENT(dynamic_key_mt->key_binding[1], KEYBOARD_EVENT_KEY_UP));
+            key->key.report_state = false;
+        }
+        dynamic_key_mt->begin_time = g_keyboard_tick;
+    }
+    if (g_keyboard_tick - dynamic_key_mt->begin_time > DK_TAP_DURATION)
+    {
+        dynamic_key_mt->end_time = 0xFFFFFFFF;
+        dynamic_key_mt->state = DYNAMIC_KEY_ACTION_HOLD;
+        layer_cache_set(key->key.id, g_current_layer);
+        keyboard_event_handler(MK_EVENT(dynamic_key_mt->key_binding[1], KEYBOARD_EVENT_KEY_DOWN));
+        key->key.report_state = true;
+    }
+    if (g_keyboard_tick > dynamic_key_mt->end_time)
+    {
+        keyboard_event_handler(MK_EVENT(dynamic_key_mt->key_binding[1], KEYBOARD_EVENT_KEY_UP));
+        key->key.report_state = false;
+    }
+    advanced_key_update_state(key, state);
+}
+
+void dynamic_key_tk_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
+{
+    DynamicKeyToggleKey*dynamic_key_tk=(DynamicKeyToggleKey*)dynamic_key;
+    if (!(dynamic_key_tk->state) && state)
+    {
+        dynamic_key_tk->state = !dynamic_key_tk->state;
+        key->key.report_state = dynamic_key_tk->state;
+        layer_cache_set(key->key.id, g_current_layer);
+        keyboard_event_handler(MK_EVENT(dynamic_key_tk->key_binding, KEYBOARD_EVENT_KEY_DOWN));
+    }
+    advanced_key_update_state(key, state);
+}
+
+void dynamic_key_rs_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
+{
+    UNUSED(key);
+    UNUSED(state);
     DynamicKeyRappySnappy*dynamic_key_rs=(DynamicKeyRappySnappy*)dynamic_key;
+
+    if (!dynamic_key_rs->trigger_state)
+    {
+        dynamic_key_rs->trigger_state = !dynamic_key_rs->trigger_state;
+        return;
+    }
     AdvancedKey*key1 = &g_keyboard_advanced_keys[command_advanced_key_mapping[dynamic_key_rs->key1_id]];
     AdvancedKey*key2 = &g_keyboard_advanced_keys[command_advanced_key_mapping[dynamic_key_rs->key2_id]];
-    if (key->key.id == dynamic_key_rs->key1_id)
+
+    bool last_key1_state = dynamic_key_rs->key1_state;
+    if ((key1->value > key2->value) ||
+    ((key1->value>= (ANALOG_VALUE_MAX - key1->lower_deadzone))&&
+    (key2->value>= (ANALOG_VALUE_MAX - key2->lower_deadzone))))
     {
-        uint8_t last_key1_state = dynamic_key_rs->key1_state;
-        if ((key1->value > key2->value) ||
-        ((key1->value>= (ANALOG_VALUE_MAX - key1->lower_deadzone))&&
-        (key2->value>= (ANALOG_VALUE_MAX - key2->lower_deadzone))))
-        {
-            dynamic_key_rs->key1_state = true;
-        }
-        else if (key1->value != key2->value || (key1->value < key1->upper_deadzone))
-        {
-            dynamic_key_rs->key1_state = false;
-        }
-        if (dynamic_key_rs->key1_state && !last_key1_state)
-        {
-            keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_DOWN));
-        }
-        if (!dynamic_key_rs->key1_state && last_key1_state)
-        {
-            keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_UP));
-        }
+        dynamic_key_rs->key1_state = true;
     }
-    if  (key->key.id == dynamic_key_rs->key2_id)
+    else if (key1->value != key2->value || (key1->value < key1->upper_deadzone))
     {
-        uint8_t last_key2_state = dynamic_key_rs->key2_state;
-        if ((key1->value < key2->value) ||
-        ((key1->value>= (ANALOG_VALUE_MAX - key1->lower_deadzone))&&
-        (key2->value>= (ANALOG_VALUE_MAX - key2->lower_deadzone))))
-        {
-            dynamic_key_rs->key2_state = true;
-        }
-        else if (key1->value != key2->value || (key2->value > key2->upper_deadzone))
-        {
-            dynamic_key_rs->key2_state = false;
-        }
-        if (dynamic_key_rs->key2_state && !last_key2_state)
-        {
-            keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_DOWN));
-        }
-        if (!dynamic_key_rs->key2_state && last_key2_state)
-        {
-            keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_UP));
-        }
+        dynamic_key_rs->key1_state = false;
     }
+    if (dynamic_key_rs->key1_state && !last_key1_state)
+    {
+        layer_cache_set(key1->key.id, g_current_layer);
+        keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_DOWN));
+    }
+    if (!dynamic_key_rs->key1_state && last_key1_state)
+    {
+        keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_UP));
+    }
+    advanced_key_update_state(key1, dynamic_key_rs->key1_state);
+    key1->key.report_state = dynamic_key_rs->key1_state;
+
+    bool last_key2_state = dynamic_key_rs->key2_state;
+    if ((key1->value < key2->value) ||
+    ((key1->value>= (ANALOG_VALUE_MAX - key1->lower_deadzone))&&
+    (key2->value>= (ANALOG_VALUE_MAX - key2->lower_deadzone))))
+    {
+        dynamic_key_rs->key2_state = true;
+    }
+    else if (key1->value != key2->value || (key2->value > key2->upper_deadzone))
+    {
+        dynamic_key_rs->key2_state = false;
+    }
+    if (dynamic_key_rs->key2_state && !last_key2_state)
+    {
+        layer_cache_set(key2->key.id, g_current_layer);
+        keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_DOWN));
+    }
+    if (!dynamic_key_rs->key2_state && last_key2_state)
+    {
+        keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_UP));
+    }
+    advanced_key_update_state(key2, dynamic_key_rs->key2_state);
+    key2->key.report_state = dynamic_key_rs->key2_state;
 }

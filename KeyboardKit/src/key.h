@@ -21,6 +21,7 @@ typedef struct __Key
 {
     uint16_t id;
     bool state;
+    bool report_state;
     key_cb_t key_cb[KEY_EVENT_NUM];
 } Key;
 void key_update(Key *key, bool state);

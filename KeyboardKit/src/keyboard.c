@@ -22,7 +22,7 @@ __WEAK Key g_keyboard_keys[KEY_NUM];
 
 uint16_t g_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 
-uint8_t g_keyboard_dynamic_keys[DYNAMIC_KEY_NUM][64];
+DynamicKey g_keyboard_dynamic_keys[DYNAMIC_KEY_NUM];
 
 uint8_t g_keyboard_led_state;
 
@@ -158,7 +158,7 @@ void keyboard_add_buffer(uint16_t keycode)
             mouse_add_buffer(keycode >> 8);
             break;
         case DYNAMIC_KEY:
-            dynamic_key_add_buffer(g_keyboard_dynamic_keys[keycode >> 8]);
+            dynamic_key_add_buffer(&g_keyboard_dynamic_keys[keycode >> 8]);
             break;
         default:
             break;
@@ -327,11 +327,11 @@ void keyboard_send_report(void)
 
         for (int i = 0; i < ADVANCED_KEY_NUM; i++)
         {
-            keyboard_event_handler(keyboard_make_event(&g_keyboard_advanced_keys[i].key, g_keyboard_advanced_keys[i].key.state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
+            keyboard_event_handler(keyboard_make_event(&g_keyboard_advanced_keys[i].key, g_keyboard_advanced_keys[i].key.report_state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
         }
         for (int i = 0; i < KEY_NUM; i++)
         {        
-            keyboard_event_handler(keyboard_make_event(&g_keyboard_keys[i], g_keyboard_keys[i].state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
+            keyboard_event_handler(keyboard_make_event(&g_keyboard_keys[i], g_keyboard_keys[i].report_state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
         }
         if (keyboard_buffer_send())
         {
@@ -379,6 +379,7 @@ void keyboard_key_update(Key *key, bool state)
         keyboard_event_handler(keyboard_make_event(key, KEYBOARD_EVENT_KEY_UP));
     }
     key_update(key, state);
+    key->report_state = state;
 }
 
 void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
@@ -403,12 +404,12 @@ void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
     const uint16_t keycode = keyboard_get_keycode(key->key.id);
     if ((keycode & 0xFF)==DYNAMIC_KEY)
     {
-        key->key.state = true;
         const uint8_t dynamic_key_index = (keycode>>8)&0xFF;
-        dynamic_key_update(g_keyboard_dynamic_keys[dynamic_key_index], key);
+        dynamic_key_update(&g_keyboard_dynamic_keys[dynamic_key_index], key, state);
     }
     else
     {
         advanced_key_update_state(key, state);
+        key->key.report_state = state;
     }
 }

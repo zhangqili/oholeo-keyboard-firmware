@@ -18,6 +18,8 @@
 #define KEY_KEYCODE(binding) ((binding) & 0xFF)
 #define KEY_MODIFIER(binding) (((binding) >> 8) & 0xFF)
 
+typedef uint16_t KeyBinding;
+
 typedef struct
 {
     uint8_t buffer[8];
@@ -58,7 +60,7 @@ extern AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM];
 extern const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 extern uint16_t g_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 
-extern uint8_t g_keyboard_dynamic_keys[DYNAMIC_KEY_NUM][64];
+extern DynamicKey g_keyboard_dynamic_keys[DYNAMIC_KEY_NUM];
 
 extern uint8_t g_keyboard_led_state;
 
