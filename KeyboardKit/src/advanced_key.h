@@ -11,8 +11,20 @@
 
 #ifdef USE_FLOAT_VALUE
 typedef float AnalogValue;
+#ifndef ANALOG_VALUE_MAX
+#define ANALOG_VALUE_MAX 1.0f
+#endif
+#ifndef ANALOG_VALUE_MIN
+#define ANALOG_VALUE_MIN 0.0f
+#endif
 #else
-typedef uint AnalogValue;
+typedef uint16_t AnalogValue;
+#ifndef ANALOG_VALUE_MAX
+#define ANALOG_VALUE_MAX 65535
+#endif
+#ifndef ANALOG_VALUE_MIN
+#define ANALOG_VALUE_MIN 0
+#endif
 #endif
 
 typedef enum
@@ -54,13 +66,13 @@ typedef struct __AdvancedKey
     AnalogValue lower_bound;
 } AdvancedKey;
 
-void advanced_key_init(AdvancedKey *key);
-void advanced_key_update(AdvancedKey *key, AnalogValue value);
-void advanced_key_update_raw(AdvancedKey *key, AnalogValue value);
-void advanced_key_update_state(AdvancedKey *key, bool state);
-AnalogValue advanced_key_normalize(AdvancedKey *key, AnalogValue value);
-void advanced_key_set_range(AdvancedKey *key, AnalogValue upper, AnalogValue lower);
-void advanced_key_reset_range(AdvancedKey* key, AnalogValue value);
-void advanced_key_set_deadzone(AdvancedKey *key, AnalogValue upper, AnalogValue lower);
+void advanced_key_init(AdvancedKey *advanced_key);
+void advanced_key_update(AdvancedKey *advanced_key, AnalogValue value);
+void advanced_key_update_raw(AdvancedKey *advanced_key, AnalogValue value);
+void advanced_key_update_state(AdvancedKey *advanced_key, bool state);
+AnalogValue advanced_key_normalize(AdvancedKey *advanced_key, AnalogValue value);
+void advanced_key_set_range(AdvancedKey *advanced_key, AnalogValue upper, AnalogValue lower);
+void advanced_key_reset_range(AdvancedKey* advanced_key, AnalogValue value);
+void advanced_key_set_deadzone(AdvancedKey *advanced_key, AnalogValue upper, AnalogValue lower);
 
 #endif

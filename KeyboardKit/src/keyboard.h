@@ -12,6 +12,7 @@
 #include "keyboard_def.h"
 #include "layer.h"
 #include "keycode.h"
+#include "dynamic_key.h"
 
 #define KEYBINDING(keycode, modifier) (((modifier) << 8) | (keycode))
 #define KEY_KEYCODE(binding) ((binding) & 0xFF)
@@ -36,14 +37,14 @@ typedef enum
     KEYBOARD_EVENT_KEY_TRUE,
     KEYBOARD_EVENT_KEY_FALSE,
     KEYBOARD_EVENT_NUM
-} KEYBOARD_EVENT;
+} KeyboardEventType;
 
 typedef struct
 {
-    uint16_t id;
+    Keycode keycode;
     uint8_t event;
 } KeyboardEvent;
-#define MK_EVENT(id, event) ((KeyboardEvent){(id), (event)})
+#define MK_EVENT(keycode, event) ((KeyboardEvent){(keycode), (event)})
 
 typedef enum
 {
@@ -54,8 +55,14 @@ typedef enum
 
 extern Key g_keyboard_keys[KEY_NUM];
 extern AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM];
-extern const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
-extern uint16_t g_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
+extern const Keycode g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
+extern Keycode g_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
+
+extern DynamicKey g_keyboard_dynamic_keys[DYNAMIC_KEY_NUM];
+
+extern uint8_t g_keyboard_led_state;
+
+extern uint32_t g_keyboard_tick;
 
 extern Keyboard_6KROBuffer g_keyboard_6kro_buffer;
 
@@ -68,19 +75,20 @@ extern volatile bool g_keyboard_send_flag;
 extern uint8_t g_current_config_index;
 
 void keyboard_event_handler(KeyboardEvent event);
+void keyboard_advanced_key_event_handler(AdvancedKey*key, KeyboardEvent event);
 
-uint16_t keyboard_get_keycode(uint8_t id);
-void keyboard_add_buffer(uint16_t keycode);
+Keycode keyboard_get_keycode(uint8_t id);
+void keyboard_add_buffer(Keycode keycode);
 
 int keyboard_buffer_send(void);
 void keyboard_buffer_clear(void);
 
-int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, uint16_t key);
+int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, Keycode keycode);
 int keyboard_6KRObuffer_send(Keyboard_6KROBuffer *buf);
 void keyboard_6KRObuffer_clear(Keyboard_6KROBuffer *buf);
 
 void keyboard_NKRObuffer_init(Keyboard_NKROBuffer*buf,uint8_t* data_buf,uint8_t length);
-int keyboard_NKRObuffer_add(Keyboard_NKROBuffer*buf,uint16_t key);
+int keyboard_NKRObuffer_add(Keyboard_NKROBuffer*buf,Keycode keycode);
 int keyboard_NKRObuffer_send(Keyboard_NKROBuffer*buf);
 void keyboard_NKRObuffer_clear(Keyboard_NKROBuffer*buf);
 

@@ -73,6 +73,13 @@ void unload_cargo(uint8_t *buf)
             memcpy(&g_keymap[layer_index][layer_page_index*16], buf + 3, size);
         }
         break;
+    case 4: // Dynamic Key
+        uint8_t dk_index = buf[1];
+        if (dk_index<DYNAMIC_KEY_NUM)
+        {
+            memcpy(&g_keyboard_dynamic_keys[dk_index], buf + 2, sizeof(DynamicKey));
+        }
+        break;
     default:
         break;
     }
@@ -161,7 +168,7 @@ int load_cargo(void)
         {
             size = LAYER_PAGE_LENGTH;
         }
-        memcpy(&buf[4], &g_keymap[layer_index][layer_page_index*LAYER_PAGE_LENGTH], size*sizeof(uint16_t));
+        memcpy(&buf[4], &g_keymap[layer_index][layer_page_index*LAYER_PAGE_LENGTH], size*sizeof(Keycode));
         if (!hid_send(buf,63))
         {
             page_index++;
@@ -172,8 +179,26 @@ int load_cargo(void)
         }
         return 1;
         break;
-    case 4: // Keymap 
+    case 4: // Dynamic Key
         buf[1] = 0x04;
+        uint8_t dk_index = (page_index & 0xFF);
+        if (g_keyboard_dynamic_keys[dk_index].type != DYNAMIC_KEY_NONE)
+        {
+            buf[2] = dk_index;
+            memcpy(&buf[3],&g_keyboard_dynamic_keys[dk_index],sizeof(DynamicKey));
+        }
+        else
+        {
+            page_index=0x8000;
+        }
+        if (!hid_send(buf,63))
+        {
+            page_index++;
+        }
+        return 1;
+        break;
+    case 0x80: // config index
+        buf[1] = 0x80;
         buf[2] = g_current_config_index;
         if (!hid_send(buf,63))
         {

@@ -252,8 +252,7 @@ static void usbd_hid_custom_out_callback(uint8_t busid, uint8_t ep, uint32_t nby
     usbd_ep_start_read(0, CUSTOM_HID_EPOUT_ADDR, read_buffer, 64);
     if (read_buffer[0] == 1)
     {
-        extern uint8_t LED_Report;
-        LED_Report = read_buffer[1];
+        g_keyboard_led_state = read_buffer[1];
     }
     if (read_buffer[0] == 2)
     {

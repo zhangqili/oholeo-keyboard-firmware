@@ -11,7 +11,7 @@
 #include "analog.h"
 #include "tim.h"
 
-const uint16_t g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM] = {
+const Keycode g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM] = {
     {
         KEY_ESC/*0*/,           KEY_1/*1*/,     KEY_2/*2*/,     KEY_3/*3*/,     KEY_4/*4*/,     KEY_5/*5*/,     KEY_6/*6*/,     KEY_7/*7*/,     KEY_8/*8*/,     KEY_9/*9*/,     KEY_0/*10*/,        KEY_MINUS/*11*/,        KEY_EQUAL/*12*/,        KEY_BACKSPACE/*13*/,
         KEY_TAB/*14*/,          KEY_Q/*15*/,    KEY_W/*16*/,    KEY_E/*17*/,    KEY_R/*18*/,    KEY_T/*19*/,    KEY_Y/*20*/,    KEY_U/*21*/,    KEY_I/*22*/,    KEY_O/*23*/,    KEY_P/*24*/,        KEY_LEFT_BRACE/*25*/,   KEY_RIGHT_BRACE/*26*/,  KEY_BACKSLASH/*27*/,
@@ -1138,15 +1138,15 @@ int keyboard_hid_send(uint8_t*report,uint16_t len)
 }
 
 
-float advanced_key_normalize(AdvancedKey* key, float value)
+AnalogValue advanced_key_normalize(AdvancedKey* advanced_key, AnalogValue value)
 {
-    float x = (key->upper_bound - value) / (key->upper_bound - key->lower_bound);
+    float x = (advanced_key->upper_bound - value) / (advanced_key->upper_bound - advanced_key->lower_bound);
     uint16_t index = x * 1000.0f;
     if (index < 1000)
-        return table[index];
+        return (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN)*table[index];
     if (index > 5000)
-        return 0;
-    return 1.0;
+        return ANALOG_VALUE_MIN;
+    return ANALOG_VALUE_MAX;
     /*
     if (x<0.225)
     {
@@ -1206,8 +1206,6 @@ void keyboard_user_handler(uint8_t code)
         em_switch = !em_switch;
         break;
     default:
-        extern uint8_t global_state;
-        global_state = 0;
         beep_switch = false;
         em_switch = false;
         g_keyboard_state = KEYBOARD_IDLE;

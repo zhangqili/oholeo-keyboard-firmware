@@ -6,6 +6,10 @@
 #ifndef KEYCODE_H_
 #define KEYCODE_H_
 
+#include "stdint.h"
+
+typedef uint16_t Keycode;
+
 enum LAYER_CONTROL_KEYCODE {
   LAYER_MOMENTARY = 0x00,
   LAYER_TURN_ON = 0x01,
@@ -193,6 +197,7 @@ enum USB_HID_KEYCODES {
   //Reserved b5-DF
   MOUSE_COLLECTION = 0xa5,
   LAYER_CONTROL = 0xa6,
+  DYNAMIC_KEY = 0xa7,
   FN = 0xB0,
   KEY_USER = 0xFD,
   KEY_SYSTEM = 0xFE,

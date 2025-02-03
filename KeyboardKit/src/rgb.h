@@ -156,8 +156,6 @@ void rgb_forward_list_push(RGBArgumentList* list, RGBArgument t);
 
 #define ARGUMENT_BUFFER_LENGTH 64
 
-extern uint32_t RGB_Tick;
-
 extern uint8_t g_rgb_buffer[RGB_BUFFER_LENGTH];
 extern ColorRGB g_rgb_colors[RGB_NUM];
 extern RGBConfig g_rgb_configs[RGB_NUM];

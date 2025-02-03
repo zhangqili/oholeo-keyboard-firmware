@@ -8,7 +8,7 @@
 
 __attribute__((section(".noncacheable"))) __attribute__((aligned(4))) Mouse g_mouse;
 
-void mouse_add_buffer(uint16_t keycode)
+void mouse_add_buffer(Keycode keycode)
 {
     switch ((keycode) & 0xFF)
     {
