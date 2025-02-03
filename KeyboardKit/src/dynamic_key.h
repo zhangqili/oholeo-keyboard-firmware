@@ -20,7 +20,6 @@ typedef enum __DynamicKeyType
     DYNAMIC_KEY_STROKE,
     DYNAMIC_KEY_MOD_TAP,
     DYNAMIC_KEY_TOGGLE_KEY,
-    DYNAMIC_KEY_RAPPY_SNAPPY,
     DYNAMIC_KEY_MUTEX,
     DYNAMIC_KEY_TYPE_NUM
 } DynamicKeyType;
@@ -64,18 +63,6 @@ typedef struct __DynamicKeyToggleKey
     bool state;
 } DynamicKeyToggleKey;
 
-typedef struct __DynamicKeyRappySnappy
-{
-    DynamicKeyType type;
-    uint16_t key1_id;
-    Keycode key1_binding;
-    uint16_t key2_id;
-    Keycode key2_binding;
-    bool key1_state;
-    bool key2_state;
-    bool trigger_state;
-} DynamicKeyRappySnappy;
-
 enum
 {
     DK_MUTEX_DISTANCE_PRIORITY,
@@ -103,7 +90,6 @@ typedef union __DynamicKey
     DynamicKeyStroke4x4 dks;
     DynamicKeyModTap mt;
     DynamicKeyToggleKey tk;
-    DynamicKeyRappySnappy rs;
     DynamicKeyMutex m;
     uint32_t aligned_buffer[15];
 } DynamicKey;
@@ -113,7 +99,6 @@ void dynamic_key_add_buffer(DynamicKey*dynamic_key);
 void dynamic_key_s_update (DynamicKey*dynamic_key, AdvancedKey*key, bool state);
 void dynamic_key_mt_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state);
 void dynamic_key_tk_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state);
-void dynamic_key_rs_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state);
 void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state);
 
 #endif

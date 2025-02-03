@@ -139,11 +139,13 @@ void keyboard_event_handler(KeyboardEvent event)
     }
 }
 
-void keyboard_advanced_key_event_handler(AdvancedKey*key, KeyboardEventType event)
+void keyboard_advanced_key_event_handler(AdvancedKey*key, KeyboardEvent event)
 {
-    switch (event)
+    switch (event.event)
     {
     case KEYBOARD_EVENT_KEY_DOWN:
+        layer_cache_set(key->key.id, g_current_layer);
+        keyboard_event_handler(event);
 #ifdef ENABLE_RGB
         rgb_activate(key->key.id);
 #endif
@@ -155,6 +157,7 @@ void keyboard_advanced_key_event_handler(AdvancedKey*key, KeyboardEventType even
 #endif
         break;
     case KEYBOARD_EVENT_KEY_UP:
+        keyboard_event_handler(event);
         break;
     default:
         break;
@@ -415,13 +418,13 @@ void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
     {
         if (!key->key.state && state)
         {
-            keyboard_event_handler(keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_DOWN));
-            keyboard_advanced_key_event_handler(key,KEYBOARD_EVENT_KEY_DOWN);
+            KeyboardEvent event = keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_DOWN);
+            keyboard_advanced_key_event_handler(key,event);
         }
         if (key->key.state && !state)
         {
-            keyboard_event_handler(keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_UP));
-            keyboard_advanced_key_event_handler(key,KEYBOARD_EVENT_KEY_UP);
+            KeyboardEvent event = keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_UP);
+            keyboard_advanced_key_event_handler(key,event);
         }
         advanced_key_update_state(key, state);
         key->key.report_state = state;

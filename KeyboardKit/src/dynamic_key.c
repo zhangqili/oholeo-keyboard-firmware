@@ -26,9 +26,6 @@ void dynamic_key_update(DynamicKey*dynamic_key,AdvancedKey*advanced_key, bool st
     case DYNAMIC_KEY_TOGGLE_KEY:
         dynamic_key_tk_update(dynamic_key, advanced_key, state);
         break;
-    case DYNAMIC_KEY_RAPPY_SNAPPY:
-        dynamic_key_rs_update(dynamic_key, advanced_key, state);
-        break;
     case DYNAMIC_KEY_MUTEX:
         dynamic_key_m_update(dynamic_key, advanced_key, state);
         break;
@@ -57,15 +54,6 @@ void dynamic_key_add_buffer(DynamicKey*dynamic_key)
     case DYNAMIC_KEY_TOGGLE_KEY:
         DynamicKeyToggleKey*dynamic_key_tk=(DynamicKeyToggleKey*)dynamic_key;
         keyboard_event_handler(MK_EVENT(dynamic_key_tk->key_binding, KEYBOARD_EVENT_KEY_TRUE));
-        break;
-    case DYNAMIC_KEY_RAPPY_SNAPPY:
-        {
-            DynamicKeyRappySnappy*dynamic_key_rs=(DynamicKeyRappySnappy*)dynamic_key;
-            if (dynamic_key_rs->key1_state)
-                keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_TRUE));
-            if (dynamic_key_rs->key2_state)
-                keyboard_event_handler(MK_EVENT(dynamic_key_rs->key2_binding, KEYBOARD_EVENT_KEY_TRUE));
-        }
         break;
     case DYNAMIC_KEY_MUTEX:
         {
@@ -201,14 +189,11 @@ void dynamic_key_s_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
         }
         if (BIT_GET(dynamic_key_s->key_state, i) && !BIT_GET(last_key_state, i))
         {
-            layer_cache_set(key->key.id, g_current_layer);
-            keyboard_event_handler(MK_EVENT(dynamic_key_s->key_binding[i], KEYBOARD_EVENT_KEY_DOWN));
-            keyboard_advanced_key_event_handler(key, KEYBOARD_EVENT_KEY_DOWN);
+            keyboard_advanced_key_event_handler(key, MK_EVENT(dynamic_key_s->key_binding[i], KEYBOARD_EVENT_KEY_DOWN));
         }
         if (!BIT_GET(dynamic_key_s->key_state, i) && BIT_GET(last_key_state, i))
         {
-            keyboard_event_handler(MK_EVENT(dynamic_key_s->key_binding[i], KEYBOARD_EVENT_KEY_UP));
-            keyboard_advanced_key_event_handler(key, KEYBOARD_EVENT_KEY_UP);
+            keyboard_advanced_key_event_handler(key, MK_EVENT(dynamic_key_s->key_binding[i], KEYBOARD_EVENT_KEY_UP));
         }
     }
     advanced_key_update_state(key, dynamic_key_s->key_state > 0);
@@ -229,15 +214,12 @@ void dynamic_key_mt_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
         {
             dynamic_key_mt->end_time = g_keyboard_tick+DK_TAP_DURATION;
             dynamic_key_mt->state = DYNAMIC_KEY_ACTION_TAP;
-            layer_cache_set(key->key.id, g_current_layer);
-            keyboard_event_handler(MK_EVENT(dynamic_key_mt->key_binding[1], KEYBOARD_EVENT_KEY_DOWN));
-            keyboard_advanced_key_event_handler(key, KEYBOARD_EVENT_KEY_DOWN);
+            keyboard_advanced_key_event_handler(key, MK_EVENT(dynamic_key_mt->key_binding[1], KEYBOARD_EVENT_KEY_DOWN));
             key->key.report_state = true;
         }
         else
         {
-            keyboard_event_handler(MK_EVENT(dynamic_key_mt->key_binding[1], KEYBOARD_EVENT_KEY_UP));
-            keyboard_advanced_key_event_handler(key, KEYBOARD_EVENT_KEY_UP);
+            keyboard_advanced_key_event_handler(key, MK_EVENT(dynamic_key_mt->key_binding[1], KEYBOARD_EVENT_KEY_UP));
             key->key.report_state = false;
         }
         dynamic_key_mt->begin_time = g_keyboard_tick;
@@ -246,15 +228,12 @@ void dynamic_key_mt_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
     {
         dynamic_key_mt->end_time = 0xFFFFFFFF;
         dynamic_key_mt->state = DYNAMIC_KEY_ACTION_HOLD;
-        layer_cache_set(key->key.id, g_current_layer);
-        keyboard_event_handler(MK_EVENT(dynamic_key_mt->key_binding[1], KEYBOARD_EVENT_KEY_DOWN));
-            keyboard_advanced_key_event_handler(key, KEYBOARD_EVENT_KEY_DOWN);
+        keyboard_advanced_key_event_handler(key, MK_EVENT(dynamic_key_mt->key_binding[1], KEYBOARD_EVENT_KEY_DOWN));
         key->key.report_state = true;
     }
     if (g_keyboard_tick > dynamic_key_mt->end_time)
     {
-        keyboard_event_handler(MK_EVENT(dynamic_key_mt->key_binding[1], KEYBOARD_EVENT_KEY_UP));
-        keyboard_advanced_key_event_handler(key, KEYBOARD_EVENT_KEY_UP);
+        keyboard_advanced_key_event_handler(key, MK_EVENT(dynamic_key_mt->key_binding[1], KEYBOARD_EVENT_KEY_UP));
         key->key.report_state = false;
     }
     advanced_key_update_state(key, state);
@@ -269,82 +248,14 @@ void dynamic_key_tk_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
         key->key.report_state = dynamic_key_tk->state;
         if (dynamic_key_tk->state)
         {
-            layer_cache_set(key->key.id, g_current_layer);
-            keyboard_event_handler(MK_EVENT(dynamic_key_tk->key_binding, KEYBOARD_EVENT_KEY_DOWN));
-            keyboard_advanced_key_event_handler(key, KEYBOARD_EVENT_KEY_DOWN);
+            keyboard_advanced_key_event_handler(key, MK_EVENT(dynamic_key_tk->key_binding, KEYBOARD_EVENT_KEY_DOWN));
         }
         else
         {
-            keyboard_event_handler(MK_EVENT(dynamic_key_tk->key_binding, KEYBOARD_EVENT_KEY_UP));
-            keyboard_advanced_key_event_handler(key, KEYBOARD_EVENT_KEY_UP);
+            keyboard_advanced_key_event_handler(key, MK_EVENT(dynamic_key_tk->key_binding, KEYBOARD_EVENT_KEY_UP));
         }
     }
     advanced_key_update_state(key, state);
-}
-
-void dynamic_key_rs_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
-{
-    UNUSED(key);
-    UNUSED(state);
-    DynamicKeyRappySnappy*dynamic_key_rs=(DynamicKeyRappySnappy*)dynamic_key;
-
-    if (!dynamic_key_rs->trigger_state)
-    {
-        dynamic_key_rs->trigger_state = !dynamic_key_rs->trigger_state;
-        return;
-    }
-    AdvancedKey*key1 = &g_keyboard_advanced_keys[command_advanced_key_mapping[dynamic_key_rs->key1_id]];
-    AdvancedKey*key2 = &g_keyboard_advanced_keys[command_advanced_key_mapping[dynamic_key_rs->key2_id]];
-
-    bool last_key1_state = dynamic_key_rs->key1_state;
-    if ((key1->value > key2->value) ||
-    ((key1->value>= (ANALOG_VALUE_MAX - key1->lower_deadzone))&&
-    (key2->value>= (ANALOG_VALUE_MAX - key2->lower_deadzone))))
-    {
-        dynamic_key_rs->key1_state = true;
-    }
-    else if (key1->value != key2->value || (key1->value < key1->upper_deadzone))
-    {
-        dynamic_key_rs->key1_state = false;
-    }
-    if (dynamic_key_rs->key1_state && !last_key1_state)
-    {
-        layer_cache_set(key1->key.id, g_current_layer);
-        keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_DOWN));
-        keyboard_advanced_key_event_handler(key, KEYBOARD_EVENT_KEY_DOWN);
-    }
-    if (!dynamic_key_rs->key1_state && last_key1_state)
-    {
-        keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_UP));
-        keyboard_advanced_key_event_handler(key, KEYBOARD_EVENT_KEY_UP);
-    }
-    advanced_key_update_state(key1, dynamic_key_rs->key1_state);
-    key1->key.report_state = dynamic_key_rs->key1_state;
-
-    bool last_key2_state = dynamic_key_rs->key2_state;
-    if ((key1->value < key2->value) ||
-    ((key1->value>= (ANALOG_VALUE_MAX - key1->lower_deadzone))&&
-    (key2->value>= (ANALOG_VALUE_MAX - key2->lower_deadzone))))
-    {
-        dynamic_key_rs->key2_state = true;
-    }
-    else if (key1->value != key2->value || (key2->value > key2->upper_deadzone))
-    {
-        dynamic_key_rs->key2_state = false;
-    }
-    if (dynamic_key_rs->key2_state && !last_key2_state)
-    {
-        layer_cache_set(key2->key.id, g_current_layer);
-        keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_DOWN));
-        keyboard_advanced_key_event_handler(key, KEYBOARD_EVENT_KEY_DOWN);
-    }
-    if (!dynamic_key_rs->key2_state && last_key2_state)
-    {
-        keyboard_event_handler(MK_EVENT(dynamic_key_rs->key1_binding, KEYBOARD_EVENT_KEY_UP));
-        keyboard_advanced_key_event_handler(key, KEYBOARD_EVENT_KEY_UP);
-    }
-    advanced_key_update_state(key2, dynamic_key_rs->key2_state);
-    key2->key.report_state = dynamic_key_rs->key2_state;
 }
 
 void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
@@ -374,14 +285,11 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
         }
         if (key0->key.report_state && !last_key0_state)
         {
-            layer_cache_set(key0->key.id, g_current_layer);
-            keyboard_event_handler(MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_DOWN));
-            keyboard_advanced_key_event_handler(key0, KEYBOARD_EVENT_KEY_DOWN);
+            keyboard_advanced_key_event_handler(key0, MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_DOWN));
         }
         if (!key0->key.report_state && last_key0_state)
         {
-            keyboard_event_handler(MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_UP));
-            keyboard_advanced_key_event_handler(key0, KEYBOARD_EVENT_KEY_UP);
+            keyboard_advanced_key_event_handler(key0, MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_UP));
         }
         advanced_key_update_state(key0, key0->key.report_state);
         key0->key.report_state = key0->key.report_state;
@@ -399,14 +307,11 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
         }
         if (key1->key.report_state && !last_key1_state)
         {
-            layer_cache_set(key1->key.id, g_current_layer);
-            keyboard_event_handler(MK_EVENT(dynamic_key_m->key[1].binding, KEYBOARD_EVENT_KEY_DOWN));
-            keyboard_advanced_key_event_handler(key1, KEYBOARD_EVENT_KEY_DOWN);
+            keyboard_advanced_key_event_handler(key1, MK_EVENT(dynamic_key_m->key[1].binding, KEYBOARD_EVENT_KEY_DOWN));
         }
         if (!key1->key.report_state && last_key1_state)
         {
-            keyboard_event_handler(MK_EVENT(dynamic_key_m->key[1].binding, KEYBOARD_EVENT_KEY_UP));
-            keyboard_advanced_key_event_handler(key1, KEYBOARD_EVENT_KEY_UP);
+            keyboard_advanced_key_event_handler(key1, MK_EVENT(dynamic_key_m->key[1].binding, KEYBOARD_EVENT_KEY_UP));
         }
         advanced_key_update_state(key1, key1->key.report_state);
         key1->key.report_state = key1->key.report_state;
@@ -479,24 +384,18 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
     }
     if (key0->key.report_state && !last_key0_state)
     {
-        layer_cache_set(key0->key.id, g_current_layer);
-        keyboard_event_handler(MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_DOWN));
-        keyboard_advanced_key_event_handler(key0, KEYBOARD_EVENT_KEY_DOWN);
+        keyboard_advanced_key_event_handler(key0, MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_DOWN));
     }
     if (!key0->key.report_state && last_key0_state)
     {
-        keyboard_event_handler(MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_UP));
-        keyboard_advanced_key_event_handler(key0, KEYBOARD_EVENT_KEY_UP);
+        keyboard_advanced_key_event_handler(key0, MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_UP));
     }
     if (key1->key.report_state && !last_key1_state)
     {
-        layer_cache_set(key1->key.id, g_current_layer);
-        keyboard_event_handler(MK_EVENT(dynamic_key_m->key[1].binding, KEYBOARD_EVENT_KEY_DOWN));
-        keyboard_advanced_key_event_handler(key1, KEYBOARD_EVENT_KEY_DOWN);
+        keyboard_advanced_key_event_handler(key1, MK_EVENT(dynamic_key_m->key[1].binding, KEYBOARD_EVENT_KEY_DOWN));
     }
     if (!key1->key.report_state && last_key1_state)
     {
-        keyboard_event_handler(MK_EVENT(dynamic_key_m->key[1].binding, KEYBOARD_EVENT_KEY_UP));
-        keyboard_advanced_key_event_handler(key1, KEYBOARD_EVENT_KEY_UP);
+        keyboard_advanced_key_event_handler(key1, MK_EVENT(dynamic_key_m->key[1].binding, KEYBOARD_EVENT_KEY_UP));
     }
 }
