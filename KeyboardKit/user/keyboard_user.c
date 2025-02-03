@@ -10,6 +10,7 @@
 #include "usbd_user.h"
 #include "analog.h"
 #include "tim.h"
+#include "snake.h"
 
 const Keycode g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM] = {
     {
@@ -29,7 +30,7 @@ const Keycode g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM] = {
     {
         KEY_SYSTEM | (SYSTEM_BOOTLOADER << 8),  KEY_SYSTEM | (SYSTEM_CONFIG0 << 8), KEY_SYSTEM | (SYSTEM_CONFIG1 << 8), KEY_SYSTEM | (SYSTEM_CONFIG2 << 8), KEY_SYSTEM | (SYSTEM_CONFIG3 << 8),         KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,        KEY_SYSTEM | (SYSTEM_RESET_TO_DEFAULT << 8),
         KEY_TRANSPARENT,                        KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_SYSTEM | (SYSTEM_RESET << 8),           KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,        KEY_TRANSPARENT,
-        KEY_TRANSPARENT,                        KEY_TRANSPARENT,                    KEY_SYSTEM | (SYSTEM_SAVE << 8),    KEY_SYSTEM | (SYSTEM_DEBUG << 8),   KEY_SYSTEM | (SYSTEM_FACTORY_RESET << 8),   KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,
+        KEY_USER | (USER_SNAKE_LAUNCH << 8),                        KEY_TRANSPARENT,                    KEY_SYSTEM | (SYSTEM_SAVE << 8),    KEY_SYSTEM | (SYSTEM_DEBUG << 8),   KEY_SYSTEM | (SYSTEM_FACTORY_RESET << 8),   KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,
         KEY_TRANSPARENT,                        KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_USER | (USER_EM << 8),                  KEY_USER | (USER_BEEP << 8), KEY_USER | (USER_RESET << 8),  KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,        KEY_TRANSPARENT,
         KEY_TRANSPARENT,                        KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_TRANSPARENT,                            KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,  KEY_TRANSPARENT,
     }
@@ -1204,6 +1205,30 @@ void keyboard_user_handler(uint8_t code)
         break;
     case USER_EM:
         em_switch = !em_switch;
+        break;
+    case USER_SNAKE_LAUNCH:
+        snake_launch(&g_snake);
+        break;
+    case USER_SNAKE_QUIT:
+        snake_quit(&g_snake);
+        break;
+    case USER_SNAKE_PAUSE:
+        snake_pause(&g_snake);
+        break;
+    case USER_SNAKE_SPEED_UP:
+        snake_speed_up(&g_snake);
+        break;
+    case USER_SNAKE_SPEED_DOWN:
+        snake_speed_down(&g_snake);
+        break;
+    case USER_SNAKE_RESTART:
+        snake_restart(&g_snake);
+        break;
+    case USER_SNAKE_LEFT:
+    case USER_SNAKE_UP:
+    case USER_SNAKE_RIGHT:
+    case USER_SNAKE_DOWN:
+        snake_turn(&g_snake, code&0x07);
         break;
     default:
         beep_switch = false;
