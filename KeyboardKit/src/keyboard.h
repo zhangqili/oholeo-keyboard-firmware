@@ -37,7 +37,7 @@ typedef enum
     KEYBOARD_EVENT_KEY_TRUE,
     KEYBOARD_EVENT_KEY_FALSE,
     KEYBOARD_EVENT_NUM
-} KEYBOARD_EVENT;
+} KeyboardEventType;
 
 typedef struct
 {
@@ -75,6 +75,7 @@ extern volatile bool g_keyboard_send_flag;
 extern uint8_t g_current_config_index;
 
 void keyboard_event_handler(KeyboardEvent event);
+void keyboard_advanced_key_event_handler(AdvancedKey*key, KeyboardEventType event);
 
 Keycode keyboard_get_keycode(uint8_t id);
 void keyboard_add_buffer(Keycode keycode);

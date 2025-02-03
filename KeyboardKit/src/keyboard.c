@@ -139,6 +139,28 @@ void keyboard_event_handler(KeyboardEvent event)
     }
 }
 
+void keyboard_advanced_key_event_handler(AdvancedKey*key, KeyboardEventType event)
+{
+    switch (event)
+    {
+    case KEYBOARD_EVENT_KEY_DOWN:
+#ifdef ENABLE_RGB
+        rgb_activate(key->key.id);
+#endif
+#ifdef ENABLE_KPS
+        record_kps_tick();
+#endif
+#ifdef ENABLE_COUNTER
+        g_key_counts[key->key.id]++;
+#endif
+        break;
+    case KEYBOARD_EVENT_KEY_UP:
+        break;
+    default:
+        break;
+    }
+}
+
 void keyboard_add_buffer(uint16_t keycode)
 {
     if ((keycode & 0xFF) <= KEY_EXSEL)
@@ -386,19 +408,12 @@ void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
     if (!key->key.state && state)
     {
         keyboard_event_handler(keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_DOWN));
-#ifdef ENABLE_RGB
-        rgb_activate(key->key.id);
-#endif
-#ifdef ENABLE_KPS
-        record_kps_tick();
-#endif
-#ifdef ENABLE_COUNTER
-        g_key_counts[key->key.id]++;
-#endif
+        keyboard_advanced_key_event_handler(key,KEYBOARD_EVENT_KEY_DOWN);
     }
     if (key->key.state && !state)
     {
         keyboard_event_handler(keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_UP));
+        keyboard_advanced_key_event_handler(key,KEYBOARD_EVENT_KEY_UP);
     }
     const Keycode keycode = keyboard_get_keycode(key->key.id);
     if ((keycode & 0xFF)==DYNAMIC_KEY)
