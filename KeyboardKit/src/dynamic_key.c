@@ -355,20 +355,20 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
 
     if ((dynamic_key_m->mode & 0x0F) == DK_MUTEX_DISTANCE_PRIORITY)
     {
+        dynamic_key_m->trigger_state = !dynamic_key_m->trigger_state;
         if (!dynamic_key_m->trigger_state)
         {
-            dynamic_key_m->trigger_state = !dynamic_key_m->trigger_state;
             return;
         }
 
         bool last_key0_state = key0->key.report_state;
-        if ((key0->value > key1->value) ||
+        if (((key0->value > key1->value) && (key0->value > key0->upper_deadzone)) ||
         ((key0->value>= (ANALOG_VALUE_MAX - key0->lower_deadzone))&&
         (key1->value>= (ANALOG_VALUE_MAX - key1->lower_deadzone))))
         {
             key0->key.report_state = true;
         }
-        else if (key0->value != key1->value || (key0->value < key0->upper_deadzone))
+        else if (key0->value != key1->value)
         {
             key0->key.report_state = false;
         }
@@ -378,7 +378,7 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
             keyboard_event_handler(MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_DOWN));
             keyboard_advanced_key_event_handler(key0, KEYBOARD_EVENT_KEY_DOWN);
         }
-        if (key0->key.report_state && last_key0_state)
+        if (!key0->key.report_state && last_key0_state)
         {
             keyboard_event_handler(MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_UP));
             keyboard_advanced_key_event_handler(key0, KEYBOARD_EVENT_KEY_UP);
@@ -387,13 +387,13 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
         key0->key.report_state = key0->key.report_state;
 
         bool last_key1_state = key1->key.report_state;
-        if ((key0->value < key1->value) ||
+        if (((key0->value < key1->value) && (key1->value > key1->upper_deadzone))||
         ((key0->value>= (ANALOG_VALUE_MAX - key0->lower_deadzone))&&
         (key1->value>= (ANALOG_VALUE_MAX - key1->lower_deadzone))))
         {
             key1->key.report_state = true;
         }
-        else if (key0->value != key1->value || (key1->value > key1->upper_deadzone))
+        else if (key0->value != key1->value)
         {
             key1->key.report_state = false;
         }
@@ -421,22 +421,27 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
         {
             if (key->key.id == dynamic_key_m->key[0].id)
             {
-                if (key1->key.report_state)
-                {
-                    key1->key.report_state = false;
-                }
+                key1->key.report_state = false;
                 key0->key.report_state = true;
             }
             else if (key->key.id == dynamic_key_m->key[1].id)
             {
-                if (key0->key.report_state)
-                {
-                    key0->key.report_state = false;
-                }
+                key0->key.report_state = false;
                 key1->key.report_state = true;
             }
-            key0->key.report_state &= key0->key.state;
-            key1->key.report_state &= key1->key.state;
+        }
+        if (!state && key->key.state)
+        {
+            if (key->key.id == dynamic_key_m->key[0].id)
+            {
+                key0->key.report_state = false;
+                key1->key.report_state = key1->key.state;
+            }
+            else if (key->key.id == dynamic_key_m->key[1].id)
+            {
+                key0->key.report_state = key0->key.state;
+                key1->key.report_state = false;
+            }
         }
         advanced_key_update_state(key, state);
         break;
@@ -474,7 +479,7 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
     }
     if (key0->key.report_state && !last_key0_state)
     {
-        layer_cache_set(key1->key.id, g_current_layer);
+        layer_cache_set(key0->key.id, g_current_layer);
         keyboard_event_handler(MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_DOWN));
         keyboard_advanced_key_event_handler(key0, KEYBOARD_EVENT_KEY_DOWN);
     }
@@ -483,7 +488,6 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
         keyboard_event_handler(MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_UP));
         keyboard_advanced_key_event_handler(key0, KEYBOARD_EVENT_KEY_UP);
     }
-
     if (key1->key.report_state && !last_key1_state)
     {
         layer_cache_set(key1->key.id, g_current_layer);

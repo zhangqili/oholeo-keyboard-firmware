@@ -182,9 +182,14 @@ int load_cargo(void)
     case 4: // Dynamic Key
         buf[1] = 0x04;
         uint8_t dk_index = (page_index & 0xFF);
-        if (g_keyboard_dynamic_keys[dk_index].type == 0)
+        if (g_keyboard_dynamic_keys[dk_index].type != DYNAMIC_KEY_NONE)
         {
-            
+            buf[2] = dk_index;
+            memcpy(&buf[3],&g_keyboard_dynamic_keys[dk_index],sizeof(DynamicKey));
+        }
+        else
+        {
+            page_index=0x8000;
         }
         if (!hid_send(buf,63))
         {
@@ -192,7 +197,7 @@ int load_cargo(void)
         }
         return 1;
         break;
-    case 0x80: // Keymap
+    case 0x80: // config index
         buf[1] = 0x80;
         buf[2] = g_current_config_index;
         if (!hid_send(buf,63))

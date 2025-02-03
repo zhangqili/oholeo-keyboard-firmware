@@ -267,7 +267,7 @@ void keyboard_init(void)
 #endif
 }
 
-void keyboard_reset_to_default(void)
+__WEAK void keyboard_reset_to_default(void)
 {
     memcpy(g_keymap, g_default_keymap, sizeof(g_keymap));
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
@@ -405,16 +405,6 @@ void keyboard_key_update(Key *key, bool state)
 
 void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
 {
-    if (!key->key.state && state)
-    {
-        keyboard_event_handler(keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_DOWN));
-        keyboard_advanced_key_event_handler(key,KEYBOARD_EVENT_KEY_DOWN);
-    }
-    if (key->key.state && !state)
-    {
-        keyboard_event_handler(keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_UP));
-        keyboard_advanced_key_event_handler(key,KEYBOARD_EVENT_KEY_UP);
-    }
     const Keycode keycode = keyboard_get_keycode(key->key.id);
     if ((keycode & 0xFF)==DYNAMIC_KEY)
     {
@@ -423,6 +413,16 @@ void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
     }
     else
     {
+        if (!key->key.state && state)
+        {
+            keyboard_event_handler(keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_DOWN));
+            keyboard_advanced_key_event_handler(key,KEYBOARD_EVENT_KEY_DOWN);
+        }
+        if (key->key.state && !state)
+        {
+            keyboard_event_handler(keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_UP));
+            keyboard_advanced_key_event_handler(key,KEYBOARD_EVENT_KEY_UP);
+        }
         advanced_key_update_state(key, state);
         key->key.report_state = state;
     }

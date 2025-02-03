@@ -436,7 +436,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       {
         uint8_t key_index = (report_num + i) % 64;
         report_buffer[2 + 10 * i] = key_index;
-        report_buffer[3 + 10 * i] = g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].key.state;
+        report_buffer[3 + 10 * i] = g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].key.report_state;
         memcpy(report_buffer + 4 + 10 * i, &g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].raw, sizeof(float));
         memcpy(report_buffer + 4 + 10 * i + 4, &g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].value, sizeof(float));
       }
