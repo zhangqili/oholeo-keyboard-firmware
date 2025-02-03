@@ -224,14 +224,14 @@ void dynamic_key_mt_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
         }
         dynamic_key_mt->begin_time = g_keyboard_tick;
     }
-    if (g_keyboard_tick - dynamic_key_mt->begin_time > DK_TAP_DURATION)
+    if (state && !key->key.report_state && (g_keyboard_tick - dynamic_key_mt->begin_time > dynamic_key_mt->duration))
     {
         dynamic_key_mt->end_time = 0xFFFFFFFF;
         dynamic_key_mt->state = DYNAMIC_KEY_ACTION_HOLD;
         keyboard_advanced_key_event_handler(key, MK_EVENT(dynamic_key_mt->key_binding[1], KEYBOARD_EVENT_KEY_DOWN));
         key->key.report_state = true;
     }
-    if (g_keyboard_tick > dynamic_key_mt->end_time)
+    if (g_keyboard_tick > dynamic_key_mt->end_time && key->key.report_state)
     {
         keyboard_advanced_key_event_handler(key, MK_EVENT(dynamic_key_mt->key_binding[1], KEYBOARD_EVENT_KEY_UP));
         key->key.report_state = false;

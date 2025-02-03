@@ -195,7 +195,7 @@ void rgb_update(void)
             color_mix(&g_rgb_colors[rgb_index], &temp_rgb);
             break;
         case RGB_MODE_TRIGGER:
-            if (g_keyboard_advanced_keys[i].key.state)
+            if (g_keyboard_advanced_keys[i].key.report_state)
             {
                 g_rgb_configs[rgb_index].begin_time = g_keyboard_tick;
             }

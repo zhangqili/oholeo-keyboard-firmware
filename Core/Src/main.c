@@ -516,13 +516,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 void rgb_update_callback()
 {
-	if(g_keyboard_led_state&0x02)
+  if (g_snake.running)
+  {
+    snake_move(&g_snake);
+    draw_snake(&g_snake);
+    return;
+  }
+	if(g_keyboard_led_state&BIT(1))
   {
 	  g_rgb_colors[g_rgb_mapping[28]].r = 0xff;
 	  g_rgb_colors[g_rgb_mapping[28]].g = 0xff;
 	  g_rgb_colors[g_rgb_mapping[28]].b = 0xff;//cap lock
 	}
-	if(g_keyboard_led_state&0x04)
+	if(g_keyboard_led_state&BIT(2))
   {
 	  g_rgb_colors[g_rgb_mapping[26]].r = 0xff;
 	  g_rgb_colors[g_rgb_mapping[26]].g = 0xff;
@@ -548,11 +554,6 @@ void rgb_update_callback()
 	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].r = 0xff;
 	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].g = 0xff;
 	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].b = 0xff;
-  }
-  if (g_snake.running)
-  {
-    snake_move(&g_snake);
-    draw_snake(&g_snake);
   }
 }
 
