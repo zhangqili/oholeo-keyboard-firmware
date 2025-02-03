@@ -41,6 +41,7 @@
 #include "keyboard_def.h"
 #include "usbd_user.h"
 #include "command.h"
+#include "snake.h"
 
 /* USER CODE END Includes */
 
@@ -548,7 +549,11 @@ void rgb_update_callback()
 	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].g = 0xff;
 	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].b = 0xff;
   }
-  
+  if (g_snake.running)
+  {
+    snake_move(&g_snake);
+    draw_snake(&g_snake);
+  }
 }
 
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
