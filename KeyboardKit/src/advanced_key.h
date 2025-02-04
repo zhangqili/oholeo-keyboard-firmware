@@ -49,7 +49,11 @@ typedef struct __AdvancedKey
     AnalogValue raw;
     AnalogValue maximum;
     AnalogValue minimum;
-    
+
+#ifdef OPTIMIZE_FOR_FLOAT_DIVISION
+    float range_reciprocal;
+#endif
+
     uint8_t mode;
     uint8_t calibration_mode;
     

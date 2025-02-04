@@ -30,7 +30,7 @@ const Keycode g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM] = {
     {
         KEY_SYSTEM | (SYSTEM_BOOTLOADER << 8),  KEY_SYSTEM | (SYSTEM_CONFIG0 << 8), KEY_SYSTEM | (SYSTEM_CONFIG1 << 8), KEY_SYSTEM | (SYSTEM_CONFIG2 << 8), KEY_SYSTEM | (SYSTEM_CONFIG3 << 8),         KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,        KEY_SYSTEM | (SYSTEM_RESET_TO_DEFAULT << 8),
         KEY_TRANSPARENT,                        KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_SYSTEM | (SYSTEM_RESET << 8),           KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,        KEY_TRANSPARENT,
-        KEY_USER | (USER_SNAKE_LAUNCH << 8),                        KEY_TRANSPARENT,                    KEY_SYSTEM | (SYSTEM_SAVE << 8),    KEY_SYSTEM | (SYSTEM_DEBUG << 8),   KEY_SYSTEM | (SYSTEM_FACTORY_RESET << 8),   KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,
+        KEY_USER | (USER_SNAKE_LAUNCH << 8),    KEY_TRANSPARENT,                    KEY_SYSTEM | (SYSTEM_SAVE << 8),    KEY_SYSTEM | (SYSTEM_DEBUG << 8),   KEY_SYSTEM | (SYSTEM_FACTORY_RESET << 8),   KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,
         KEY_TRANSPARENT,                        KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_USER | (USER_EM << 8),                  KEY_USER | (USER_BEEP << 8), KEY_USER | (USER_RESET << 8),  KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,        KEY_TRANSPARENT,
         KEY_TRANSPARENT,                        KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_TRANSPARENT,                            KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,  KEY_TRANSPARENT,
     }
@@ -1141,7 +1141,11 @@ int keyboard_hid_send(uint8_t*report,uint16_t len)
 
 AnalogValue advanced_key_normalize(AdvancedKey* advanced_key, AnalogValue value)
 {
+#ifdef OPTIMIZE_FOR_FLOAT_DIVISION
+    float x = (advanced_key->upper_bound - value) * advanced_key->range_reciprocal;
+#else
     float x = (advanced_key->upper_bound - value) / (advanced_key->upper_bound - advanced_key->lower_bound);
+#endif
     uint16_t index = x * 1000.0f;
     if (index < 1000)
         return (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN)*table[index];

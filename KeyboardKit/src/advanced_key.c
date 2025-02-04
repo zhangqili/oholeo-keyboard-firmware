@@ -91,23 +91,23 @@ void advanced_key_update_raw(AdvancedKey* advanced_key, AnalogValue value)
     {
     case KEY_AUTO_CALIBRATION_POSITIVE:
         if (value > advanced_key->lower_bound)
-            advanced_key->lower_bound = value;
+            advanced_key_set_range(advanced_key, advanced_key->upper_bound, value);
         break;
     case KEY_AUTO_CALIBRATION_NEGATIVE:
         if (value < advanced_key->lower_bound)
-            advanced_key->lower_bound = value;
+            advanced_key_set_range(advanced_key, advanced_key->upper_bound, value);
         break;
     case KEY_AUTO_CALIBRATION_UNDEFINED:
         if (value - advanced_key->upper_bound > DEFAULT_ESTIMATED_RANGE)
         {
             advanced_key->calibration_mode = KEY_AUTO_CALIBRATION_POSITIVE;
-            advanced_key->lower_bound = value;
+            advanced_key_set_range(advanced_key, advanced_key->upper_bound, value);
             break;
         }
         if (advanced_key->upper_bound - value > DEFAULT_ESTIMATED_RANGE)
         {
             advanced_key->calibration_mode = KEY_AUTO_CALIBRATION_NEGATIVE;
-            advanced_key->lower_bound = value;
+            advanced_key_set_range(advanced_key, advanced_key->upper_bound, value);
             break;
         }
         advanced_key_update(advanced_key, ANALOG_VALUE_MIN);
@@ -128,13 +128,20 @@ void advanced_key_update_state(AdvancedKey* advanced_key, bool state)
 
 __WEAK AnalogValue advanced_key_normalize(AdvancedKey* advanced_key, AnalogValue value)
 {
+#ifdef OPTIMIZE_FOR_FLOAT_DIVISION
+    return  (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN) * (advanced_key->upper_bound - value) * advanced_key->range_reciprocal;
+#else
     return  (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN) * (advanced_key->upper_bound - value) / (advanced_key->upper_bound - advanced_key->lower_bound);
+#endif
 }
 
 void advanced_key_set_range(AdvancedKey* advanced_key, AnalogValue upper, AnalogValue lower)
 {
     advanced_key->upper_bound = upper;
     advanced_key->lower_bound = lower;
+#ifdef OPTIMIZE_FOR_FLOAT_DIVISION
+    advanced_key->range_reciprocal = 1.0f/(advanced_key->upper_bound - advanced_key->lower_bound);
+#endif
 }
 
 void advanced_key_reset_range(AdvancedKey* advanced_key, AnalogValue value)

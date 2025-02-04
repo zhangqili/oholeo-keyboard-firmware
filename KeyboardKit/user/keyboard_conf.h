@@ -15,6 +15,7 @@
 #define USE_FLOAT_VALUE
 #define NKRO_ENABLE
 //#define CONTINOUS_POLL
+#define OPTIMIZE_FOR_FLOAT_DIVISION
 
 /********************/
 /* Keyboard Default */

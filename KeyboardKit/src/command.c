@@ -70,7 +70,7 @@ void unload_cargo(uint8_t *buf)
         {
             uint8_t size = ((ADVANCED_KEY_NUM + KEY_NUM)-layer_page_index*LAYER_PAGE_LENGTH)*sizeof(uint16_t);
             size = size > LAYER_PAGE_LENGTH*sizeof(uint16_t) ? LAYER_PAGE_LENGTH*sizeof(uint16_t) : size;
-            memcpy(&g_keymap[layer_index][layer_page_index*16], buf + 3, size);
+            memcpy(&g_keymap[layer_index][layer_page_index*LAYER_PAGE_LENGTH], buf + 3, size);
         }
         break;
     case 4: // Dynamic Key
