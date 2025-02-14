@@ -34,7 +34,7 @@ enum
 
 typedef struct __DynamicKeyStroke4x4
 {
-    DynamicKeyType type;
+    uint32_t type;
     Keycode key_binding[4];
     uint16_t key_control[4];
     AnalogValue press_begin_distance;
@@ -48,7 +48,7 @@ typedef struct __DynamicKeyStroke4x4
 
 typedef struct __DynamicKeyModTap
 {
-    DynamicKeyType type;
+    uint32_t type;
     Keycode key_binding[2];
     uint32_t duration;
     uint32_t begin_time;
@@ -58,35 +58,32 @@ typedef struct __DynamicKeyModTap
 
 typedef struct __DynamicKeyToggleKey
 {
-    DynamicKeyType type;
+    uint32_t type;
     Keycode key_binding;
     bool state;
 } DynamicKeyToggleKey;
 
-enum
+typedef enum __DynamicKeyMutexMode
 {
     DK_MUTEX_DISTANCE_PRIORITY,
     DK_MUTEX_LAST_PRIORITY,
     DK_MUTEX_KEY1_PRIORITY,
     DK_MUTEX_KEY2_PRIORITY,
     DK_MUTEX_NEUTRAL
-};
+} DynamicKeyMutexMode;
 
 typedef struct __DynamicKeyMutex
 {
-    DynamicKeyType type;
-    struct
-    {
-        uint16_t id;
-        Keycode binding;
-    } key[2];
+    uint32_t type;
+    Keycode key_binding[2];
+    Keycode key_id[2];
     uint8_t mode;
     bool trigger_state;
 } DynamicKeyMutex;
 
 typedef union __DynamicKey
 {
-    DynamicKeyType type;
+    uint32_t type;
     DynamicKeyStroke4x4 dks;
     DynamicKeyModTap mt;
     DynamicKeyToggleKey tk;

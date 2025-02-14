@@ -182,6 +182,11 @@ int load_cargo(void)
     case 4: // Dynamic Key
         buf[1] = 0x04;
         uint8_t dk_index = (page_index & 0xFF);
+        if (dk_index >= DYNAMIC_KEY_NUM)
+        {
+            page_index=0x8000;
+            return 1;
+        }
         if (g_keyboard_dynamic_keys[dk_index].type != DYNAMIC_KEY_NONE)
         {
             buf[2] = dk_index;
@@ -190,6 +195,7 @@ int load_cargo(void)
         else
         {
             page_index=0x8000;
+            return 1;
         }
         if (!hid_send(buf,63))
         {

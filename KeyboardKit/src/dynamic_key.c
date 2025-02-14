@@ -58,12 +58,12 @@ void dynamic_key_add_buffer(DynamicKey*dynamic_key)
     case DYNAMIC_KEY_MUTEX:
         {
             DynamicKeyMutex*dynamic_key_m=(DynamicKeyMutex*)dynamic_key;
-            AdvancedKey*key0 = &g_keyboard_advanced_keys[command_advanced_key_mapping[dynamic_key_m->key[0].id]];
-            AdvancedKey*key1 = &g_keyboard_advanced_keys[command_advanced_key_mapping[dynamic_key_m->key[1].id]];
+            AdvancedKey*key0 = &g_keyboard_advanced_keys[command_advanced_key_mapping[dynamic_key_m->key_id[0]]];
+            AdvancedKey*key1 = &g_keyboard_advanced_keys[command_advanced_key_mapping[dynamic_key_m->key_id[1]]];
             if (key0->key.report_state)
-                keyboard_event_handler(MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_TRUE));
+                keyboard_event_handler(MK_EVENT(dynamic_key_m->key_binding[0], KEYBOARD_EVENT_KEY_TRUE));
             if (key1->key.report_state)
-                keyboard_event_handler(MK_EVENT(dynamic_key_m->key[1].binding, KEYBOARD_EVENT_KEY_TRUE));
+                keyboard_event_handler(MK_EVENT(dynamic_key_m->key_binding[1], KEYBOARD_EVENT_KEY_TRUE));
         }
         break;
     default:
@@ -261,8 +261,8 @@ void dynamic_key_tk_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
 void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
 {
     DynamicKeyMutex*dynamic_key_m=(DynamicKeyMutex*)dynamic_key;
-    AdvancedKey*key0 = &g_keyboard_advanced_keys[command_advanced_key_mapping[dynamic_key_m->key[0].id]];
-    AdvancedKey*key1 = &g_keyboard_advanced_keys[command_advanced_key_mapping[dynamic_key_m->key[1].id]];
+    AdvancedKey*key0 = &g_keyboard_advanced_keys[command_advanced_key_mapping[dynamic_key_m->key_id[0]]];
+    AdvancedKey*key1 = &g_keyboard_advanced_keys[command_advanced_key_mapping[dynamic_key_m->key_id[1]]];
 
     if ((dynamic_key_m->mode & 0x0F) == DK_MUTEX_DISTANCE_PRIORITY)
     {
@@ -285,11 +285,11 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
         }
         if (key0->key.report_state && !last_key0_state)
         {
-            keyboard_advanced_key_event_handler(key0, MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_DOWN));
+            keyboard_advanced_key_event_handler(key0, MK_EVENT(dynamic_key_m->key_binding[0], KEYBOARD_EVENT_KEY_DOWN));
         }
         if (!key0->key.report_state && last_key0_state)
         {
-            keyboard_advanced_key_event_handler(key0, MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_UP));
+            keyboard_advanced_key_event_handler(key0, MK_EVENT(dynamic_key_m->key_binding[0], KEYBOARD_EVENT_KEY_UP));
         }
         advanced_key_update_state(key0, key0->key.report_state);
         key0->key.report_state = key0->key.report_state;
@@ -307,11 +307,11 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
         }
         if (key1->key.report_state && !last_key1_state)
         {
-            keyboard_advanced_key_event_handler(key1, MK_EVENT(dynamic_key_m->key[1].binding, KEYBOARD_EVENT_KEY_DOWN));
+            keyboard_advanced_key_event_handler(key1, MK_EVENT(dynamic_key_m->key_binding[1], KEYBOARD_EVENT_KEY_DOWN));
         }
         if (!key1->key.report_state && last_key1_state)
         {
-            keyboard_advanced_key_event_handler(key1, MK_EVENT(dynamic_key_m->key[1].binding, KEYBOARD_EVENT_KEY_UP));
+            keyboard_advanced_key_event_handler(key1, MK_EVENT(dynamic_key_m->key_binding[1], KEYBOARD_EVENT_KEY_UP));
         }
         advanced_key_update_state(key1, key1->key.report_state);
         key1->key.report_state = key1->key.report_state;
@@ -324,12 +324,12 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
     case DK_MUTEX_LAST_PRIORITY:
         if (state && !key->key.state)
         {
-            if (key->key.id == dynamic_key_m->key[0].id)
+            if (key->key.id == dynamic_key_m->key_id[0])
             {
                 key1->key.report_state = false;
                 key0->key.report_state = true;
             }
-            else if (key->key.id == dynamic_key_m->key[1].id)
+            else if (key->key.id == dynamic_key_m->key_id[1])
             {
                 key0->key.report_state = false;
                 key1->key.report_state = true;
@@ -337,12 +337,12 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
         }
         if (!state && key->key.state)
         {
-            if (key->key.id == dynamic_key_m->key[0].id)
+            if (key->key.id == dynamic_key_m->key_id[0])
             {
                 key0->key.report_state = false;
                 key1->key.report_state = key1->key.state;
             }
-            else if (key->key.id == dynamic_key_m->key[1].id)
+            else if (key->key.id == dynamic_key_m->key_id[1])
             {
                 key0->key.report_state = key0->key.state;
                 key1->key.report_state = false;
@@ -384,18 +384,18 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
     }
     if (key0->key.report_state && !last_key0_state)
     {
-        keyboard_advanced_key_event_handler(key0, MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_DOWN));
+        keyboard_advanced_key_event_handler(key0, MK_EVENT(dynamic_key_m->key_binding[0], KEYBOARD_EVENT_KEY_DOWN));
     }
     if (!key0->key.report_state && last_key0_state)
     {
-        keyboard_advanced_key_event_handler(key0, MK_EVENT(dynamic_key_m->key[0].binding, KEYBOARD_EVENT_KEY_UP));
+        keyboard_advanced_key_event_handler(key0, MK_EVENT(dynamic_key_m->key_binding[0], KEYBOARD_EVENT_KEY_UP));
     }
     if (key1->key.report_state && !last_key1_state)
     {
-        keyboard_advanced_key_event_handler(key1, MK_EVENT(dynamic_key_m->key[1].binding, KEYBOARD_EVENT_KEY_DOWN));
+        keyboard_advanced_key_event_handler(key1, MK_EVENT(dynamic_key_m->key_binding[1], KEYBOARD_EVENT_KEY_DOWN));
     }
     if (!key1->key.report_state && last_key1_state)
     {
-        keyboard_advanced_key_event_handler(key1, MK_EVENT(dynamic_key_m->key[1].binding, KEYBOARD_EVENT_KEY_UP));
+        keyboard_advanced_key_event_handler(key1, MK_EVENT(dynamic_key_m->key_binding[1], KEYBOARD_EVENT_KEY_UP));
     }
 }
