@@ -335,12 +335,13 @@ void rgb_turn_off(void)
 {
     for (uint8_t i = 0; i < RGB_NUM; i++)
     {
-        rgb_set(0, 0, 0, i);
+        rgb_set(i, 0, 0, 0);
     }
 }
 
 void rgb_factory_reset(void)
 {
+    g_rgb_switch = true;
     ColorHSV temphsv = RGB_DEFAULT_COLOR_HSV;
     for (uint8_t i = 0; i < RGB_NUM; i++)
     {
