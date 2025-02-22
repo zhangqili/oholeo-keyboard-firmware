@@ -284,6 +284,7 @@ __WEAK void keyboard_reset_to_default(void)
         advanced_key_set_deadzone(g_keyboard_advanced_keys + i, DEFAULT_UPPER_DEADZONE, DEFAULT_LOWER_DEADZONE);
     }
     rgb_factory_reset();
+    memset(g_keyboard_dynamic_keys, 0, sizeof(g_keyboard_dynamic_keys));
 }
 
 void keyboard_factory_reset(void)

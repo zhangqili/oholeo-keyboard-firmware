@@ -68,6 +68,7 @@ void storage_read_config(uint8_t index)
     lfs_file_read(&g_lfs, &lfs_file, g_keymap, sizeof(g_keymap));
     lfs_file_read(&g_lfs, &lfs_file, &g_rgb_switch, sizeof(g_rgb_switch));
     lfs_file_read(&g_lfs, &lfs_file, &g_rgb_configs, sizeof(g_rgb_configs));
+    lfs_file_read(&g_lfs, &lfs_file, g_keyboard_dynamic_keys, sizeof(g_keyboard_dynamic_keys));
     // remember the storage is not updated until the file is closed successfully
     lfs_file_close(&g_lfs, &lfs_file);
 }
@@ -88,6 +89,7 @@ void storage_save_config(uint8_t index)
     lfs_file_write(&g_lfs, &lfs_file, g_keymap, sizeof(g_keymap));
     lfs_file_write(&g_lfs, &lfs_file, &g_rgb_switch, sizeof(g_rgb_switch));
     lfs_file_write(&g_lfs, &lfs_file, &g_rgb_configs, sizeof(g_rgb_configs));
+    lfs_file_write(&g_lfs, &lfs_file, g_keyboard_dynamic_keys, sizeof(g_keyboard_dynamic_keys));
     // remember the storage is not updated until the file is closed successfully
     lfs_file_close(&g_lfs, &lfs_file);
 }

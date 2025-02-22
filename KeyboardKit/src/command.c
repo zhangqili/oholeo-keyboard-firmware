@@ -137,6 +137,7 @@ int load_cargo(void)
                 buf[2 + 9 * i + 2] = g_rgb_configs[rgb_index].rgb.r;
                 buf[2 + 9 * i + 3] = g_rgb_configs[rgb_index].rgb.g;
                 buf[2 + 9 * i + 4] = g_rgb_configs[rgb_index].rgb.b;
+                rgb_to_hsv(&g_rgb_configs[rgb_index].hsv, &g_rgb_configs[rgb_index].rgb);
                 memcpy(&buf[2 + 9 * i + 5], &g_rgb_configs[rgb_index].speed, sizeof(float));
             }
             else
