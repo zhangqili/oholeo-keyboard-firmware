@@ -53,6 +53,9 @@ typedef enum
     KEYBOARD_UPLOAD_CONFIG
 } KEYBOARD_STATE;
 
+#define KEYBOARD_SEND_FLAG 0
+#define MOUSE_SEND_FLAG 1
+
 extern Key g_keyboard_keys[KEY_NUM];
 extern AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM];
 extern const Keycode g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
@@ -70,7 +73,7 @@ extern uint8_t g_keyboard_knob_flag;
 extern volatile bool g_keyboard_send_report_enable;
 
 extern KEYBOARD_STATE g_keyboard_state;
-extern volatile bool g_keyboard_send_flag;
+extern volatile uint8_t g_keyboard_send_flag;
 
 extern uint8_t g_current_config_index;
 

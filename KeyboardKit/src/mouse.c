@@ -38,13 +38,14 @@ void mouse_add_buffer(Keycode keycode)
     }
 }
 
-void mouse_buffer_send(Mouse *buf)
+int mouse_buffer_send(Mouse *buf)
 {
-    mouse_hid_send((uint8_t*)buf, sizeof(Mouse));
+    return mouse_hid_send((uint8_t*)buf, sizeof(Mouse));
 }
 
-__WEAK void mouse_hid_send(uint8_t *report, uint16_t len)
+__WEAK int mouse_hid_send(uint8_t *report, uint16_t len)
 {
     UNUSED(report);
     UNUSED(len);
+    return 0;
 }

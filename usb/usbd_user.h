@@ -33,7 +33,7 @@ extern "C" {
 
 #define USBD_CUSTOMHID_OUTREPORT_BUF_SIZE     64U
 /*---------- -----------*/
-#define USBD_CUSTOM_HID_REPORT_DESC_SIZE     89U
+#define USBD_CUSTOM_HID_REPORT_DESC_SIZE     (89U+54U)
 /*---------- -----------*/
 #define CUSTOM_HID_FS_BINTERVAL     0x1U
 
@@ -47,7 +47,7 @@ extern uint32_t g_usb_keyboard_interval;
 
 void hid_init(void);
 int hid_keyboard_send(uint8_t*buffer);
-void hid_mouse_send(uint8_t*buffer);
+int hid_mouse_send(uint8_t*buffer);
 int hid_raw_send(uint8_t*buffer,int size);
 void hid_keyboard_test(void);
 void hid_mouse_test(void);

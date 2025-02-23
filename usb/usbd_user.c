@@ -186,6 +186,40 @@ const uint8_t custom_hid_report_desc[USBD_CUSTOM_HID_REPORT_DESC_SIZE] = {
     0x09, 0x02,       // usage
     0x91, 0x02,       // Output (array)
     0xC0,             /*     END_COLLECTION	       89 Bytes      */
+
+    0x05, 0x01, // USAGE_PAGE (Generic Desktop)
+    0x09, 0x02, // USAGE (Mouse)
+    0xA1, 0x01, // COLLECTION (Application)
+    0x85, 0x03, //   REPORT ID (0x01)
+    0x09, 0x01, //   USAGE (Pointer)
+
+    0xA1, 0x00, //   COLLECTION (Physical)
+    0x05, 0x09, //     USAGE_PAGE (Button)
+    0x19, 0x01, //     USAGE_MINIMUM (Button 1)
+    0x29, 0x05, //     USAGE_MAXIMUM (Button 5)
+
+    0x15, 0x00, //     LOGICAL_MINIMUM (0)
+    0x25, 0x01, //     LOGICAL_MAXIMUM (1)
+    0x95, 0x05, //     REPORT_COUNT (5)
+    0x75, 0x01, //     REPORT_SIZE (1)
+
+    0x81, 0x02, //     INPUT (Data,Var,Abs)
+    0x95, 0x01, //     REPORT_COUNT (1)
+    0x75, 0x03, //     REPORT_SIZE (3)
+    0x81, 0x01, //     INPUT (Cnst,Var,Abs)
+
+    0x05, 0x01, //     USAGE_PAGE (Generic Desktop)
+    0x09, 0x30, //     USAGE (X)
+    0x09, 0x31, //     USAGE (Y)
+    0x09, 0x38,
+
+    0x15, 0x81, //     LOGICAL_MINIMUM (-127)
+    0x25, 0x7F, //     LOGICAL_MAXIMUM (127)
+    0x75, 0x08, //     REPORT_SIZE (8)
+    0x95, 0x03, //     REPORT_COUNT (2)
+
+    0x81, 0x06, //     INPUT (Data,Var,Rel)
+    0xC0, 0xc0 //   END_COLLECTION
     //0xC0              /*     END_COLLECTION	             */
 };
 
@@ -294,6 +328,21 @@ int hid_keyboard_send(uint8_t *buffer)
     int ret = usbd_ep_start_write(0, CUSTOM_HID_EPIN_ADDR, send_buffer, 64);
     if (ret < 0)
     {
+        return 1;
+    }
+    custom_state = HID_STATE_BUSY;
+    return 0;
+}
+
+int hid_mouse_send(uint8_t *buffer)
+{
+    memcpy(send_buffer + 1, buffer, 4);
+    send_buffer[0] = 3;
+    if (custom_state == HID_STATE_BUSY) {
+        return 1;
+    }
+    int ret = usbd_ep_start_write(0, CUSTOM_HID_EPIN_ADDR, send_buffer, 64);
+    if (ret < 0) {
         return 1;
     }
     custom_state = HID_STATE_BUSY;

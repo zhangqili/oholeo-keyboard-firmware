@@ -1138,6 +1138,11 @@ int keyboard_hid_send(uint8_t*report,uint16_t len)
     return hid_keyboard_send(report);
 }
 
+int mouse_hid_send(uint8_t*report,uint16_t len)
+{
+    UNUSED(len);
+    return hid_mouse_send(report);
+}
 
 AnalogValue advanced_key_normalize(AdvancedKey* advanced_key, AnalogValue value)
 {

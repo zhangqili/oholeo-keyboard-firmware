@@ -37,7 +37,7 @@ uint8_t g_keyboard_knob_flag;
 volatile bool g_keyboard_send_report_enable = true;
 
 KEYBOARD_STATE g_keyboard_state;
-volatile bool g_keyboard_send_flag;
+volatile uint8_t g_keyboard_send_flags;
 
 uint8_t g_current_config_index;
 
@@ -74,59 +74,77 @@ void keyboard_event_handler(KeyboardEvent event)
     switch (event.event)
     {
     case KEYBOARD_EVENT_KEY_UP:
-        g_keyboard_send_flag = true;
-        switch (event.keycode & 0xFF)
+        if ((event.keycode & 0xFF) <= KEY_EXSEL)
         {
-        case LAYER_CONTROL:
-            layer_control(event.keycode,event.event);
-            break;
-        default:
-            break;
+            BIT_SET(g_keyboard_send_flags, KEYBOARD_SEND_FLAG);
+        }
+        else
+        {
+            switch (event.keycode & 0xFF)
+            {
+            case MOUSE_COLLECTION:
+                BIT_SET(g_keyboard_send_flags, MOUSE_SEND_FLAG);
+                break;
+            case LAYER_CONTROL:
+                layer_control(event.keycode,event.event);
+                break;
+            default:
+                break;
+            }
         }
         break;
     case KEYBOARD_EVENT_KEY_DOWN:
-        g_keyboard_send_flag = true;
-        switch (event.keycode & 0xFF)
+        if ((event.keycode & 0xFF) <= KEY_EXSEL)
         {
-        case LAYER_CONTROL:
-            layer_control(event.keycode,event.event);
-            break;
-        case KEY_SYSTEM:
-            switch ((event.keycode >> 8) & 0xFF)
+            BIT_SET(g_keyboard_send_flags, KEYBOARD_SEND_FLAG);
+        }
+        else
+        {
+            switch (event.keycode & 0xFF)
             {
+            case MOUSE_COLLECTION:
+                BIT_SET(g_keyboard_send_flags, MOUSE_SEND_FLAG);
+                break;
+            case LAYER_CONTROL:
+                layer_control(event.keycode,event.event);
+                break;
+            case KEY_SYSTEM:
+                switch ((event.keycode >> 8) & 0xFF)
+                {
             case SYSTEM_RESET:
                 keyboard_system_reset();
-                break;
+                    break;
             case SYSTEM_FACTORY_RESET:
                 keyboard_factory_reset();
-                break;
+                    break;
             case SYSTEM_SAVE:
                 keyboard_save();
-                break;
+                    break;
             case SYSTEM_BOOTLOADER:
                 keyboard_jump_to_bootloader();
-                break;
+                    break;
             case SYSTEM_DEBUG:
                 g_keyboard_state = (g_keyboard_state != KEYBOARD_DEBUG);
-                break;
+                    break;
             case SYSTEM_RESET_TO_DEFAULT:
                 keyboard_reset_to_default();
-                break;
+                    break;
             case SYSTEM_CONFIG0:
             case SYSTEM_CONFIG1:
             case SYSTEM_CONFIG2:
             case SYSTEM_CONFIG3:
                 keyboard_set_config_index((event.keycode >> 8) & 0x0F);
+                    break;
+            default:
+                break;
+                }
+                break;
+            case KEY_USER:
+                keyboard_user_handler((event.keycode >> 8) & 0xFF);
                 break;
             default:
                 break;
-            }       
-            break;
-        case KEY_USER:
-            keyboard_user_handler((event.keycode >> 8) & 0xFF);
-            break;
-        default:
-            break;
+            }
         }
         break;
     case KEYBOARD_EVENT_KEY_TRUE:
@@ -340,12 +358,12 @@ void keyboard_send_report(void)
     static uint32_t mouse_value;
     if (g_keyboard_send_report_enable 
 #ifndef CONTINOUS_POLL
-        && g_keyboard_send_flag
+        && g_keyboard_send_flags
 #endif
     )
     {
-#ifndef CONTINOUS_POLL
-        g_keyboard_send_flag = false;
+#ifdef CONTINOUS_POLL
+        usb_send_flags = 0x03;
 #endif
         keyboard_buffer_clear();
         mouse_buffer_clear(&g_mouse);
@@ -358,15 +376,24 @@ void keyboard_send_report(void)
         {        
             keyboard_event_handler(keyboard_make_event(&g_keyboard_keys[i], g_keyboard_keys[i].report_state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
         }
-        if (keyboard_buffer_send())
+        if (BIT_GET(g_keyboard_send_flags,KEYBOARD_SEND_FLAG))
         {
-            g_keyboard_send_flag = true;
+            if (!keyboard_buffer_send())
+            {
+                BIT_RESET(g_keyboard_send_flags,KEYBOARD_SEND_FLAG);
+            }
         }
-        if ((*(uint32_t*)&g_mouse)!=mouse_value)
+        if (BIT_GET(g_keyboard_send_flags,MOUSE_SEND_FLAG))
         {
-            mouse_buffer_send(&g_mouse);
+            if ((*(uint32_t*)&g_mouse)!=mouse_value)
+            {
+                if (!mouse_buffer_send(&g_mouse))
+                {
+                    BIT_RESET(g_keyboard_send_flags,MOUSE_SEND_FLAG);
+                }
+                mouse_value = *(uint32_t*)&g_mouse;
+            }
         }
-        mouse_value = *(uint32_t*)&g_mouse;
     }
 }
 

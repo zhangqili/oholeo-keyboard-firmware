@@ -20,8 +20,8 @@ typedef struct __Mouse {
 //void mouse_buffer_clear(Mouse*mouse);
 
 void mouse_add_buffer(uint16_t keycode);
-void mouse_buffer_send(Mouse *buf);
-void mouse_hid_send(uint8_t *report, uint16_t len);
+int mouse_buffer_send(Mouse *buf);
+int mouse_hid_send(uint8_t *report, uint16_t len);
 
 extern Mouse g_mouse;
 
