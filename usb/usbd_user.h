@@ -18,7 +18,7 @@ extern "C" {
 #define USBD_MAX_POWER     300
 #define USBD_LANGID_STRING 1033
 
-#define CUSTOM_HID_EPIN_ADDR                 0x81U
+#define CUSTOM_HID_EPIN_ADDR                 (ENDPOINT_DIR_IN | SHARED_IN_EPNUM)
 #define CUSTOM_HID_EPIN_SIZE                 0x40U
 
 #define CUSTOM_HID_EPOUT_ADDR                0x01U

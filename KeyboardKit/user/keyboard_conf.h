@@ -13,7 +13,6 @@
 #define ADVANCED_KEY_NUM        64
 #define KEY_NUM                 0
 #define USE_FLOAT_VALUE
-#define NKRO_ENABLE
 //#define CONTINOUS_POLL
 #define OPTIMIZE_FOR_FLOAT_DIVISION
 
@@ -81,6 +80,25 @@
 #define ANALOG_HISTORY_LENGTH   129
 #define RECORD_MAX_KEY_NUM      8
 #define KPS_REFRESH_RATE        144
+
+/*******/
+/* USB */
+/*******/
+#define FIXED_CONTROL_ENDPOINT_SIZE 0x40
+#define VENDOR_ID 0xFFFF
+#define PRODUCT_ID 0xFFFF
+#define DEVICE_VER 2
+#define FIXED_NUM_CONFIGURATIONS 1
+
+#define MANUFACTURER "dwdwdw5163&Lzq12345"
+#define PRODUCT "Oholeo Keyboard"
+#define SERIAL_NUMBER "2022123456"
+
+#define KEYBOARD_SHARED_EP
+#define SHARED_EP_ENABLE
+#define NKRO_ENABLE
+#define MOUSE_ENABLE
+#define MOUSE_SHARED_EP
 
 /****************/
 /* User Defines */

@@ -8,6 +8,7 @@
 #include "keyboard.h"
 #include "mouse.h"
 #include "stm32f303xc.h"
+#include "usb_descriptor.c"
 
 const uint8_t hid_descriptor[] = {
     USB_DEVICE_DESCRIPTOR_INIT(USB_2_0, 0x00, 0x00, 0x00, USBD_VID, USBD_PID, 0x0002, 0x01),
@@ -135,6 +136,101 @@ const uint8_t hid_descriptor[] = {
     0x00,
 #endif
     0x00};
+
+
+
+typedef struct
+{
+    USB_Descriptor_Device_t device;
+    USB_Descriptor_Configuration_t config;
+    uint8_t strings[];
+} HidDescriptor;
+
+const HidDescriptor hid_descriptor_new =
+    {
+    .device = DeviceDescriptor,
+    .config = ConfigurationDescriptor,
+    .strings = {
+    ///////////////////////////////////////
+    /// string0 descriptor
+    ///////////////////////////////////////
+    USB_LANGID_INIT(USBD_LANGID_STRING),
+    ///////////////////////////////////////
+    /// string1 descriptor
+    ///////////////////////////////////////
+    0x28,                       /* bLength */
+    USB_DESCRIPTOR_TYPE_STRING, /* bDescriptorType */
+    'd', 0x00,                  /* wcChar0 */
+    'w', 0x00,                  /* wcChar1 */
+    'd', 0x00,                  /* wcChar2 */
+    'w', 0x00,                  /* wcChar3 */
+    'd', 0x00,                  /* wcChar4 */
+    'w', 0x00,                  /* wcChar5 */
+    '5', 0x00,                  /* wcChar6 */
+    '1', 0x00,                  /* wcChar7 */
+    '6', 0x00,                  /* wcChar8 */
+    '3', 0x00,                  /* wcChar9 */
+    '&', 0x00,                  /* wcChar10 */
+    'L', 0x00,                  /* wcChar11 */
+    'z', 0x00,                  /* wcChar12 */
+    'q', 0x00,                  /* wcChar13 */
+    '1', 0x00,                  /* wcChar14 */
+    '2', 0x00,                  /* wcChar15 */
+    '3', 0x00,                  /* wcChar16 */
+    '4', 0x00,                  /* wcChar17 */
+    '5', 0x00,                  /* wcChar18 */
+    ///////////////////////////////////////
+    /// string2 descriptor
+    ///////////////////////////////////////
+    0x20,                       /* bLength */
+    USB_DESCRIPTOR_TYPE_STRING, /* bDescriptorType */
+    'O', 0x00,                  /* wcChar0 */
+    'h', 0x00,                  /* wcChar1 */
+    'o', 0x00,                  /* wcChar2 */
+    'l', 0x00,                  /* wcChar3 */
+    'e', 0x00,                  /* wcChar4 */
+    'o', 0x00,                  /* wcChar5 */
+    ' ', 0x00,                  /* wcChar6 */
+    'K', 0x00,                  /* wcChar7 */
+    'e', 0x00,                  /* wcChar8 */
+    'y', 0x00,                  /* wcChar9 */
+    'b', 0x00,                  /* wcChar10 */
+    'o', 0x00,                  /* wcChar11 */
+    'a', 0x00,                  /* wcChar12 */
+    'r', 0x00,                  /* wcChar13 */
+    'd', 0x00,                  /* wcChar14 */
+    ///////////////////////////////////////
+    /// string3 descriptor
+    ///////////////////////////////////////
+    0x16,                       /* bLength */
+    USB_DESCRIPTOR_TYPE_STRING, /* bDescriptorType */
+    '2', 0x00,                  /* wcChar0 */
+    '0', 0x00,                  /* wcChar1 */
+    '2', 0x00,                  /* wcChar2 */
+    '2', 0x00,                  /* wcChar3 */
+    '1', 0x00,                  /* wcChar4 */
+    '2', 0x00,                  /* wcChar5 */
+    '3', 0x00,                  /* wcChar6 */
+    '4', 0x00,                  /* wcChar7 */
+    '5', 0x00,                  /* wcChar8 */
+    '6', 0x00,                  /* wcChar9 */
+#ifdef CONFIG_USB_HS
+    ///////////////////////////////////////
+    /// device qualifier descriptor
+    ///////////////////////////////////////
+    0x0a,
+    USB_DESCRIPTOR_TYPE_DEVICE_QUALIFIER,
+    0x00,
+    0x02,
+    0x00,
+    0x00,
+    0x00,
+    0x40,
+    0x01,
+    0x00,
+#endif
+    0x00}
+    };
 
 const uint8_t custom_hid_report_desc[USBD_CUSTOM_HID_REPORT_DESC_SIZE] = {
     /* USER CODE BEGIN 0 */
@@ -306,8 +402,8 @@ struct usbd_interface intf0; // Custom
 
 void hid_init(void)
 {
-    usbd_desc_register(0, hid_descriptor);
-    usbd_add_interface(0, usbd_hid_init_intf(0, &intf0, custom_hid_report_desc, USBD_CUSTOM_HID_REPORT_DESC_SIZE));
+    usbd_desc_register(0, (uint8_t*)&hid_descriptor_new);
+    usbd_add_interface(0, usbd_hid_init_intf(0, &intf0, SharedReport, sizeof(SharedReport)));
     usbd_add_endpoint(0, &custom_in_ep);
     usbd_add_endpoint(0, &custom_out_ep);
 
@@ -317,7 +413,7 @@ void hid_init(void)
 int hid_keyboard_send(uint8_t *buffer)
 {
     memcpy(send_buffer + 1, buffer, 17);
-    send_buffer[0] = 1;
+    send_buffer[0] = REPORT_ID_NKRO;
     if (custom_state == HID_STATE_BUSY)
     {
         return 1;
@@ -337,7 +433,7 @@ int hid_keyboard_send(uint8_t *buffer)
 int hid_mouse_send(uint8_t *buffer)
 {
     memcpy(send_buffer + 1, buffer, 4);
-    send_buffer[0] = 3;
+    send_buffer[0] = REPORT_ID_MOUSE;
     if (custom_state == HID_STATE_BUSY) {
         return 1;
     }
