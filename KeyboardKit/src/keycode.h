@@ -10,7 +10,7 @@
 
 typedef uint16_t Keycode;
 
-enum LAYER_CONTROL_KEYCODE {
+enum LayerControlKeycode {
   LAYER_MOMENTARY = 0x00,
   LAYER_TURN_ON = 0x01,
   LAYER_TURN_OFF = 0x02,
@@ -19,7 +19,7 @@ enum LAYER_CONTROL_KEYCODE {
 
 #define LAYER(code,layer) (((code) << 12) | ((layer) << 8) | LAYER_CONTROL)
 
-enum USB_HID_MODIFIER
+enum ModifierKeycode
 {
     /*------------------------- HID report data -------------------------*/
     KEY_NO_MODIFIER=0,
@@ -28,7 +28,7 @@ enum USB_HID_MODIFIER
     /*------------------------- HID report data -------------------------*/
 };
 
-enum USB_HID_KEYCODES {
+enum KeycodeEnum {
   KEY_NO_EVENT                 = 0x00,   // Keyboard NoEvent
   KEY_ERR_OVF                  = 0x01,   // Keyboard ErrorRollOver
   KEY_POST_FAIL                = 0x02,   // Keyboard POSTFail
@@ -198,13 +198,15 @@ enum USB_HID_KEYCODES {
   MOUSE_COLLECTION = 0xa5,
   LAYER_CONTROL = 0xa6,
   DYNAMIC_KEY = 0xa7,
+  CONSUMER_COLLECTION = 0xa8,
+  SYSTEM_COLLECTION = 0xa9,
   FN = 0xB0,
   KEY_USER = 0xFD,
-  KEY_SYSTEM = 0xFE,
+  KEYBOARD_OPERATION = 0xFE,
   KEY_TRANSPARENT = 0xFF,
 };
 
-enum USB_HID_MOUSE_KEYCODES {
+enum MouseKeycode {
   MOUSE_LBUTTON = 0x00,
   MOUSE_RBUTTON = 0x01,
   MOUSE_MBUTTON = 0x02,
@@ -214,17 +216,207 @@ enum USB_HID_MOUSE_KEYCODES {
   MOUSE_WHEEL_DOWN = 0x06,
 };
 
-enum SYSTEM_KEYCODES {
-  SYSTEM_RESET = 0x00,
-  SYSTEM_FACTORY_RESET = 0x01,
-  SYSTEM_SAVE = 0x02,
-  SYSTEM_BOOTLOADER = 0x03,
-  SYSTEM_DEBUG = 0x04,
-  SYSTEM_RESET_TO_DEFAULT = 0x05,
-  SYSTEM_CONFIG0 = 0x10,
-  SYSTEM_CONFIG1 = 0x11,
-  SYSTEM_CONFIG2 = 0x12,
-  SYSTEM_CONFIG3 = 0x13,
+enum KeyboardKeycode {
+  KEYBOARD_REBOOT = 0x00,
+  KEYBOARD_FACTORY_RESET = 0x01,
+  KEYBOARD_SAVE = 0x02,
+  KEYBOARD_BOOTLOADER = 0x03,
+  KEYBOARD_TOGGLE_DEBUG = 0x04,
+  KEYBOARD_RESET_TO_DEFAULT = 0x05,
+  KEYBOARD_CONFIG0 = 0x10,
+  KEYBOARD_CONFIG1 = 0x11,
+  KEYBOARD_CONFIG2 = 0x12,
+  KEYBOARD_CONFIG3 = 0x13,
 };
+
+enum ConsumerKeycode
+{
+  // 15.5 Display Controls
+  CONSUMER_SNAPSHOT        = 0x00,
+  CONSUMER_BRIGHTNESS_UP   = 0x01, // https://www.usb.org/sites/default/files/hutrr41_0.pdf
+  CONSUMER_BRIGHTNESS_DOWN = 0x02,
+  // 15.7 Transport Controls
+  CONSUMER_TRANSPORT_RECORD       = 0x03,
+  CONSUMER_TRANSPORT_FAST_FORWARD = 0x04,
+  CONSUMER_TRANSPORT_REWIND       = 0x05,
+  CONSUMER_TRANSPORT_NEXT_TRACK   = 0x06,
+  CONSUMER_TRANSPORT_PREV_TRACK   = 0x07,
+  CONSUMER_TRANSPORT_STOP         = 0x08,
+  CONSUMER_TRANSPORT_EJECT        = 0x09,
+  CONSUMER_TRANSPORT_RANDOM_PLAY  = 0x0A,
+  CONSUMER_TRANSPORT_STOP_EJECT   = 0x0B,
+  CONSUMER_TRANSPORT_PLAY_PAUSE   = 0x0C,
+  // 15.9.1 Audio Controls - Volume
+  CONSUMER_AUDIO_MUTE     = 0x0D,
+  CONSUMER_AUDIO_VOL_UP   = 0x0E,
+  CONSUMER_AUDIO_VOL_DOWN = 0x0F,
+  // 15.15 Application Launch Buttons
+  CONSUMER_AL_CC_CONFIG       = 0x10,
+  CONSUMER_AL_EMAIL           = 0x11,
+  CONSUMER_AL_CALCULATOR      = 0x12,
+  CONSUMER_AL_LOCAL_BROWSER   = 0x13,
+  CONSUMER_AL_LOCK            = 0x14,
+  CONSUMER_AL_CONTROL_PANEL   = 0x15,
+  CONSUMER_AL_ASSISTANT       = 0x16,
+  CONSUMER_AL_KEYBOARD_LAYOUT = 0x17,
+  // 15.16 Generic GUI Application Controls
+  CONSUMER_AC_NEW                         = 0x18,
+  CONSUMER_AC_OPEN                        = 0x19,
+  CONSUMER_AC_CLOSE                       = 0x1A,
+  CONSUMER_AC_EXIT                        = 0x1B,
+  CONSUMER_AC_MAXIMIZE                    = 0x1C,
+  CONSUMER_AC_MINIMIZE                    = 0x1D,
+  CONSUMER_AC_SAVE                        = 0x1E,
+  CONSUMER_AC_PRINT                       = 0x1F,
+  CONSUMER_AC_PROPERTIES                  = 0x20,
+  CONSUMER_AC_UNDO                        = 0x21,
+  CONSUMER_AC_COPY                        = 0x22,
+  CONSUMER_AC_CUT                         = 0x23,
+  CONSUMER_AC_PASTE                       = 0x24,
+  CONSUMER_AC_SELECT_ALL                  = 0x25,
+  CONSUMER_AC_FIND                        = 0x26,
+  CONSUMER_AC_SEARCH                      = 0x27,
+  CONSUMER_AC_HOME                        = 0x28,
+  CONSUMER_AC_BACK                        = 0x29,
+  CONSUMER_AC_FORWARD                     = 0x2A,
+  CONSUMER_AC_STOP                        = 0x2B,
+  CONSUMER_AC_REFRESH                     = 0x2C,
+  CONSUMER_AC_BOOKMARKS                   = 0x2D,
+  CONSUMER_AC_NEXT_KEYBOARD_LAYOUT_SELECT = 0x2E,
+  CONSUMER_AC_DESKTOP_SHOW_ALL_WINDOWS    = 0x2F,
+  CONSUMER_AC_SOFT_KEY_LEFT               = 0x30,
+};
+
+enum SystemRawKeycode
+{
+  SYSTEM_POWER_DOWN             = 0x81,
+  SYSTEM_SLEEP                  = 0x82,
+  SYSTEM_WAKE_UP                = 0x83,
+  SYSTEM_RESTART                = 0x8F,
+  SYSTEM_DISPLAY_TOGGLE_INT_EXT = 0xB5,
+};
+/* Consumer Page (0x0C)
+ *
+ * See https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf#page=75
+ */
+enum ConsumerRawKeycode
+{
+  // 15.5 Display Controls
+  SNAPSHOT        = 0x065,
+  BRIGHTNESS_UP   = 0x06F, // https://www.usb.org/sites/default/files/hutrr41_0.pdf
+  BRIGHTNESS_DOWN = 0x070,
+  // 15.7 Transport Controls
+  TRANSPORT_RECORD       = 0x0B2,
+  TRANSPORT_FAST_FORWARD = 0x0B3,
+  TRANSPORT_REWIND       = 0x0B4,
+  TRANSPORT_NEXT_TRACK   = 0x0B5,
+  TRANSPORT_PREV_TRACK   = 0x0B6,
+  TRANSPORT_STOP         = 0x0B7,
+  TRANSPORT_EJECT        = 0x0B8,
+  TRANSPORT_RANDOM_PLAY  = 0x0B9,
+  TRANSPORT_STOP_EJECT   = 0x0CC,
+  TRANSPORT_PLAY_PAUSE   = 0x0CD,
+  // 15.9.1 Audio Controls - Volume
+  AUDIO_MUTE     = 0x0E2,
+  AUDIO_VOL_UP   = 0x0E9,
+  AUDIO_VOL_DOWN = 0x0EA,
+  // 15.15 Application Launch Buttons
+  AL_CC_CONFIG       = 0x183,
+  AL_EMAIL           = 0x18A,
+  AL_CALCULATOR      = 0x192,
+  AL_LOCAL_BROWSER   = 0x194,
+  AL_LOCK            = 0x19E,
+  AL_CONTROL_PANEL   = 0x19F,
+  AL_ASSISTANT       = 0x1CB,
+  AL_KEYBOARD_LAYOUT = 0x1AE,
+  // 15.16 Generic GUI Application Controls
+  AC_NEW                         = 0x201,
+  AC_OPEN                        = 0x202,
+  AC_CLOSE                       = 0x203,
+  AC_EXIT                        = 0x204,
+  AC_MAXIMIZE                    = 0x205,
+  AC_MINIMIZE                    = 0x206,
+  AC_SAVE                        = 0x207,
+  AC_PRINT                       = 0x208,
+  AC_PROPERTIES                  = 0x209,
+  AC_UNDO                        = 0x21A,
+  AC_COPY                        = 0x21B,
+  AC_CUT                         = 0x21C,
+  AC_PASTE                       = 0x21D,
+  AC_SELECT_ALL                  = 0x21E,
+  AC_FIND                        = 0x21F,
+  AC_SEARCH                      = 0x221,
+  AC_HOME                        = 0x223,
+  AC_BACK                        = 0x224,
+  AC_FORWARD                     = 0x225,
+  AC_STOP                        = 0x226,
+  AC_REFRESH                     = 0x227,
+  AC_BOOKMARKS                   = 0x22A,
+  AC_NEXT_KEYBOARD_LAYOUT_SELECT = 0x29D,
+  AC_DESKTOP_SHOW_ALL_WINDOWS    = 0x29F,
+  AC_SOFT_KEY_LEFT               = 0x2A0
+};
+
+
+static inline uint16_t CONSUMER_KEYCODE_TO_RAWCODE(uint8_t key) {
+  switch (key) {
+  case CONSUMER_AUDIO_MUTE:
+    return AUDIO_MUTE;
+  case CONSUMER_AUDIO_VOL_UP:
+    return AUDIO_VOL_UP;
+  case CONSUMER_AUDIO_VOL_DOWN:
+    return AUDIO_VOL_DOWN;
+  case CONSUMER_TRANSPORT_NEXT_TRACK:
+    return TRANSPORT_NEXT_TRACK;
+  case CONSUMER_TRANSPORT_PREV_TRACK:
+    return TRANSPORT_PREV_TRACK;
+  case CONSUMER_TRANSPORT_FAST_FORWARD:
+    return TRANSPORT_FAST_FORWARD;
+  case CONSUMER_TRANSPORT_REWIND:
+    return TRANSPORT_REWIND;
+  case CONSUMER_TRANSPORT_STOP:
+    return TRANSPORT_STOP;
+  case CONSUMER_TRANSPORT_STOP_EJECT:
+    return TRANSPORT_STOP_EJECT;
+  case CONSUMER_TRANSPORT_PLAY_PAUSE:
+    return TRANSPORT_PLAY_PAUSE;
+  case CONSUMER_AL_CC_CONFIG:
+    return AL_CC_CONFIG;
+  case CONSUMER_AL_EMAIL:
+    return AL_EMAIL;
+  case CONSUMER_AL_CALCULATOR:
+    return AL_CALCULATOR;
+  case CONSUMER_AL_LOCAL_BROWSER:
+    return AL_LOCAL_BROWSER;
+  case CONSUMER_AL_CONTROL_PANEL:
+    return AL_CONTROL_PANEL;
+  case CONSUMER_AL_ASSISTANT:
+    return AL_ASSISTANT;
+  case CONSUMER_AC_SEARCH:
+    return AC_SEARCH;
+  case CONSUMER_AC_HOME:
+    return AC_HOME;
+  case CONSUMER_AC_BACK:
+    return AC_BACK;
+  case CONSUMER_AC_FORWARD:
+    return AC_FORWARD;
+  case CONSUMER_AC_STOP:
+    return AC_STOP;
+  case CONSUMER_AC_REFRESH:
+    return AC_REFRESH;
+  case CONSUMER_BRIGHTNESS_UP:
+    return BRIGHTNESS_UP;
+  case CONSUMER_BRIGHTNESS_DOWN:
+    return BRIGHTNESS_DOWN;
+  case CONSUMER_AC_BOOKMARKS:
+    return AC_BOOKMARKS;
+  case CONSUMER_AC_DESKTOP_SHOW_ALL_WINDOWS:
+    return AC_DESKTOP_SHOW_ALL_WINDOWS;
+  case CONSUMER_AC_SOFT_KEY_LEFT:
+    return AC_SOFT_KEY_LEFT;
+  default:
+    return key;
+  }
+}
 
 #endif /* KEYCODE_H_ */

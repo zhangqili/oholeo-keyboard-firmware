@@ -228,7 +228,7 @@ void command_prase(uint8_t *buf, uint8_t len)
         keyboard_save();
         break;
     case 0x81: // System Reset
-        keyboard_system_reset();
+        keyboard_reboot();
         break;
     case 0x82: // Factory Reset
         keyboard_factory_reset();

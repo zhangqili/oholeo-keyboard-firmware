@@ -200,7 +200,7 @@ static void usbd_hid_shared_in_callback(uint8_t busid, uint8_t ep, uint32_t nbyt
     shared_buffer.state = HID_STATE_IDLE;
 }
 
-static void usbd_hid_mouse_in_callback(uint8_t busid, uint8_t ep, uint32_t nbytes)
+__unused static void usbd_hid_mouse_in_callback(uint8_t busid, uint8_t ep, uint32_t nbytes)
 {
     UNUSED(busid);
     UNUSED(ep);
@@ -291,7 +291,6 @@ int hid_mouse_send(uint8_t *buffer)
 {
     if (shared_buffer.state == HID_STATE_BUSY)
     {
-        g_keyboard_led_state = ~g_keyboard_led_state;
         return 1;
     }
     else
@@ -306,10 +305,6 @@ int hid_mouse_send(uint8_t *buffer)
     }
     shared_buffer.state = HID_STATE_BUSY;
     return 0;
-}
-
-void hid_keyboard_test()
-{
 }
 
 int hid_raw_send(uint8_t *buffer, int size)
@@ -336,5 +331,25 @@ int hid_raw_send(uint8_t *buffer, int size)
         return 1;
     }
     raw_buffer.state = HID_STATE_BUSY;
+    return 0;
+}
+
+int hid_extra_send(uint8_t report_id, uint16_t usage)
+{
+    if (shared_buffer.state == HID_STATE_BUSY)
+    {
+        return 1;
+    }
+    else
+    {
+    }
+    memcpy(shared_buffer.send_buffer + 1, &usage, sizeof(usage));
+    shared_buffer.send_buffer[0] = report_id;
+    int ret = usbd_ep_start_write(0, SHARED_EPIN_ADDR, shared_buffer.send_buffer, SHARED_EPSIZE);
+    if (ret < 0)
+    {
+        return 1;
+    }
+    shared_buffer.state = HID_STATE_BUSY;
     return 0;
 }

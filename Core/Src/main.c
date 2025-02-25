@@ -317,12 +317,12 @@ int main(void)
   {
     keyboard_reset_to_default();
     keyboard_save();
-    keyboard_system_reset();
+    keyboard_reboot();
   }
   if (g_ADC_Averages[49] < 1400 || g_ADC_Averages[49] > (4096 - 1400))
   {
     keyboard_factory_reset();
-    keyboard_system_reset();
+    keyboard_reboot();
   }
   g_keyboard_nkro_enable = true;
   HAL_TIM_Base_Start_IT(&htim7);
