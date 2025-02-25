@@ -144,6 +144,9 @@ void keyboard_event_handler(KeyboardEvent event)
                 case KEYBOARD_RESET_TO_DEFAULT:
                     keyboard_reset_to_default();
                     break;
+                case KEYBOARD_TOGGLE_NKRO:
+                    g_keyboard_nkro_enable = !g_keyboard_nkro_enable;
+                    break;
                 case KEYBOARD_CONFIG0:
                 case KEYBOARD_CONFIG1:
                 case KEYBOARD_CONFIG2:
