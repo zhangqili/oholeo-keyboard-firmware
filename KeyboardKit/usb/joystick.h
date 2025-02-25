@@ -19,8 +19,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "gpio.h"
-
 /**
  * \file
  *
@@ -69,16 +67,16 @@
 #define JOYSTICK_AXIS_IN(INPUT_PIN, LOW, REST, HIGH) \
     { INPUT_PIN, LOW, REST, HIGH }
 
-typedef struct {
-    pin_t input_pin;
+//typedef struct {
+//    pin_t input_pin;
+//
+//    // the AVR ADC offers 10 bit precision, with significant bits on the higher part
+//    uint16_t min_digit;
+//    uint16_t mid_digit;
+//    uint16_t max_digit;
+//} joystick_config_t;
 
-    // the AVR ADC offers 10 bit precision, with significant bits on the higher part
-    uint16_t min_digit;
-    uint16_t mid_digit;
-    uint16_t max_digit;
-} joystick_config_t;
-
-extern joystick_config_t joystick_axes[JOYSTICK_AXIS_COUNT];
+//extern joystick_config_t joystick_axes[JOYSTICK_AXIS_COUNT];
 
 typedef struct {
     uint8_t buttons[(JOYSTICK_BUTTON_COUNT - 1) / 8 + 1];

@@ -28,10 +28,10 @@ void mouse_add_buffer(Keycode keycode)
         g_mouse.buttons |= 0x10;
         break;
     case MOUSE_WHEEL_UP:
-        g_mouse.wheel = 1;
+        g_mouse.v = 1;
         break;
     case MOUSE_WHEEL_DOWN:
-        g_mouse.wheel = -1;
+        g_mouse.v = -1;
         break;
     default:
         break;

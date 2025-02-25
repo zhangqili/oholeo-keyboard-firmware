@@ -84,6 +84,7 @@
 /*******/
 /* USB */
 /*******/
+#define USB_POLLING_INTERVAL_MS 1
 #define FIXED_CONTROL_ENDPOINT_SIZE 0x40
 #define VENDOR_ID 1156
 #define PRODUCT_ID 22319
@@ -94,13 +95,18 @@
 #define PRODUCT "Oholeo Keyboard"
 #define SERIAL_NUMBER "2022123456"
 
+#define RAW_ENABLE
+//#define KEYBOARD_SHARED_EP
 #define SHARED_EP_ENABLE
 #define NKRO_ENABLE
 #define MOUSE_ENABLE
-//#define EXTRAKEY_ENABLE
-#define RAW_ENABLE
-#define KEYBOARD_SHARED_EP
 #define MOUSE_SHARED_EP
+#define EXTRAKEY_ENABLE
+#define JOYSTICK_ENABLE
+#define JOYSTICK_SHARED_EP
+//#define DIGITIZER_ENABLE
+//#define DIGITIZER_SHARED_EP
+//#define PROGRAMMABLE_BUTTON_ENABLE
 
 /****************/
 /* User Defines */
