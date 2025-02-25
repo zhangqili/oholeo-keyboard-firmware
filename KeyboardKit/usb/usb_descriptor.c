@@ -538,7 +538,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
         },
         .InterfaceNumber        = KEYBOARD_INTERFACE,
         .AlternateSetting       = 0x00,
-        .TotalEndpoints         = 1,
+        .TotalEndpoints         = 2,
         .Class                  = HID_CSCP_HIDClass,
         .SubClass               = HID_CSCP_BootSubclass,
         .Protocol               = HID_CSCP_KeyboardBootProtocol,
@@ -561,6 +561,16 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
             .Type               = DTYPE_Endpoint
         },
         .EndpointAddress        = (ENDPOINT_DIR_IN | KEYBOARD_IN_EPNUM),
+        .Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+        .EndpointSize           = KEYBOARD_EPSIZE,
+        .PollingIntervalMS      = USB_POLLING_INTERVAL_MS
+    },
+    .Keyboard_OUTEndpoint = {
+        .Header = {
+            .Size               = sizeof(USB_Descriptor_Endpoint_t),
+            .Type               = DTYPE_Endpoint
+        },
+        .EndpointAddress        = (ENDPOINT_DIR_OUT | KEYBOARD_OUT_EPNUM),
         .Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
         .EndpointSize           = KEYBOARD_EPSIZE,
         .PollingIntervalMS      = USB_POLLING_INTERVAL_MS
@@ -696,6 +706,16 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
             .Type               = DTYPE_Endpoint
         },
         .EndpointAddress        = (ENDPOINT_DIR_IN | SHARED_IN_EPNUM),
+        .Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+        .EndpointSize           = SHARED_EPSIZE,
+        .PollingIntervalMS      = USB_POLLING_INTERVAL_MS
+    },
+    .Shared_OUTEndpoint = {
+        .Header = {
+            .Size               = sizeof(USB_Descriptor_Endpoint_t),
+            .Type               = DTYPE_Endpoint
+        },
+        .EndpointAddress        = (ENDPOINT_DIR_OUT | SHARED_OUT_EPNUM),
         .Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
         .EndpointSize           = SHARED_EPSIZE,
         .PollingIntervalMS      = USB_POLLING_INTERVAL_MS
@@ -1166,182 +1186,3 @@ void set_serial_number_descriptor(void) {
 #    endif // defined(SERIAL_NUMBER_USE_HARDWARE_ID) && SERIAL_NUMBER_USE_HARDWARE_ID == TRUE
 
 #endif // defined(SERIAL_NUMBER)
-
-/**
- * This function is called by the library when in device mode, and must be overridden (see library "USB Descriptors"
- * documentation) by the application code so that the address and size of a requested descriptor can be given
- * to the USB library. When the device receives a Get Descriptor request on the control endpoint, this function
- * is called so that the descriptor details can be passed back and the appropriate descriptor sent back to the
- * USB host.
- */
-uint16_t get_usb_descriptor(const uint16_t wValue, const uint16_t wIndex, const uint16_t wLength, const void** const DescriptorAddress) {
-    const uint8_t DescriptorType  = (wValue >> 8);
-    const uint8_t DescriptorIndex = (wValue & 0xFF);
-    const void*   Address         = NULL;
-    uint16_t      Size            = NO_DESCRIPTOR;
-
-    switch (DescriptorType) {
-        case DTYPE_Device:
-            Address = &DeviceDescriptor;
-            Size    = sizeof(USB_Descriptor_Device_t);
-
-            break;
-        case DTYPE_Configuration:
-            Address = &ConfigurationDescriptor;
-            Size    = sizeof(USB_Descriptor_Configuration_t);
-
-            break;
-        case DTYPE_String:
-            switch (DescriptorIndex) {
-                case 0x00:
-                    Address = &LanguageString;
-                    Size    = pgm_read_byte(&LanguageString.Header.Size);
-
-                    break;
-                case 0x01:
-                    Address = &ManufacturerString;
-                    Size    = pgm_read_byte(&ManufacturerString.Header.Size);
-
-                    break;
-                case 0x02:
-                    Address = &ProductString;
-                    Size    = pgm_read_byte(&ProductString.Header.Size);
-
-                    break;
-#ifdef HAS_SERIAL_NUMBER
-                case 0x03:
-                    Address = (const USB_Descriptor_String_t*)&SerialNumberString;
-#    if defined(SERIAL_NUMBER)
-                    Size = pgm_read_byte(&SerialNumberString.Header.Size);
-#    else
-                    set_serial_number_descriptor();
-                    Size = ((const USB_Descriptor_String_t*)SerialNumberString)->Header.Size;
-#    endif
-
-                    break;
-#endif // HAS_SERIAL_NUMBER
-            }
-#ifdef OS_DETECTION_ENABLE
-            process_wlength(wLength);
-#endif
-
-            break;
-        case HID_DTYPE_HID:
-            switch (wIndex) {
-#ifndef KEYBOARD_SHARED_EP
-                case KEYBOARD_INTERFACE:
-                    Address = &ConfigurationDescriptor.Keyboard_HID;
-                    Size    = sizeof(USB_HID_Descriptor_HID_t);
-                    break;
-#endif
-
-#if defined(MOUSE_ENABLE) && !defined(MOUSE_SHARED_EP)
-                case MOUSE_INTERFACE:
-                    Address = &ConfigurationDescriptor.Mouse_HID;
-                    Size    = sizeof(USB_HID_Descriptor_HID_t);
-
-                    break;
-#endif
-
-#ifdef SHARED_EP_ENABLE
-                case SHARED_INTERFACE:
-                    Address = &ConfigurationDescriptor.Shared_HID;
-                    Size    = sizeof(USB_HID_Descriptor_HID_t);
-
-                    break;
-#endif
-
-#ifdef RAW_ENABLE
-                case RAW_INTERFACE:
-                    Address = &ConfigurationDescriptor.Raw_HID;
-                    Size    = sizeof(USB_HID_Descriptor_HID_t);
-
-                    break;
-#endif
-
-#ifdef CONSOLE_ENABLE
-                case CONSOLE_INTERFACE:
-                    Address = &ConfigurationDescriptor.Console_HID;
-                    Size    = sizeof(USB_HID_Descriptor_HID_t);
-
-                    break;
-#endif
-#if defined(JOYSTICK_ENABLE) && !defined(JOYSTICK_SHARED_EP)
-                case JOYSTICK_INTERFACE:
-                    Address = &ConfigurationDescriptor.Joystick_HID;
-                    Size    = sizeof(USB_HID_Descriptor_HID_t);
-                    break;
-#endif
-#if defined(DIGITIZER_ENABLE) && !defined(DIGITIZER_SHARED_EP)
-                case DIGITIZER_INTERFACE:
-                    Address = &ConfigurationDescriptor.Digitizer_HID;
-                    Size    = sizeof(USB_HID_Descriptor_HID_t);
-
-                    break;
-#endif
-            }
-
-            break;
-        case HID_DTYPE_Report:
-            switch (wIndex) {
-#ifndef KEYBOARD_SHARED_EP
-                case KEYBOARD_INTERFACE:
-                    Address = &KeyboardReport;
-                    Size    = sizeof(KeyboardReport);
-
-                    break;
-#endif
-
-#if defined(MOUSE_ENABLE) && !defined(MOUSE_SHARED_EP)
-                case MOUSE_INTERFACE:
-                    Address = &MouseReport;
-                    Size    = sizeof(MouseReport);
-
-                    break;
-#endif
-
-#ifdef SHARED_EP_ENABLE
-                case SHARED_INTERFACE:
-                    Address = &SharedReport;
-                    Size    = sizeof(SharedReport);
-
-                    break;
-#endif
-
-#ifdef RAW_ENABLE
-                case RAW_INTERFACE:
-                    Address = &RawReport;
-                    Size    = sizeof(RawReport);
-
-                    break;
-#endif
-
-#ifdef CONSOLE_ENABLE
-                case CONSOLE_INTERFACE:
-                    Address = &ConsoleReport;
-                    Size    = sizeof(ConsoleReport);
-
-                    break;
-#endif
-#if defined(JOYSTICK_ENABLE) && !defined(JOYSTICK_SHARED_EP)
-                case JOYSTICK_INTERFACE:
-                    Address = &JoystickReport;
-                    Size    = sizeof(JoystickReport);
-                    break;
-#endif
-#if defined(DIGITIZER_ENABLE) && !defined(DIGITIZER_SHARED_EP)
-                case DIGITIZER_INTERFACE:
-                    Address = &DigitizerReport;
-                    Size    = sizeof(DigitizerReport);
-                    break;
-#endif
-            }
-
-            break;
-    }
-
-    *DescriptorAddress = Address;
-
-    return Size;
-}
-

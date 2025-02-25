@@ -99,11 +99,13 @@ typedef struct {
     USB_Descriptor_Interface_t Keyboard_Interface;
     USB_HID_Descriptor_HID_t   Keyboard_HID;
     USB_Descriptor_Endpoint_t  Keyboard_INEndpoint;
+    USB_Descriptor_Endpoint_t  Keyboard_OUTEndpoint;
 #else
     // Shared Interface
     USB_Descriptor_Interface_t Shared_Interface;
     USB_HID_Descriptor_HID_t   Shared_HID;
     USB_Descriptor_Endpoint_t  Shared_INEndpoint;
+    USB_Descriptor_Endpoint_t  Shared_OUTEndpoint;
 #endif
 
 #ifdef RAW_ENABLE
@@ -244,6 +246,7 @@ enum usb_endpoints {
 
 #ifndef KEYBOARD_SHARED_EP
     KEYBOARD_IN_EPNUM = NEXT_EPNUM,
+    KEYBOARD_OUT_EPNUM = NEXT_EPNUM,
 #else
 #    define KEYBOARD_IN_EPNUM SHARED_IN_EPNUM
 #endif
@@ -265,6 +268,7 @@ enum usb_endpoints {
 
 #ifdef SHARED_EP_ENABLE
     SHARED_IN_EPNUM = NEXT_EPNUM,
+    SHARED_OUT_EPNUM = NEXT_EPNUM,
 #endif
 
 #ifdef CONSOLE_ENABLE
@@ -322,7 +326,7 @@ enum usb_endpoints {
 #define KEYBOARD_EPSIZE 8
 #define SHARED_EPSIZE 32
 #define MOUSE_EPSIZE 16
-#define RAW_EPSIZE 32
+#define RAW_EPSIZE (0x40-1)
 #define CONSOLE_EPSIZE 32
 #define MIDI_STREAM_EPSIZE 64
 #define CDC_NOTIFICATION_EPSIZE 8
@@ -408,6 +412,43 @@ extern const USB_Descriptor_String_t PROGMEM SerialNumberString;
 // clang-format on
 #endif // defined(SERIAL_NUMBER)
 #endif
+
+#ifndef KEYBOARD_SHARED_EP
+#define KEYBOARD_EPIN_ADDR  (ENDPOINT_DIR_IN | KEYBOARD_IN_EPNUM)
+#define KEYBOARD_EPOUT_ADDR (ENDPOINT_DIR_OUT | KEYBOARD_OUT_EPNUM)
+#endif
+
+#ifdef RAW_ENABLE
+#define RAW_EPIN_ADDR  (ENDPOINT_DIR_IN | RAW_IN_EPNUM)
+#define RAW_EPOUT_ADDR (ENDPOINT_DIR_OUT | RAW_OUT_EPNUM)
+#endif
+
+#if defined(MOUSE_ENABLE) && !defined(MOUSE_SHARED_EP)
+#define MOUSE_EPIN_ADDR  (ENDPOINT_DIR_IN | MOUSE_IN_EPNUM)
+#endif
+
+#ifdef SHARED_EP_ENABLE
+#define SHARED_EPIN_ADDR  (ENDPOINT_DIR_IN | SHARED_IN_EPNUM),
+#define SHARED_EPOUT_ADDR (ENDPOINT_DIR_OUT | SHARED_OUT_EPNUM),
+#endif
+
+#ifdef CONSOLE_ENABLE
+#define CONSOLE_EPIN_ADDR  (ENDPOINT_DIR_IN | CONSOLE_IN_EPNUM)
+#endif
+
+#ifdef MIDI_ENABLE
+#endif
+
+#if defined(JOYSTICK_ENABLE) && !defined(JOYSTICK_SHARED_EP)
+#define JOYSTICK_EPIN_ADDR  (ENDPOINT_DIR_IN | JOYSTICK_IN_EPNUM)
+#endif
+
+
+#if defined(DIGITIZER_ENABLE) && !defined(DIGITIZER_SHARED_EP)
+#define DIGITIZER_EPIN_ADDR  (ENDPOINT_DIR_IN | DIGITIZER_IN_EPNUM)
+#endif
+
+
 
 
 uint16_t get_usb_descriptor(const uint16_t wValue, const uint16_t wIndex, const uint16_t wLength, const void** const DescriptorAddress);
