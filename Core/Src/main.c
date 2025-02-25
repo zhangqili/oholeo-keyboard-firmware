@@ -275,7 +275,7 @@ int main(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 0);
 
   DWT_Init();
-  hid_init();
+  usb_init();
   sfud_device_init(&sfud_norflash0);
 
   HAL_GPIO_WritePin(INHIBIT_GPIO_Port, INHIBIT_Pin, GPIO_PIN_RESET);

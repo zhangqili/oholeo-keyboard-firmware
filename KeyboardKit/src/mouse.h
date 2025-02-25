@@ -12,7 +12,8 @@ typedef struct __Mouse {
     uint8_t buttons;
     int8_t x;
     int8_t y;
-    int8_t wheel;
+    int8_t v;
+    int8_t h;
 } Mouse;
 
 

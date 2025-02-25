@@ -49,6 +49,7 @@ file(GLOB_RECURSE MY_SOURCES
     "./KeyboardKit/src/*.c"
     "./KeyboardKit/user/*.c"
     "./KeyboardKit/littlefs/*.c"
+    #"./KeyboardKit/usb/usb_descriptor.c"
     "./sfud/src/*.c"
     "./sfud/port/*.c"
     "./CherryUSB/core/usbd_core.c"
@@ -69,6 +70,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ./KeyboardKit/src/
     ./KeyboardKit/user/
     ./KeyboardKit/littlefs/
+    ./KeyboardKit/usb/
+    ./KeyboardKit/usb/lufa/
     ./sfud/inc/
     ./usb/
     ./CherryUSB/core
