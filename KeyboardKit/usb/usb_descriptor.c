@@ -678,7 +678,11 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
         },
         .InterfaceNumber        = SHARED_INTERFACE,
         .AlternateSetting       = 0x00,
+#    ifdef KEYBOARD_SHARED_EP
+        .TotalEndpoints         = 2,
+#    else
         .TotalEndpoints         = 1,
+#    endif
         .Class                  = HID_CSCP_HIDClass,
 #    ifdef KEYBOARD_SHARED_EP
         .SubClass               = HID_CSCP_BootSubclass,
@@ -710,6 +714,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
         .EndpointSize           = SHARED_EPSIZE,
         .PollingIntervalMS      = USB_POLLING_INTERVAL_MS
     },
+#ifdef KEYBOARD_SHARED_EP
     .Shared_OUTEndpoint = {
         .Header = {
             .Size               = sizeof(USB_Descriptor_Endpoint_t),
@@ -720,6 +725,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
         .EndpointSize           = SHARED_EPSIZE,
         .PollingIntervalMS      = USB_POLLING_INTERVAL_MS
     },
+#endif
 #endif
 
 #ifdef CONSOLE_ENABLE

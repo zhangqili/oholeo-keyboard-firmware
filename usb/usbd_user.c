@@ -140,7 +140,7 @@ static void usbd_event_handler(uint8_t busid, uint8_t event)
     case USBD_EVENT_CONFIGURED:
         memset(keyboard_buffer.read_buffer, 0, sizeof(keyboard_buffer.read_buffer));
         memset(raw_buffer.read_buffer, 0, sizeof(raw_buffer.read_buffer));
-        usbd_ep_start_read(0, KEYBOARD_EPOUT_ADDR, keyboard_buffer.read_buffer, 64);
+        usbd_ep_start_read(0, SHARED_EPOUT_ADDR, keyboard_buffer.read_buffer, 64);
         usbd_ep_start_read(0, RAW_EPOUT_ADDR, raw_buffer.read_buffer, 64);
         break;
     case USBD_EVENT_SET_REMOTE_WAKEUP:
@@ -166,8 +166,11 @@ static void usbd_hid_keyboard_out_callback(uint8_t busid, uint8_t ep, uint32_t n
     UNUSED(busid);
     UNUSED(ep);
     UNUSED(nbytes);
-    usbd_ep_start_read(0, KEYBOARD_EPOUT_ADDR, keyboard_buffer.read_buffer, 64);
-    g_keyboard_led_state = keyboard_buffer.read_buffer[0];
+    usbd_ep_start_read(0, SHARED_EPOUT_ADDR, keyboard_buffer.read_buffer, 64);
+    if (keyboard_buffer.read_buffer[0] == REPORT_ID_KEYBOARD)
+    {
+        g_keyboard_led_state = keyboard_buffer.read_buffer[1];
+    }
 }
 
 
@@ -192,11 +195,11 @@ static void usbd_hid_raw_out_callback(uint8_t busid, uint8_t ep, uint32_t nbytes
 
 static struct usbd_endpoint keyboard_in_ep = {
     .ep_cb = usbd_hid_keyboard_in_callback,
-    .ep_addr = KEYBOARD_EPIN_ADDR};
+    .ep_addr = SHARED_EPIN_ADDR};
 
 static struct usbd_endpoint keyboard_out_ep = {
     .ep_cb = usbd_hid_keyboard_out_callback,
-    .ep_addr = KEYBOARD_EPOUT_ADDR};
+    .ep_addr = SHARED_EPOUT_ADDR};
 
 static struct usbd_endpoint raw_in_ep = {
     .ep_cb = usbd_hid_raw_in_callback,
@@ -206,13 +209,13 @@ static struct usbd_endpoint raw_out_ep = {
     .ep_cb = usbd_hid_raw_out_callback,
     .ep_addr = RAW_EPOUT_ADDR};
 
-struct usbd_interface intf0; // Custom
-struct usbd_interface intf1; // Custom
+struct usbd_interface intf0;
+struct usbd_interface intf1;
 
 void hid_init(void)
 {
     usbd_desc_register(0, (uint8_t*)&hid_descriptor_new);
-    usbd_add_interface(0, usbd_hid_init_intf(0, &intf0, KeyboardReport, sizeof(KeyboardReport)));
+    usbd_add_interface(0, usbd_hid_init_intf(0, &intf0, SharedReport, sizeof(SharedReport)));
     usbd_add_endpoint(0, &keyboard_in_ep);
     usbd_add_endpoint(0, &keyboard_out_ep);
     usbd_add_interface(0, usbd_hid_init_intf(0, &intf1, RawReport, sizeof(RawReport)));
@@ -230,8 +233,9 @@ int hid_keyboard_send(uint8_t *buffer)
     else
     {
     }
-    memcpy(keyboard_buffer.send_buffer, buffer, 8);
-    int ret = usbd_ep_start_write(0, KEYBOARD_EPIN_ADDR, keyboard_buffer.send_buffer, 8);
+    memcpy(keyboard_buffer.send_buffer + 1, buffer, 31);
+    keyboard_buffer.send_buffer[0] = REPORT_ID_NKRO;
+    int ret = usbd_ep_start_write(0, SHARED_EPIN_ADDR, keyboard_buffer.send_buffer, SHARED_EPSIZE);
     if (ret < 0)
     {
         return 1;
@@ -242,11 +246,21 @@ int hid_keyboard_send(uint8_t *buffer)
 
 int hid_mouse_send(uint8_t *buffer)
 {
-    //int ret = usbd_ep_start_write(0, KEYBOARD_EPIN_ADDR, send_buffer, 64);
-    int ret = 0;
-    if (ret < 0) {
+    if (keyboard_buffer.state == HID_STATE_BUSY)
+    {
         return 1;
     }
+    else
+    {
+    }
+    memcpy(keyboard_buffer.send_buffer + 1, buffer, 31);
+    keyboard_buffer.send_buffer[0] = REPORT_ID_MOUSE;
+    int ret = usbd_ep_start_write(0, SHARED_EPIN_ADDR, keyboard_buffer.send_buffer, SHARED_EPSIZE);
+    if (ret < 0)
+    {
+        return 1;
+    }
+    keyboard_buffer.state = HID_STATE_BUSY;
     return 0;
 }
 

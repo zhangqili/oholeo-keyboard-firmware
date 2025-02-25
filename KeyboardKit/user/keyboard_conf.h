@@ -94,13 +94,13 @@
 #define PRODUCT "Oholeo Keyboard"
 #define SERIAL_NUMBER "2022123456"
 
-//#define KEYBOARD_SHARED_EP
-//#define SHARED_EP_ENABLE
-//#define NKRO_ENABLE
-//#define MOUSE_ENABLE
+#define SHARED_EP_ENABLE
+#define NKRO_ENABLE
+#define MOUSE_ENABLE
 //#define EXTRAKEY_ENABLE
 #define RAW_ENABLE
-//#define MOUSE_SHARED_EP
+#define KEYBOARD_SHARED_EP
+#define MOUSE_SHARED_EP
 
 /****************/
 /* User Defines */
