@@ -16,7 +16,7 @@ extern "C" {
 #define USBD_LANGID_STRING 1033
 
 void usb_init(void);
-int hid_keyboard_send(uint8_t*buffer);
+int hid_keyboard_send(uint8_t *buffer, uint8_t size);
 int hid_mouse_send(uint8_t*buffer);
 int hid_raw_send(uint8_t*buffer,int size);
 void hid_keyboard_test(void);

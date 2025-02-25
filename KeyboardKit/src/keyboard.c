@@ -27,12 +27,6 @@ uint8_t g_keyboard_led_state;
 
 uint32_t g_keyboard_tick;
 
-#ifdef NKRO_ENABLE
-Keyboard_NKROBuffer g_keyboard_nkro_buffer;
-#else
-Keyboard_6KROBuffer g_keyboard_6kro_buffer;
-#endif
-
 uint8_t g_keyboard_knob_flag;
 volatile bool g_keyboard_send_report_enable = true;
 
@@ -40,6 +34,12 @@ KEYBOARD_STATE g_keyboard_state;
 volatile uint8_t g_keyboard_send_flags;
 
 uint8_t g_current_config_index;
+
+#ifdef NKRO_ENABLE
+bool g_keyboard_nkro_enable;
+static Keyboard_NKROBuffer keyboard_nkro_buffer;
+#endif
+static Keyboard_6KROBuffer keyboard_6kro_buffer;
 
 Keycode keyboard_get_keycode(uint8_t id)
 {
@@ -187,10 +187,15 @@ void keyboard_add_buffer(uint16_t keycode)
     if ((keycode & 0xFF) <= KEY_EXSEL)
     {
 #ifdef NKRO_ENABLE
-        keyboard_NKRObuffer_add(&g_keyboard_nkro_buffer, keycode);
-#else
-        keyboard_6KRObuffer_add(&g_keyboard_6kro_buffer, keycode);
+        if (g_keyboard_nkro_enable)
+        {
+            keyboard_NKRObuffer_add(&keyboard_nkro_buffer, keycode);
+        }
+        else
 #endif
+        {
+            keyboard_6KRObuffer_add(&keyboard_6kro_buffer, keycode);
+        }
     }
     else
     {
@@ -211,19 +216,23 @@ void keyboard_add_buffer(uint16_t keycode)
 int keyboard_buffer_send(void)
 {
 #ifdef NKRO_ENABLE
-    return keyboard_NKRObuffer_send(&g_keyboard_nkro_buffer);
-#else
-    return keyboard_6KRObuffer_send(&g_keyboard_6kro_buffer);
+    if (g_keyboard_nkro_enable)
+    {
+        return keyboard_NKRObuffer_send(&keyboard_nkro_buffer);
+    }
 #endif
+    return keyboard_6KRObuffer_send(&keyboard_6kro_buffer);
 }
 
 void keyboard_buffer_clear(void)
 {
 #ifdef NKRO_ENABLE
-    keyboard_NKRObuffer_clear(&g_keyboard_nkro_buffer);
-#else
-    keyboard_6KRObuffer_clear(&g_keyboard_6kro_buffer);
+    if (g_keyboard_nkro_enable)
+    {
+        keyboard_NKRObuffer_clear(&keyboard_nkro_buffer);
+    }
 #endif
+    keyboard_6KRObuffer_clear(&keyboard_6kro_buffer);
 }
 
 int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, Keycode keycode)
@@ -284,7 +293,7 @@ void keyboard_init(void)
     g_current_config_index = storage_read_config_index();
 #ifdef NKRO_ENABLE
     static uint8_t buffer[64];
-    keyboard_NKRObuffer_init(&g_keyboard_nkro_buffer, buffer, sizeof(buffer));
+    keyboard_NKRObuffer_init(&keyboard_nkro_buffer, buffer, sizeof(buffer));
 #endif
 }
 

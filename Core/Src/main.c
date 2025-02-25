@@ -324,7 +324,7 @@ int main(void)
     keyboard_factory_reset();
     keyboard_system_reset();
   }
-
+  g_keyboard_nkro_enable = true;
   HAL_TIM_Base_Start_IT(&htim7);
 
   /* USER CODE END 2 */

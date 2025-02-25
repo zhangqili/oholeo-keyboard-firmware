@@ -253,23 +253,37 @@ void usb_init(void)
     usbd_initialize(0, USB_BASE, usbd_event_handler);
 }
 
-int hid_keyboard_send(uint8_t *buffer)
+int hid_keyboard_send(uint8_t *buffer, uint8_t size)
 {
-    if (shared_buffer.state == HID_STATE_BUSY)
+    if (size <= 8)
     {
-        return 1;
+        if (keyboard_buffer.state == HID_STATE_BUSY)
+        {
+            return 1;
+        }
+        memcpy(keyboard_buffer.send_buffer, buffer, KEYBOARD_EPSIZE);
+        int ret = usbd_ep_start_write(0, KEYBOARD_EPIN_ADDR, keyboard_buffer.send_buffer, KEYBOARD_EPSIZE);
+        if (ret < 0)
+        {
+            return 1;
+        }
+        keyboard_buffer.state = HID_STATE_BUSY;
     }
     else
     {
+        if (shared_buffer.state == HID_STATE_BUSY)
+        {
+            return 1;
+        }
+        memcpy(shared_buffer.send_buffer + 1, buffer, 31);
+        shared_buffer.send_buffer[0] = REPORT_ID_NKRO;
+        int ret = usbd_ep_start_write(0, SHARED_EPIN_ADDR, shared_buffer.send_buffer, SHARED_EPSIZE);
+        if (ret < 0)
+        {
+            return 1;
+        }
+        shared_buffer.state = HID_STATE_BUSY;
     }
-    memcpy(shared_buffer.send_buffer + 1, buffer, 31);
-    shared_buffer.send_buffer[0] = REPORT_ID_NKRO;
-    int ret = usbd_ep_start_write(0, SHARED_EPIN_ADDR, shared_buffer.send_buffer, SHARED_EPSIZE);
-    if (ret < 0)
-    {
-        return 1;
-    }
-    shared_buffer.state = HID_STATE_BUSY;
     return 0;
 }
 

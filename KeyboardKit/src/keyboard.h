@@ -67,7 +67,9 @@ extern uint8_t g_keyboard_led_state;
 
 extern uint32_t g_keyboard_tick;
 
-extern Keyboard_6KROBuffer g_keyboard_6kro_buffer;
+#ifdef NKRO_ENABLE
+extern bool g_keyboard_nkro_enable;
+#endif
 
 extern uint8_t g_keyboard_knob_flag;
 extern volatile bool g_keyboard_send_report_enable;

@@ -1135,7 +1135,7 @@ static const float table[]=
 int keyboard_hid_send(uint8_t*report,uint16_t len)
 {
     UNUSED(len);
-    return hid_keyboard_send(report);
+    return hid_keyboard_send(report, len);
 }
 
 int mouse_hid_send(uint8_t*report,uint16_t len)
