@@ -99,7 +99,7 @@
 //#define NKRO_ENABLE
 //#define MOUSE_ENABLE
 //#define EXTRAKEY_ENABLE
-//#define RAW_ENABLE
+#define RAW_ENABLE
 //#define MOUSE_SHARED_EP
 
 /****************/

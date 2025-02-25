@@ -109,20 +109,25 @@ enum
     HID_STATE_BUSY
 };
 
-/*!< hid state ! Data can be sent only when state is idle  */
-static volatile uint8_t custom_state;
-static volatile uint8_t raw_state;
+typedef struct __HIDBuffer
+{
+    uint8_t read_buffer[64];
+    uint8_t send_buffer[64];
+    uint8_t state;
+} HIDBuffer;
 
-USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX uint8_t read_buffer[64];
-USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX uint8_t send_buffer[64];
+USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX HIDBuffer keyboard_buffer;
+USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX HIDBuffer raw_buffer;
+/*!< hid state ! Data can be sent only when state is idle  */
+
 static void usbd_event_handler(uint8_t busid, uint8_t event)
 {
     UNUSED(busid);
     switch (event)
     {
     case USBD_EVENT_RESET:
-        custom_state = HID_STATE_IDLE;
-        raw_state = HID_STATE_IDLE;
+        keyboard_buffer.state = HID_STATE_IDLE;
+        raw_buffer.state = HID_STATE_IDLE;
         break;
     case USBD_EVENT_CONNECTED:
         break;
@@ -133,7 +138,10 @@ static void usbd_event_handler(uint8_t busid, uint8_t event)
     case USBD_EVENT_SUSPEND:
         break;
     case USBD_EVENT_CONFIGURED:
-        usbd_ep_start_read(0, KEYBOARD_EPOUT_ADDR, read_buffer, 64);
+        memset(keyboard_buffer.read_buffer, 0, sizeof(keyboard_buffer.read_buffer));
+        memset(raw_buffer.read_buffer, 0, sizeof(raw_buffer.read_buffer));
+        usbd_ep_start_read(0, KEYBOARD_EPOUT_ADDR, keyboard_buffer.read_buffer, 64);
+        usbd_ep_start_read(0, RAW_EPOUT_ADDR, raw_buffer.read_buffer, 64);
         break;
     case USBD_EVENT_SET_REMOTE_WAKEUP:
         break;
@@ -149,7 +157,7 @@ static void usbd_hid_keyboard_in_callback(uint8_t busid, uint8_t ep, uint32_t nb
     UNUSED(busid);
     UNUSED(ep);
     UNUSED(nbytes);
-    custom_state = HID_STATE_IDLE;
+    keyboard_buffer.state = HID_STATE_IDLE;
 }
 
 static void usbd_hid_keyboard_out_callback(uint8_t busid, uint8_t ep, uint32_t nbytes)
@@ -158,20 +166,8 @@ static void usbd_hid_keyboard_out_callback(uint8_t busid, uint8_t ep, uint32_t n
     UNUSED(busid);
     UNUSED(ep);
     UNUSED(nbytes);
-    usbd_ep_start_read(0, KEYBOARD_EPOUT_ADDR, read_buffer, 64);
-    g_keyboard_led_state = read_buffer[0];
-    for (int i = 0; i < 64; ++i)
-    {
-        printf("%x ", read_buffer[i]);
-    }
-    printf("\n");
-    if (read_buffer[0] == 1)
-    {
-    }
-    if (read_buffer[0] == 2)
-    {
-        command_prase(read_buffer + 1, sizeof(read_buffer) - 1);
-    }
+    usbd_ep_start_read(0, KEYBOARD_EPOUT_ADDR, keyboard_buffer.read_buffer, 64);
+    g_keyboard_led_state = keyboard_buffer.read_buffer[0];
 }
 
 
@@ -181,7 +177,7 @@ static void usbd_hid_raw_in_callback(uint8_t busid, uint8_t ep, uint32_t nbytes)
     UNUSED(busid);
     UNUSED(ep);
     UNUSED(nbytes);
-    raw_state = HID_STATE_IDLE;
+    raw_buffer.state = HID_STATE_IDLE;
 }
 
 static void usbd_hid_raw_out_callback(uint8_t busid, uint8_t ep, uint32_t nbytes)
@@ -190,40 +186,25 @@ static void usbd_hid_raw_out_callback(uint8_t busid, uint8_t ep, uint32_t nbytes
     UNUSED(busid);
     UNUSED(ep);
     UNUSED(nbytes);
-    for (int i = 0; i < 64; ++i)
-    {
-        printf("%x ", read_buffer[i]);
-    }
-    printf("\n");
-    //usbd_ep_start_read(0, HID_RAW_EPOUT_ADDR, read_buffer, 64);
-    if (read_buffer[0] == 0)
-    {
-        command_prase(read_buffer + 1, sizeof(read_buffer) - 1);
-    }
-    if (read_buffer[0] == 0xB1)
-    {
-        extern bool beep_switch;
-        beep_switch = true;
-        extern uint32_t pulse_counter;
-        pulse_counter = 0;
-    }
+    usbd_ep_start_read(0, RAW_EPOUT_ADDR, raw_buffer.read_buffer, 64);
+    command_prase(raw_buffer.read_buffer, sizeof(raw_buffer.read_buffer));
 }
 
-static struct usbd_endpoint custom_in_ep = {
+static struct usbd_endpoint keyboard_in_ep = {
     .ep_cb = usbd_hid_keyboard_in_callback,
     .ep_addr = KEYBOARD_EPIN_ADDR};
 
-static struct usbd_endpoint custom_out_ep = {
+static struct usbd_endpoint keyboard_out_ep = {
     .ep_cb = usbd_hid_keyboard_out_callback,
     .ep_addr = KEYBOARD_EPOUT_ADDR};
 
-//static struct usbd_endpoint raw_in_ep = {
-//    .ep_cb = usbd_hid_raw_in_callback,
-//    .ep_addr = HID_RAW_EPIN_ADDR};
-//
-//static struct usbd_endpoint raw_out_ep = {
-//    .ep_cb = usbd_hid_raw_out_callback,
-//    .ep_addr = HID_RAW_EPOUT_ADDR};
+static struct usbd_endpoint raw_in_ep = {
+    .ep_cb = usbd_hid_raw_in_callback,
+    .ep_addr = RAW_EPIN_ADDR};
+
+static struct usbd_endpoint raw_out_ep = {
+    .ep_cb = usbd_hid_raw_out_callback,
+    .ep_addr = RAW_EPOUT_ADDR};
 
 struct usbd_interface intf0; // Custom
 struct usbd_interface intf1; // Custom
@@ -232,47 +213,40 @@ void hid_init(void)
 {
     usbd_desc_register(0, (uint8_t*)&hid_descriptor_new);
     usbd_add_interface(0, usbd_hid_init_intf(0, &intf0, KeyboardReport, sizeof(KeyboardReport)));
-    usbd_add_endpoint(0, &custom_in_ep);
-    usbd_add_endpoint(0, &custom_out_ep);
-    //usbd_add_interface(0, usbd_hid_init_intf(0, &intf1, RawReport, sizeof(RawReport)));
-    //usbd_add_endpoint(0, &raw_in_ep);
-    //usbd_add_endpoint(0, &raw_out_ep);
+    usbd_add_endpoint(0, &keyboard_in_ep);
+    usbd_add_endpoint(0, &keyboard_out_ep);
+    usbd_add_interface(0, usbd_hid_init_intf(0, &intf1, RawReport, sizeof(RawReport)));
+    usbd_add_endpoint(0, &raw_in_ep);
+    usbd_add_endpoint(0, &raw_out_ep);
     usbd_initialize(0, USB_BASE, usbd_event_handler);
 }
 
 int hid_keyboard_send(uint8_t *buffer)
 {
-    if (custom_state == HID_STATE_BUSY)
+    if (keyboard_buffer.state == HID_STATE_BUSY)
     {
         return 1;
     }
     else
     {
     }
-    memcpy(send_buffer, buffer, 8);
-    int ret = usbd_ep_start_write(0, KEYBOARD_EPIN_ADDR, send_buffer, 8);
+    memcpy(keyboard_buffer.send_buffer, buffer, 8);
+    int ret = usbd_ep_start_write(0, KEYBOARD_EPIN_ADDR, keyboard_buffer.send_buffer, 8);
     if (ret < 0)
     {
         return 1;
     }
-    custom_state = HID_STATE_BUSY;
+    keyboard_buffer.state = HID_STATE_BUSY;
     return 0;
 }
 
 int hid_mouse_send(uint8_t *buffer)
 {
-    if (custom_state == HID_STATE_BUSY) {
-        return 1;
-    }
-    memset(send_buffer, 0, sizeof(send_buffer));
-    memcpy(send_buffer + 1, buffer, 4);
-    send_buffer[0] = REPORT_ID_MOUSE;
     //int ret = usbd_ep_start_write(0, KEYBOARD_EPIN_ADDR, send_buffer, 64);
     int ret = 0;
     if (ret < 0) {
         return 1;
     }
-    custom_state = HID_STATE_BUSY;
     return 0;
 }
 
@@ -282,29 +256,27 @@ void hid_keyboard_test()
 
 int hid_raw_send(uint8_t *buffer, int size)
 {
-    if (raw_state == HID_STATE_BUSY)
+    if (raw_buffer.state == HID_STATE_BUSY)
     {
         return 1;
     }
     else
     {
     }
-    if (size > 0 && size <= 63)
+    if (size > 0 && size <= 64)
     {
-        memcpy(send_buffer + 1, buffer, size);
+        memset(raw_buffer.send_buffer, 0, 64);
+        memcpy(raw_buffer.send_buffer, buffer, size);
     }
     else
     {
         return 1;
     }
-
-    send_buffer[0] = 2;
-    //int ret = usbd_ep_start_write(0, HID_RAW_EPIN_ADDR, send_buffer, 64);
-    int ret = 0;
+    int ret = usbd_ep_start_write(0, RAW_EPIN_ADDR, raw_buffer.send_buffer, 64);
     if (ret < 0)
     {
         return 1;
     }
-    raw_state = HID_STATE_BUSY;
+    raw_buffer.state = HID_STATE_BUSY;
     return 0;
 }
