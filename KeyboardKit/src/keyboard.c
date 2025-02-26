@@ -89,9 +89,11 @@ void keyboard_event_handler(KeyboardEvent event)
                 BIT_SET(g_keyboard_send_flags, MOUSE_REPORT_FLAG);
                 break;
             case CONSUMER_COLLECTION:
+                keyboard_consumer_buffer = 0;
                 BIT_SET(g_keyboard_send_flags, CONSUMER_REPORT_FLAG);
                 break;
             case SYSTEM_COLLECTION:
+                keyboard_system_buffer = 0;
                 BIT_SET(g_keyboard_send_flags, SYSTEM_REPORT_FLAG);
                 break;
             case LAYER_CONTROL:
@@ -115,9 +117,11 @@ void keyboard_event_handler(KeyboardEvent event)
                 BIT_SET(g_keyboard_send_flags, MOUSE_REPORT_FLAG);
                 break;
             case CONSUMER_COLLECTION:
+                keyboard_consumer_buffer = CONSUMER_KEYCODE_TO_RAWCODE((event.keycode >> 8) & 0xFF);
                 BIT_SET(g_keyboard_send_flags, CONSUMER_REPORT_FLAG);
                 break;
             case SYSTEM_COLLECTION:
+                keyboard_system_buffer = (event.keycode >> 8) & 0xFF;
                 BIT_SET(g_keyboard_send_flags, SYSTEM_REPORT_FLAG);
                 break;
             case LAYER_CONTROL:
@@ -226,11 +230,16 @@ void keyboard_add_buffer(uint16_t keycode)
             dynamic_key_add_buffer(&g_keyboard_dynamic_keys[keycode >> 8]);
             break;
         case CONSUMER_COLLECTION:
-            uint8_t extra_keycode = (keycode >> 8) & 0xFF;
-            keyboard_consumer_buffer = CONSUMER_KEYCODE_TO_RAWCODE(extra_keycode);
+            if (!keyboard_consumer_buffer)
+            {
+                keyboard_consumer_buffer = CONSUMER_KEYCODE_TO_RAWCODE((keycode >> 8) & 0xFF);
+            }
             break;
         case SYSTEM_COLLECTION:
-            keyboard_system_buffer = (keycode >> 8) & 0xFF;
+            if (!keyboard_system_buffer)
+            {
+                keyboard_system_buffer = (keycode >> 8) & 0xFF;
+            }
             break;
         default:
             break;
@@ -401,8 +410,6 @@ void keyboard_send_report(void)
 #endif
         keyboard_buffer_clear();
         mouse_buffer_clear(&g_mouse);
-        keyboard_consumer_buffer = 0;
-        keyboard_system_buffer = 0;
 
         for (int i = 0; i < ADVANCED_KEY_NUM; i++)
         {
