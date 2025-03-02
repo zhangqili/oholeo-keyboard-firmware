@@ -1144,7 +1144,7 @@ int mouse_hid_send(uint8_t*report,uint16_t len)
     return hid_mouse_send(report);
 }
 
-AnalogValue advanced_key_normalize(AdvancedKey* advanced_key, AnalogValue value)
+AnalogValue advanced_key_normalize(AdvancedKey* advanced_key, AnalogRawValue value)
 {
 #ifdef OPTIMIZE_FOR_FLOAT_DIVISION
     float x = (advanced_key->upper_bound - value) * advanced_key->range_reciprocal;

@@ -84,7 +84,7 @@ void advanced_key_update(AdvancedKey* advanced_key, AnalogValue value)
     keyboard_advanced_key_update_state(advanced_key, state);
 }
 
-void advanced_key_update_raw(AdvancedKey* advanced_key, AnalogValue value)
+void advanced_key_update_raw(AdvancedKey* advanced_key, AnalogRawValue value)
 {
     advanced_key->raw = value;
     switch (advanced_key->calibration_mode)
@@ -126,7 +126,7 @@ void advanced_key_update_state(AdvancedKey* advanced_key, bool state)
     key_update(&(advanced_key->key), state);
 }
 
-__WEAK AnalogValue advanced_key_normalize(AdvancedKey* advanced_key, AnalogValue value)
+__WEAK AnalogValue advanced_key_normalize(AdvancedKey* advanced_key, AnalogRawValue value)
 {
 #ifdef OPTIMIZE_FOR_FLOAT_DIVISION
     return  (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN) * (advanced_key->upper_bound - value) * advanced_key->range_reciprocal;
@@ -135,7 +135,7 @@ __WEAK AnalogValue advanced_key_normalize(AdvancedKey* advanced_key, AnalogValue
 #endif
 }
 
-void advanced_key_set_range(AdvancedKey* advanced_key, AnalogValue upper, AnalogValue lower)
+void advanced_key_set_range(AdvancedKey* advanced_key, AnalogRawValue upper, AnalogRawValue lower)
 {
     advanced_key->upper_bound = upper;
     advanced_key->lower_bound = lower;
@@ -144,7 +144,7 @@ void advanced_key_set_range(AdvancedKey* advanced_key, AnalogValue upper, Analog
 #endif
 }
 
-void advanced_key_reset_range(AdvancedKey* advanced_key, AnalogValue value)
+void advanced_key_reset_range(AdvancedKey* advanced_key, AnalogRawValue value)
 {
     switch (advanced_key->calibration_mode)
     {

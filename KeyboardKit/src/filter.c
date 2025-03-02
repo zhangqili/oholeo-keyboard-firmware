@@ -5,7 +5,7 @@
  */
 #include "filter.h"
 
-AnalogValue adaptive_schimidt_filter(AdaptiveSchimidtFilter *filter, AnalogValue value)
+AnalogRawValue adaptive_schimidt_filter(AdaptiveSchimidtFilter *filter, AnalogRawValue value)
 {
     if (value - TOLERANCE > filter->state)
         filter->state = value - TOLERANCE;

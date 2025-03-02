@@ -10,7 +10,7 @@
 #include "advanced_key.h"
 
 uint16_t g_ADC_Conversion_Count;
-AnalogValue g_ADC_Averages[ADVANCED_KEY_NUM];
+AnalogRawValue g_ADC_Averages[ADVANCED_KEY_NUM];
 
 AdaptiveSchimidtFilter g_analog_filters[ADVANCED_KEY_NUM];
 
@@ -62,7 +62,7 @@ void analog_reset_range(void)
     }
 }
 
-void ringbuf_push(RingBuf* ringbuf, AnalogValue data)
+void ringbuf_push(RingBuf* ringbuf, AnalogRawValue data)
 {
     ringbuf->pointer++;
     if (ringbuf->pointer >= RING_BUF_LEN)
@@ -72,7 +72,7 @@ void ringbuf_push(RingBuf* ringbuf, AnalogValue data)
     ringbuf->datas[ringbuf->pointer] = data;
 }
 
-AnalogValue ringbuf_avg(RingBuf* ringbuf)
+AnalogRawValue ringbuf_avg(RingBuf* ringbuf)
 {
     uint32_t avg = 0;
     for (int i = 0; i < RING_BUF_LEN; i++)

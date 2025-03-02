@@ -9,8 +9,9 @@
 #include "key.h"
 #include "keyboard_conf.h"
 
-#ifdef USE_FLOAT_VALUE
+#ifndef ENABLE_FIXED_POINT_EXPERIMENTAL
 typedef float AnalogValue;
+typedef float AnalogRawValue;
 #ifndef ANALOG_VALUE_MAX
 #define ANALOG_VALUE_MAX 1.0f
 #endif
@@ -18,7 +19,8 @@ typedef float AnalogValue;
 #define ANALOG_VALUE_MIN 0.0f
 #endif
 #else
-typedef uint16_t AnalogValue;
+typedef int32_t AnalogValue;
+typedef int32_t AnalogRawValue;
 #ifndef ANALOG_VALUE_MAX
 #define ANALOG_VALUE_MAX 65535
 #endif
@@ -66,17 +68,17 @@ typedef struct __AdvancedKey
     AnalogValue release_speed;
     AnalogValue upper_deadzone;
     AnalogValue lower_deadzone;
-    AnalogValue upper_bound;
-    AnalogValue lower_bound;
+    AnalogRawValue upper_bound;
+    AnalogRawValue lower_bound;
 } AdvancedKey;
 
 void advanced_key_init(AdvancedKey *advanced_key);
 void advanced_key_update(AdvancedKey *advanced_key, AnalogValue value);
 void advanced_key_update_raw(AdvancedKey *advanced_key, AnalogValue value);
 void advanced_key_update_state(AdvancedKey *advanced_key, bool state);
-AnalogValue advanced_key_normalize(AdvancedKey *advanced_key, AnalogValue value);
-void advanced_key_set_range(AdvancedKey *advanced_key, AnalogValue upper, AnalogValue lower);
-void advanced_key_reset_range(AdvancedKey* advanced_key, AnalogValue value);
+AnalogValue advanced_key_normalize(AdvancedKey *advanced_key, AnalogRawValue value);
+void advanced_key_set_range(AdvancedKey *advanced_key, AnalogRawValue upper, AnalogRawValue lower);
+void advanced_key_reset_range(AdvancedKey* advanced_key, AnalogRawValue value);
 void advanced_key_set_deadzone(AdvancedKey *advanced_key, AnalogValue upper, AnalogValue lower);
 
 #endif

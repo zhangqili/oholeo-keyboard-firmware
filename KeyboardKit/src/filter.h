@@ -23,9 +23,9 @@ typedef struct __Filter
 
 typedef struct __AdaptiveSchimidtFilter
 {
-    AnalogValue state;
+    AnalogRawValue state;
 } AdaptiveSchimidtFilter;
 
-AnalogValue adaptive_schimidt_filter(AdaptiveSchimidtFilter*filter,AnalogValue value);
+AnalogRawValue adaptive_schimidt_filter(AdaptiveSchimidtFilter*filter,AnalogRawValue value);
 
 #endif

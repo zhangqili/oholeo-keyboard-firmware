@@ -22,7 +22,7 @@ typedef struct
 }RingBuf;
 
 extern uint16_t g_ADC_Conversion_Count;
-extern AnalogValue g_ADC_Averages[ADVANCED_KEY_NUM];
+extern AnalogRawValue g_ADC_Averages[ADVANCED_KEY_NUM];
 
 extern AdaptiveSchimidtFilter g_analog_filters[ADVANCED_KEY_NUM];
 
@@ -37,7 +37,7 @@ void analog_average(void);
 void analog_check(void);
 void analog_reset_range(void);
 
-void ringbuf_push(RingBuf *ringbuf, AnalogValue data);
-AnalogValue ringbuf_avg(RingBuf *ringbuf);
+void ringbuf_push(RingBuf *ringbuf, AnalogRawValue data);
+AnalogRawValue ringbuf_avg(RingBuf *ringbuf);
 
 #endif /* ANALOG_H_ */
