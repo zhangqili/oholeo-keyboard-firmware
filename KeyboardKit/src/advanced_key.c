@@ -9,79 +9,65 @@
 
 void advanced_key_update(AdvancedKey* advanced_key, AnalogValue value)
 {
-    bool state = advanced_key->key.state;
     switch (advanced_key->mode)
     {
         case KEY_DIGITAL_MODE:
-            state = value;
+            keyboard_advanced_key_update_state(advanced_key, value);
             break;
         case KEY_ANALOG_NORMAL_MODE:
             advanced_key->value = value;
             if(advanced_key->value > advanced_key->activation_value)
             {
-                state=true;
+                keyboard_advanced_key_update_state(advanced_key, true);
             }
             if(advanced_key->value < advanced_key->deactivation_value)
             {
-                state=false;
+                keyboard_advanced_key_update_state(advanced_key, false);
             }
             break;
         case KEY_ANALOG_RAPID_MODE:
             advanced_key->value = value;
             if (advanced_key->value <= advanced_key->upper_deadzone)
             {
-                state = false;
-                advanced_key->minimum = advanced_key->value;
-                break;
+                keyboard_advanced_key_update_state(advanced_key, false);
+                goto record;
             }
             if (advanced_key->value >= ANALOG_VALUE_MAX - advanced_key->lower_deadzone)
             {
-                state = true;
-                advanced_key->maximum = advanced_key->value;
-                break;
+                keyboard_advanced_key_update_state(advanced_key, true);
+                goto record;
             }
-            if (advanced_key->key.state)
+            if (advanced_key->key.state && advanced_key->extremum - advanced_key->value >= advanced_key->release_distance)
             {
-                if (advanced_key->value - advanced_key->minimum >= advanced_key->trigger_distance)
-                {
-                    if (advanced_key->value > advanced_key->maximum)
-                        advanced_key->maximum = advanced_key->value;
-                }
-                if (advanced_key->maximum - advanced_key->value >= advanced_key->release_distance)
-                {
-                    advanced_key->minimum = advanced_key->value;
-                    state = false;
-                }
+                keyboard_advanced_key_update_state(advanced_key, false);
+                advanced_key->extremum = advanced_key->value;
             }
-            else
+            if (!advanced_key->key.state && advanced_key->value - advanced_key->extremum >= advanced_key->trigger_distance)
             {
-                if (advanced_key->value - advanced_key->minimum >= advanced_key->trigger_distance)
-                {
-                    advanced_key->maximum = advanced_key->value;
-                    state = true;
-                }
-                if (advanced_key->maximum - advanced_key->value >= advanced_key->release_distance)
-                {
-                    if (advanced_key->value < advanced_key->minimum)
-                        advanced_key->minimum = advanced_key->value;
-                }
+                keyboard_advanced_key_update_state(advanced_key, true);
+                advanced_key->extremum = advanced_key->value;
+            }
+            record:
+            if ((advanced_key->key.state && advanced_key->value > advanced_key->extremum) ||
+                (!advanced_key->key.state && advanced_key->value < advanced_key->extremum))
+            {
+                advanced_key->extremum = advanced_key->value;
             }
             break;
         case KEY_ANALOG_SPEED_MODE:
             if (value - advanced_key->value > advanced_key->trigger_speed)
             {
-                state = true;
+                keyboard_advanced_key_update_state(advanced_key, true);
             }
             if (value - advanced_key->value < advanced_key->release_speed)
             {
-                state = false;
+                keyboard_advanced_key_update_state(advanced_key, false);
             }
             advanced_key->value = value;
             break;
         default:
             break;
     }
-    keyboard_advanced_key_update_state(advanced_key, state);
 }
 
 void advanced_key_update_raw(AdvancedKey* advanced_key, AnalogRawValue value)

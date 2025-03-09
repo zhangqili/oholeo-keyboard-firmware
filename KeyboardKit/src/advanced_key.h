@@ -49,8 +49,7 @@ typedef struct __AdvancedKey
     Key key;
     AnalogValue value;
     AnalogValue raw;
-    AnalogValue maximum;
-    AnalogValue minimum;
+    AnalogValue extremum;
 
 #ifdef OPTIMIZE_FOR_FLOAT_DIVISION
     float range_reciprocal;
@@ -61,7 +60,7 @@ typedef struct __AdvancedKey
     
     AnalogValue activation_value;
     AnalogValue deactivation_value;
-
+    
     AnalogValue trigger_distance;
     AnalogValue release_distance;
     AnalogValue trigger_speed;
