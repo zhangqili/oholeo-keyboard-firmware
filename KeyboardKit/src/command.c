@@ -8,77 +8,70 @@
 #include "keyboard_def.h"
 #include "rgb.h"
 #include "string.h"
-
-__WEAK const uint8_t command_advanced_key_mapping[ADVANCED_KEY_NUM];
-// static const uint8_t command_rgb_mapping[] = {0, 1, 2, 3};
-
-// static inline float fill_in_float(uint8_t *buf) __attribute__((optimize("O0")));
-static inline float fill_in_float(uint8_t *buf)
-{
-    float value;
-    // uint8_t *p = &value;
-    // p[0] = buf[0];
-    // p[1] = buf[1];
-    // p[2] = buf[2];
-    // p[3] = buf[3];
-    memcpy(&value, buf, 4);
-    return value;
-}
+#include "packet.h"
 
 void unload_cargo(uint8_t *buf)
 {
-    // max 62 remain
-    switch (buf[0])
+    PacketData* packet = (PacketData*)buf;
+    switch (packet->type)
     {
-    case 0: // Advanced Key
-        uint8_t key_index = buf[1];
-        g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].mode = buf[2];
-        g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].activation_value = fill_in_float(&buf[3 + 4 * 0]);
-        g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].deactivation_value = fill_in_float(&buf[3 + 4 * 1]);
-        g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].trigger_distance = fill_in_float(&buf[3 + 4 * 2]);
-        g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].release_distance = fill_in_float(&buf[3 + 4 * 3]);
-        g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].trigger_speed = fill_in_float(&buf[3 + 4 * 4]);
-        g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].release_speed = fill_in_float(&buf[3 + 4 * 5]);
-        g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].upper_deadzone = fill_in_float(&buf[3 + 4 * 6]);
-        g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].lower_deadzone = fill_in_float(&buf[3 + 4 * 7]);
-        //g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].upper_bound = fill_in_float(&buf[2 + 4 * 8]);
-        //g_keyboard_advanced_keys[command_advanced_key_mapping[buf[1]]].lower_bound = fill_in_float(&buf[2 + 4 * 9]);
-        break;
-    case 1: // Global LED
-        g_rgb_switch = buf[1];
-        break;
-    case 2: // LED
-        for (uint8_t i = 0; i < 6; i++)
+    case PACKET_DATA_ADVANCED_KEY: // Advanced Key
         {
-            uint8_t key_index = buf[1 + 9 * i];
-            if (key_index < RGB_NUM)
+            PacketAdvancedKey* packet = (PacketAdvancedKey*)buf;
+            uint16_t key_index = g_keyboard_advanced_keys_inverse_mapping[packet->index];
+            g_keyboard_advanced_keys[key_index].mode = packet->mode;
+            g_keyboard_advanced_keys[key_index].activation_value = packet->activation_value;
+            g_keyboard_advanced_keys[key_index].deactivation_value = packet->deactivation_value;
+            g_keyboard_advanced_keys[key_index].trigger_distance = packet->trigger_distance;
+            g_keyboard_advanced_keys[key_index].release_distance = packet->release_distance;
+            g_keyboard_advanced_keys[key_index].trigger_speed = packet->trigger_speed;
+            g_keyboard_advanced_keys[key_index].release_speed = packet->release_speed;
+            g_keyboard_advanced_keys[key_index].upper_deadzone = packet->upper_deadzone;
+            g_keyboard_advanced_keys[key_index].lower_deadzone = packet->lower_deadzone;
+            //g_keyboard_advanced_keys[key_index].upper_bound = packet->upper_bound);
+            //g_keyboard_advanced_keys[key_index].lower_bound = packet->lower_bound);
+        }
+        break;
+    case PACKET_DATA_RGB_SWITCH: // Global LED
+        {
+            PacketRGBSwitch* packet = (PacketRGBSwitch*)buf;
+            g_rgb_switch = packet->state;
+        }
+        break;
+    case PACKET_DATA_RGB_CONFIG: // LED
+        {
+            PacketRGBConfigs* packet = (PacketRGBConfigs*)buf;
+            for (uint8_t i = 0; i < packet->length; i++)
             {
-                g_rgb_configs[g_rgb_mapping[key_index]].mode = buf[1 + 9 * i + 1];
-                g_rgb_configs[g_rgb_mapping[key_index]].rgb.r = buf[1 + 9 * i + 2];
-                g_rgb_configs[g_rgb_mapping[key_index]].rgb.g = buf[1 + 9 * i + 3];
-                g_rgb_configs[g_rgb_mapping[key_index]].rgb.b = buf[1 + 9 * i + 4];
-                rgb_to_hsv(&g_rgb_configs[g_rgb_mapping[key_index]].hsv, &g_rgb_configs[g_rgb_mapping[key_index]].rgb);
-                memcpy(&g_rgb_configs[g_rgb_mapping[key_index]].speed, &buf[1 + 9 * i + 5], sizeof(float));
+                uint16_t key_index = g_rgb_mapping[packet->data[i].index];
+                if (key_index < RGB_NUM)
+                {
+                    g_rgb_configs[key_index].mode  = packet->data[i].mode;
+                    g_rgb_configs[key_index].rgb.r = packet->data[i].r;
+                    g_rgb_configs[key_index].rgb.g = packet->data[i].g;
+                    g_rgb_configs[key_index].rgb.b = packet->data[i].b;
+                    rgb_to_hsv(&g_rgb_configs[key_index].hsv, &g_rgb_configs[key_index].rgb);
+                    g_rgb_configs[key_index].speed = packet->data[i].speed;
+                }
             }
         }
         break;
-#define LAYER_PAGE_LENGTH 16
-#define LAYER_PAGE_EXPECTED_NUM ((ADVANCED_KEY_NUM + KEY_NUM + 15) / 16)
-    case 3: // Keymap
-        uint8_t layer_index = buf[1];
-        uint8_t layer_page_index = buf[2];
-        if (layer_index < LAYER_NUM && layer_page_index < LAYER_PAGE_EXPECTED_NUM)
+    case PACKET_DATA_KEYMAP: // Keymap
         {
-            uint8_t size = ((ADVANCED_KEY_NUM + KEY_NUM)-layer_page_index*LAYER_PAGE_LENGTH)*sizeof(uint16_t);
-            size = size > LAYER_PAGE_LENGTH*sizeof(uint16_t) ? LAYER_PAGE_LENGTH*sizeof(uint16_t) : size;
-            memcpy(&g_keymap[layer_index][layer_page_index*LAYER_PAGE_LENGTH], buf + 3, size);
+            PacketKeymap* packet = (PacketKeymap*)buf;
+            if (packet->layer < LAYER_NUM && packet->start + packet->length <= (ADVANCED_KEY_NUM + KEY_NUM))
+            {
+                memcpy(&g_keymap[packet->layer][packet->start], packet->keymap, packet->length * sizeof(Keycode));
+            }
         }
         break;
-    case 4: // Dynamic Key
-        uint8_t dk_index = buf[1];
-        if (dk_index<DYNAMIC_KEY_NUM)
+    case PACKET_DATA_DYNAMIC_KEY: // Dynamic Key
         {
-            memcpy(&g_keyboard_dynamic_keys[dk_index], buf + 2, sizeof(DynamicKey));
+            PacketDynamicKey *packet = (PacketDynamicKey *)buf;
+            if (packet->index<DYNAMIC_KEY_NUM)
+            {
+                memcpy(&g_keyboard_dynamic_keys[packet->index], &packet->dynamic_key, sizeof(DynamicKey));
+            }
         }
         break;
     default:
@@ -95,109 +88,109 @@ void start_load_cargo(void)
 int load_cargo(void)
 {
     uint8_t buf[64] = {0};
-    buf[0] = 0xFF;
+    PacketData *packet = (PacketData *)buf;
+    packet->code = 0xFF;
     // max 62 remain
     switch ((page_index >> 8) & 0xFF)
     {
-    case 0: // Advanced Key
-        buf[1] = 0x00;
-        uint8_t key_index = page_index & 0xFF;
-        buf[2] = g_keyboard_advanced_keys[key_index].key.id & 0xFF;
-        buf[3] = g_keyboard_advanced_keys[key_index].mode;
-        memcpy(&buf[4],&g_keyboard_advanced_keys[key_index].activation_value,sizeof(AnalogValue)*10);
-        if (!hid_send(buf,63))
+    case PACKET_DATA_ADVANCED_KEY: // Advanced Key
         {
-            page_index++;
-            if ((page_index & 0xFF)>=ADVANCED_KEY_NUM)
+            PacketAdvancedKey *packet = (PacketAdvancedKey *)buf;
+            packet->type = PACKET_DATA_ADVANCED_KEY;
+            uint8_t key_index = page_index & 0xFF;
+            packet->index = g_keyboard_advanced_keys[key_index].key.id;
+            packet->mode = g_keyboard_advanced_keys[key_index].mode;
+            memcpy(&packet->activation_value, &g_keyboard_advanced_keys[key_index].activation_value, sizeof(AnalogValue) * 10);
+            if (!hid_send(buf, 63))
             {
-                page_index = 0x0100;
+                page_index++;
+                if ((page_index & 0xFF) >= ADVANCED_KEY_NUM)
+                {
+                    page_index = 0x0100;
+                }
             }
         }
         return 1;
         break;
-    case 1: // Global LED
-        buf[1] = 0x01;
-        buf[2] = g_rgb_switch;
-        if (!hid_send(buf,63))
+    case PACKET_DATA_RGB_SWITCH: // Global LED
         {
-            page_index = 0x0200;
+            PacketRGBSwitch *packet = (PacketRGBSwitch *)buf;
+            packet->type = PACKET_DATA_RGB_SWITCH;
+            packet->state = g_rgb_switch;
+            if (!hid_send(buf,63))
+            {
+                page_index = 0x0200;
+            }
         }
         return 1;
         break;
-    case 2: // LED
-#define RGB_PAGE_NUM ((RGB_NUM + 5) / 6)
-        buf[1] = 0x02;
-        for (uint8_t i = 0; i < 6; i++)
+    case PACKET_DATA_RGB_CONFIG: // LED
         {
-            uint8_t key_index = (page_index & 0xFF)*6 + i;
-            if (key_index < RGB_NUM)
+            PacketRGBConfigs *packet = (PacketRGBConfigs *)buf;
+            uint8_t key_base_index = (page_index & 0xFF)*6;
+            packet->type = PACKET_DATA_RGB_CONFIG;
+            packet->length = key_base_index + 6 <= RGB_NUM ? 6 : RGB_NUM - key_base_index;
+            for (uint8_t i = 0; i < packet->length; i++)
             {
-                uint8_t rgb_index = g_rgb_mapping[g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].key.id];
-                buf[2 + 9 * i + 0] = key_index;
-                buf[2 + 9 * i + 1] = g_rgb_configs[rgb_index].mode;
-                buf[2 + 9 * i + 2] = g_rgb_configs[rgb_index].rgb.r;
-                buf[2 + 9 * i + 3] = g_rgb_configs[rgb_index].rgb.g;
-                buf[2 + 9 * i + 4] = g_rgb_configs[rgb_index].rgb.b;
-                memcpy(&buf[2 + 9 * i + 5], &g_rgb_configs[rgb_index].speed, sizeof(float));
+                uint8_t key_index = key_base_index + i;
+                if (key_index < RGB_NUM)
+                {
+                    uint8_t rgb_index = g_rgb_mapping[g_keyboard_advanced_keys[g_keyboard_advanced_keys_inverse_mapping[key_index]].key.id];
+                    packet->data[i].index = key_index;
+                    packet->data[i].mode = g_rgb_configs[rgb_index].mode;
+                    packet->data[i].r = g_rgb_configs[rgb_index].rgb.r;
+                    packet->data[i].g = g_rgb_configs[rgb_index].rgb.g;
+                    packet->data[i].b = g_rgb_configs[rgb_index].rgb.b;
+                    memcpy(&packet->data[i].speed, &g_rgb_configs[rgb_index].speed, sizeof(float));
+                }
             }
-            else
+            if (!hid_send(buf,63))
             {
-                buf[2 + 9 * i + 0] = 0xFF;
-            }
-            
-        }
-        if (!hid_send(buf,63))
-        {
-            page_index++;
-            if ((page_index & 0xFF)*6>=RGB_NUM)
-            {
-                page_index = 0x0300;
+                page_index++;
+                if ((page_index & 0xFF)*6>=RGB_NUM)
+                {
+                    page_index = 0x0300;
+                }
             }
         }
         return 1;
         break;
 #define LAYER_PAGE_LENGTH 16
 #define LAYER_PAGE_EXPECTED_NUM ((ADVANCED_KEY_NUM + KEY_NUM + 15) / 16)
-    case 3: // Keymap
-        buf[1] = 0x03;
-        uint8_t layer_index = (page_index & 0xFF) / LAYER_PAGE_EXPECTED_NUM;
-        uint8_t layer_page_index = (page_index & 0xFF) % LAYER_PAGE_EXPECTED_NUM;
-        buf[2] = layer_index;
-        buf[3] = layer_page_index;
-        uint8_t size = ((ADVANCED_KEY_NUM + KEY_NUM)-layer_page_index*LAYER_PAGE_LENGTH);
-        if (size>LAYER_PAGE_LENGTH)
+    case PACKET_DATA_KEYMAP: // Keymap
         {
-            size = LAYER_PAGE_LENGTH;
-        }
-        memcpy(&buf[4], &g_keymap[layer_index][layer_page_index*LAYER_PAGE_LENGTH], size*sizeof(Keycode));
-        if (!hid_send(buf,63))
-        {
-            page_index++;
-            if ((page_index & 0xFF)>=LAYER_NUM*LAYER_PAGE_EXPECTED_NUM)
+            PacketKeymap *packet = (PacketKeymap *)buf;
+            packet->type = PACKET_DATA_KEYMAP;
+            uint8_t layer_index = (page_index & 0xFF) / LAYER_PAGE_EXPECTED_NUM;
+            uint8_t layer_page_index = (page_index & 0xFF) % LAYER_PAGE_EXPECTED_NUM;
+            packet->layer = layer_index;
+            packet->start = layer_page_index*LAYER_PAGE_LENGTH;
+            packet->length = (layer_page_index + 1)*LAYER_PAGE_LENGTH <= (ADVANCED_KEY_NUM + KEY_NUM) ? 
+                LAYER_PAGE_LENGTH : 
+                (ADVANCED_KEY_NUM + KEY_NUM) - layer_page_index*LAYER_PAGE_LENGTH;
+            memcpy(&packet->keymap, &g_keymap[layer_index][packet->start], packet->length*sizeof(Keycode));
+            if (!hid_send(buf,63))
             {
-                page_index = 0x0400;
+                page_index++;
+                if ((page_index & 0xFF)>=LAYER_NUM*LAYER_PAGE_EXPECTED_NUM)
+                {
+                    page_index = 0x0400;
+                }
             }
         }
         return 1;
         break;
-    case 4: // Dynamic Key
-        buf[1] = 0x04;
+    case PACKET_DATA_DYNAMIC_KEY: // Dynamic Key
+        PacketDynamicKey *packet = (PacketDynamicKey *)buf;
+        packet->type = PACKET_DATA_DYNAMIC_KEY;
         uint8_t dk_index = (page_index & 0xFF);
         if (dk_index >= DYNAMIC_KEY_NUM)
         {
             page_index=0x8000;
             return 1;
         }
-        if (g_keyboard_dynamic_keys[dk_index].type != DYNAMIC_KEY_NONE)
-        {
-            buf[2] = dk_index;
-            memcpy(&buf[3],&g_keyboard_dynamic_keys[dk_index],sizeof(DynamicKey));
-        }
-        else
-        {
-            page_index=0x8000;
-            return 1;
-        }
+        packet->index = dk_index;
+        memcpy(&packet->dynamic_key,&g_keyboard_dynamic_keys[dk_index],sizeof(DynamicKey));
         if (!hid_send(buf,63))
         {
             page_index++;
@@ -222,7 +215,8 @@ int load_cargo(void)
 void command_prase(uint8_t *buf, uint8_t len)
 {
     UNUSED(len);
-    switch (buf[0])
+    PacketBase *packet = (PacketBase *)buf;
+    switch (packet->code)
     {
     case 0x80: // Save
         keyboard_save();
@@ -244,7 +238,7 @@ void command_prase(uint8_t *buf, uint8_t len)
         start_load_cargo();
         break;
     case 0xFF: // Legacy
-        unload_cargo(buf + 1);
+        unload_cargo(buf);
         break;
     default:
         break;

@@ -76,7 +76,7 @@ typedef struct __DynamicKeyMutex
 {
     uint32_t type;
     Keycode key_binding[2];
-    Keycode key_id[2];
+    uint16_t key_id[2];
     uint8_t mode;
     bool trigger_state;
 } DynamicKeyMutex;

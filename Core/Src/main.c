@@ -42,6 +42,7 @@
 #include "usbd_user.h"
 #include "command.h"
 #include "snake.h"
+#include "packet.h"
 
 /* USER CODE END Includes */
 
@@ -431,18 +432,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     case KEYBOARD_DEBUG:
       static uint32_t report_num = 0;
       memset(report_buffer,0,sizeof(report_buffer));
-      report_buffer[0] = 0x02;
-      report_buffer[1] = 0xFE;
-      for (int i = 0; i < 6; i++)
+      PacketDebug *packet = (PacketDebug *)report_buffer;
+      packet->code = 0xFE;
+      packet->length = 5;
+      for (int i = 0; i < 5; i++)
       {
         uint8_t key_index = (report_num + i) % 64;
-        report_buffer[2 + 10 * i] = key_index;
-        report_buffer[3 + 10 * i] = g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].key.report_state;
-        memcpy(report_buffer + 4 + 10 * i, &g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].raw, sizeof(float));
-        memcpy(report_buffer + 4 + 10 * i + 4, &g_keyboard_advanced_keys[command_advanced_key_mapping[key_index]].value, sizeof(float));
+        packet->data[i].index = key_index;
+        packet->data[i].state = g_keyboard_advanced_keys[g_keyboard_advanced_keys_inverse_mapping[key_index]].key.report_state;
+        packet->data[i].raw = g_keyboard_advanced_keys[g_keyboard_advanced_keys_inverse_mapping[key_index]].raw;
+        packet->data[i].value = g_keyboard_advanced_keys[g_keyboard_advanced_keys_inverse_mapping[key_index]].value;
       }
-      report_num += 6;
-      hid_send(report_buffer+1,63);
+      report_num += 5;
+      hid_send(report_buffer,63);
       break;
     case KEYBOARD_UPLOAD_CONFIG:
       if (!load_cargo())

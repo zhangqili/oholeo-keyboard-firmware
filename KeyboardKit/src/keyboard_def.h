@@ -9,16 +9,16 @@
   #ifndef __WEAK
     #define __WEAK  __attribute__((weak))
   #endif
-  #ifndef __packed
-    #define __packed  __attribute__((packed))
+  #ifndef __PACKED
+    #define __PACKED  __attribute__((packed))
   #endif
 #elif defined ( __GNUC__ ) && !defined (__CC_ARM) /* GNU Compiler */
   #ifndef __WEAK
     #define __WEAK   __attribute__((weak))
   #endif /* __WEAK */
-  #ifndef __packed
-    #define __packed __attribute__((__packed__))
-  #endif /* __packed */
+  #ifndef __PACKED
+    #define __PACKED __attribute__((__packed__))
+  #endif
 #endif /* __GNUC__ */
 
 #if !defined(UNUSED)
