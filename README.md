@@ -6,6 +6,19 @@
 
 旧版配置器(固件版本v1.0): <https://github.com/dwdwdw5163/oholeo_keyboard_software>
 
+## 特性
++ 支持传统触发、快速触发(Rapid Trigger)、差速触发三种模式
++ 支持Mod tap、Mutex(类似Rappy Snappy)、DKS等高级按键
++ 支持绑定键盘，鼠标，媒体控制，系统控制按键
++ 支持板载Flash切换配置
++ 支持最多5层按键绑定
++ 支持切换6键无冲与全键无冲模式
++ 配套免驱配置器
++ ~~没有主机也能玩贪食蛇~~
+
+## TODO
++ 支持模拟游戏手柄
+
 ## 构建
 
 ### 前置条件
@@ -48,7 +61,7 @@ Memory region         Used Size  Region Size  %age Used
 
 ### 使用Keil uVision(不推荐)
 
-使用Keil uVision打开`MDK-ARM/oholeo-keyboard-firmware.uvprojx`，工程默认使用ARM Compiler 5，推荐改为使用ARM Compiler 6
+使用Keil uVision打开`MDK-ARM/oholeo-keyboard-firmware.uvprojx`，工程使用ARM Compiler 6，不兼容ARM Compiler 5
 
 ## 烧录
 
@@ -78,7 +91,7 @@ C:/ST/STM32CubeCLT_1.17.0/STM32CubeProgrammer/bin/STM32_Programmer_CLI.exe -c po
 |`FN`|清除所有数据，恢复出厂设置并重启|
 |`Backspace`|恢复默认配置并重启|
 
-### 特殊快捷键
+### 默认快捷键
 
 |按键|功能|
 |---|---|
@@ -95,3 +108,14 @@ C:/ST/STM32CubeCLT_1.17.0/STM32CubeProgrammer/bin/STM32_Programmer_CLI.exe -c po
 |`FN`+`DEL`+`2`|使用配置文件1|
 |`FN`+`DEL`+`3`|使用配置文件2|
 |`FN`+`DEL`+`4`|使用配置文件3|
+|`FN`+`DEL`+`CapsLock`|在键盘上玩贪食蛇|
+
+### 贪食蛇快捷键
+
+|按键|功能|
+|---|---|
+|`Backspace`|退出|
+|`方向键`|~~应该不用说~~|
+|`Right Shift`|减速|
+|`DEL`|加速|
+|`Space`|暂停|
