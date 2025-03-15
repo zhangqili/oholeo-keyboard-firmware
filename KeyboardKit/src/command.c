@@ -19,17 +19,17 @@ void unload_cargo(uint8_t *buf)
         {
             PacketAdvancedKey* packet = (PacketAdvancedKey*)buf;
             uint16_t key_index = g_keyboard_advanced_keys_inverse_mapping[packet->index];
-            g_keyboard_advanced_keys[key_index].mode = packet->mode;
-            g_keyboard_advanced_keys[key_index].activation_value = packet->activation_value;
-            g_keyboard_advanced_keys[key_index].deactivation_value = packet->deactivation_value;
-            g_keyboard_advanced_keys[key_index].trigger_distance = packet->trigger_distance;
-            g_keyboard_advanced_keys[key_index].release_distance = packet->release_distance;
-            g_keyboard_advanced_keys[key_index].trigger_speed = packet->trigger_speed;
-            g_keyboard_advanced_keys[key_index].release_speed = packet->release_speed;
-            g_keyboard_advanced_keys[key_index].upper_deadzone = packet->upper_deadzone;
-            g_keyboard_advanced_keys[key_index].lower_deadzone = packet->lower_deadzone;
-            //g_keyboard_advanced_keys[key_index].upper_bound = packet->upper_bound);
-            //g_keyboard_advanced_keys[key_index].lower_bound = packet->lower_bound);
+            g_keyboard_advanced_keys[key_index].config.mode = packet->mode;
+            g_keyboard_advanced_keys[key_index].config.activation_value = packet->activation_value;
+            g_keyboard_advanced_keys[key_index].config.deactivation_value = packet->deactivation_value;
+            g_keyboard_advanced_keys[key_index].config.trigger_distance = packet->trigger_distance;
+            g_keyboard_advanced_keys[key_index].config.release_distance = packet->release_distance;
+            g_keyboard_advanced_keys[key_index].config.trigger_speed = packet->trigger_speed;
+            g_keyboard_advanced_keys[key_index].config.release_speed = packet->release_speed;
+            g_keyboard_advanced_keys[key_index].config.upper_deadzone = packet->upper_deadzone;
+            g_keyboard_advanced_keys[key_index].config.lower_deadzone = packet->lower_deadzone;
+            //g_keyboard_advanced_keys[key_index].config.upper_bound = packet->config.upper_bound);
+            //g_keyboard_advanced_keys[key_index].config.lower_bound = packet->config.lower_bound);
         }
         break;
     case PACKET_DATA_RGB_SWITCH: // Global LED
@@ -99,8 +99,8 @@ int load_cargo(void)
             packet->type = PACKET_DATA_ADVANCED_KEY;
             uint8_t key_index = page_index & 0xFF;
             packet->index = g_keyboard_advanced_keys[key_index].key.id;
-            packet->mode = g_keyboard_advanced_keys[key_index].mode;
-            memcpy(&packet->activation_value, &g_keyboard_advanced_keys[key_index].activation_value, sizeof(AnalogValue) * 10);
+            packet->mode = g_keyboard_advanced_keys[key_index].config.mode;
+            memcpy(&packet->activation_value, &g_keyboard_advanced_keys[key_index].config.activation_value, sizeof(AnalogValue) * 10);
             if (!hid_send(buf, 63))
             {
                 page_index++;

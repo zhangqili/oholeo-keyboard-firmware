@@ -46,7 +46,7 @@ void analog_check(void)
 {
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-        if (g_keyboard_advanced_keys[i].mode != KEY_DIGITAL_MODE)
+        if (g_keyboard_advanced_keys[i].config.mode != KEY_DIGITAL_MODE)
         {
             advanced_key_update_raw(g_keyboard_advanced_keys + i, g_ADC_Averages[i]);
         }
@@ -79,9 +79,9 @@ AnalogRawValue ringbuf_avg(RingBuf* ringbuf)
     {
         avg += ringbuf->datas[i];
     }
-
-    avg /= RING_BUF_LEN;
-    //avg = ((avg >> 2) & 0x01) + (avg >> 3);
-
-    return (AnalogValue)avg;
+#ifdef OPTIMIZE_FOR_FLOAT_DIVISION
+    return (AnalogValue)(avg*(1/((float)RING_BUF_LEN)));
+#else
+    return (AnalogValue)(avg/RING_BUF_LEN);
+#endif
 }

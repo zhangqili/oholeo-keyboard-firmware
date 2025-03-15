@@ -182,7 +182,7 @@ void rgb_update(void)
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
         uint8_t rgb_index = g_rgb_mapping[g_keyboard_advanced_keys[i].key.id];
-        intensity = g_keyboard_advanced_keys[i].value < g_keyboard_advanced_keys[i].upper_deadzone
+        intensity = g_keyboard_advanced_keys[i].value < g_keyboard_advanced_keys[i].config.upper_deadzone
                         ? 0
                     : g_keyboard_advanced_keys[i].value > ANALOG_VALUE_MAX
                         ? 1.0

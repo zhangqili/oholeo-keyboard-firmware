@@ -273,9 +273,9 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
         }
 
         bool last_key0_state = key0->key.report_state;
-        if (((key0->value > key1->value) && (key0->value > key0->upper_deadzone)) ||
-        ((key0->value>= (ANALOG_VALUE_MAX - key0->lower_deadzone))&&
-        (key1->value>= (ANALOG_VALUE_MAX - key1->lower_deadzone))))
+        if (((key0->value > key1->value) && (key0->value > key0->config.upper_deadzone)) ||
+        ((key0->value>= (ANALOG_VALUE_MAX - key0->config.lower_deadzone))&&
+        (key1->value>= (ANALOG_VALUE_MAX - key1->config.lower_deadzone))))
         {
             key0->key.report_state = true;
         }
@@ -295,9 +295,9 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
         key0->key.report_state = key0->key.report_state;
 
         bool last_key1_state = key1->key.report_state;
-        if (((key0->value < key1->value) && (key1->value > key1->upper_deadzone))||
-        ((key0->value>= (ANALOG_VALUE_MAX - key0->lower_deadzone))&&
-        (key1->value>= (ANALOG_VALUE_MAX - key1->lower_deadzone))))
+        if (((key0->value < key1->value) && (key1->value > key1->config.upper_deadzone))||
+        ((key0->value>= (ANALOG_VALUE_MAX - key0->config.lower_deadzone))&&
+        (key1->value>= (ANALOG_VALUE_MAX - key1->config.lower_deadzone))))
         {
             key1->key.report_state = true;
         }
@@ -375,8 +375,8 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
     }
     if (dynamic_key_m->mode & 0xF0)
     {
-        if ((key0->value>= (ANALOG_VALUE_MAX - key0->lower_deadzone))&&
-        (key1->value>= (ANALOG_VALUE_MAX - key1->lower_deadzone)))
+        if ((key0->value>= (ANALOG_VALUE_MAX - key0->config.lower_deadzone))&&
+        (key1->value>= (ANALOG_VALUE_MAX - key1->config.lower_deadzone)))
         {
             key0->key.report_state = true;
             key1->key.report_state = true;
