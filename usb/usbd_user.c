@@ -200,13 +200,13 @@ static void usbd_hid_shared_in_callback(uint8_t busid, uint8_t ep, uint32_t nbyt
     shared_buffer.state = HID_STATE_IDLE;
 }
 
-__unused static void usbd_hid_mouse_in_callback(uint8_t busid, uint8_t ep, uint32_t nbytes)
-{
-    UNUSED(busid);
-    UNUSED(ep);
-    UNUSED(nbytes);
-    mouse_buffer.state = HID_STATE_IDLE;
-}
+//static void usbd_hid_mouse_in_callback(uint8_t busid, uint8_t ep, uint32_t nbytes)
+//{
+//    UNUSED(busid);
+//    UNUSED(ep);
+//    UNUSED(nbytes);
+//    mouse_buffer.state = HID_STATE_IDLE;
+//}
 
 static struct usbd_endpoint keyboard_in_ep = {
     .ep_cb = usbd_hid_keyboard_in_callback,

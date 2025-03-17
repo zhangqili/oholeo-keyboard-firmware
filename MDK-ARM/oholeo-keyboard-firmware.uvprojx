@@ -10,8 +10,8 @@
       <TargetName>oholeo-keyboard-firmware</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
-      <uAC6>0</uAC6>
+      <pCCUsed>6220000::V6.22::ARMCLANG</pCCUsed>
+      <uAC6>1</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F303CBTx</Device>
@@ -323,7 +323,7 @@
             <PlainCh>0</PlainCh>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
-            <wLevel>2</wLevel>
+            <wLevel>3</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F303xC</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\KeyboardKit\src\;..\KeyboardKit\user\;..\KeyboardKit\littlefs\;..\sfud\inc\;..\usb\;..\CherryUSB\core;..\CherryUSB\common;..\CherryUSB\class\hid;..\CherryUSB\port\fsdev</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\KeyboardKit\src\;..\KeyboardKit\user\;..\KeyboardKit\littlefs\;..\sfud\inc\;..\usb\;..\CherryUSB\core;..\CherryUSB\common;..\CherryUSB\class\hid;..\CherryUSB\port\fsdev;..\KeyboardKit\usb;..\KeyboardKit\usb\lufa;..\snake</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -738,6 +738,16 @@
               <FileName>usbd_user.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\usb\usbd_user.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>snake</GroupName>
+          <Files>
+            <File>
+              <FileName>snake.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\snake\snake.c</FilePath>
             </File>
           </Files>
         </Group>
