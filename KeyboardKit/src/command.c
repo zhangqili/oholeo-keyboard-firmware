@@ -10,26 +10,48 @@
 #include "string.h"
 #include "packet.h"
 
+
+static inline void command_advanced_key_config_normalize(AdvancedKeyConfigurationNormalized* buffer, AdvancedKeyConfiguration* config)
+{
+    buffer->mode = config->mode;
+    //buffer->calibration_mode = config->calibration_mode;
+    buffer->activation_value = config->activation_value / (float)ANALOG_VALUE_RANGE;
+    buffer->deactivation_value = config->deactivation_value / (float)ANALOG_VALUE_RANGE;
+    buffer->trigger_distance = config->trigger_distance / (float)ANALOG_VALUE_RANGE;
+    buffer->release_distance = config->release_distance / (float)ANALOG_VALUE_RANGE;
+    buffer->trigger_speed = config->trigger_speed / (float)ANALOG_VALUE_RANGE;
+    buffer->release_speed = config->release_speed / (float)ANALOG_VALUE_RANGE;
+    buffer->upper_deadzone = config->upper_deadzone / (float)ANALOG_VALUE_RANGE;
+    buffer->lower_deadzone = config->lower_deadzone / (float)ANALOG_VALUE_RANGE;
+    //buffer->upper_bound = config->upper_bound;
+    //buffer->lower_bound = config->lower_bound;
+}
+
+static inline void command_advanced_key_config_anti_normalize(AdvancedKeyConfiguration* config, AdvancedKeyConfigurationNormalized* buffer)
+{
+    config->mode = buffer->mode;
+    //config->calibration_mode = buffer->calibration_mode;
+    config->activation_value = buffer->activation_value * ANALOG_VALUE_RANGE;
+    config->deactivation_value = buffer->deactivation_value * ANALOG_VALUE_RANGE;
+    config->trigger_distance = buffer->trigger_distance * ANALOG_VALUE_RANGE;
+    config->release_distance = buffer->release_distance * ANALOG_VALUE_RANGE;
+    config->trigger_speed = buffer->trigger_speed * ANALOG_VALUE_RANGE;
+    config->release_speed = buffer->release_speed * ANALOG_VALUE_RANGE;
+    config->upper_deadzone = buffer->upper_deadzone * ANALOG_VALUE_RANGE;
+    config->lower_deadzone = buffer->lower_deadzone * ANALOG_VALUE_RANGE;
+    //config->upper_bound = buffer->upper_bound;
+    //config->lower_bound = buffer->lower_bound;
+}
+
 void unload_cargo(uint8_t *buf)
 {
-    PacketData* packet = (PacketData*)buf;
-    switch (packet->type)
+    switch (((PacketData*)buf)->type)
     {
     case PACKET_DATA_ADVANCED_KEY: // Advanced Key
         {
             PacketAdvancedKey* packet = (PacketAdvancedKey*)buf;
             uint16_t key_index = g_keyboard_advanced_keys_inverse_mapping[packet->index];
-            g_keyboard_advanced_keys[key_index].config.mode = packet->mode;
-            g_keyboard_advanced_keys[key_index].config.activation_value = packet->activation_value;
-            g_keyboard_advanced_keys[key_index].config.deactivation_value = packet->deactivation_value;
-            g_keyboard_advanced_keys[key_index].config.trigger_distance = packet->trigger_distance;
-            g_keyboard_advanced_keys[key_index].config.release_distance = packet->release_distance;
-            g_keyboard_advanced_keys[key_index].config.trigger_speed = packet->trigger_speed;
-            g_keyboard_advanced_keys[key_index].config.release_speed = packet->release_speed;
-            g_keyboard_advanced_keys[key_index].config.upper_deadzone = packet->upper_deadzone;
-            g_keyboard_advanced_keys[key_index].config.lower_deadzone = packet->lower_deadzone;
-            //g_keyboard_advanced_keys[key_index].config.upper_bound = packet->config.upper_bound);
-            //g_keyboard_advanced_keys[key_index].config.lower_bound = packet->config.lower_bound);
+            command_advanced_key_config_anti_normalize(&g_keyboard_advanced_keys[key_index].config, &packet->data);
         }
         break;
     case PACKET_DATA_RGB_SWITCH: // Global LED
@@ -70,7 +92,16 @@ void unload_cargo(uint8_t *buf)
             PacketDynamicKey *packet = (PacketDynamicKey *)buf;
             if (packet->index<DYNAMIC_KEY_NUM)
             {
-                memcpy(&g_keyboard_dynamic_keys[packet->index], &packet->dynamic_key, sizeof(DynamicKey));
+                switch (((DynamicKey*)packet->dynamic_key)->type)
+                {
+                case DYNAMIC_KEY_STROKE:
+                    dynamic_key_stroke_anti_normalize((DynamicKeyStroke4x4*)&g_keyboard_dynamic_keys[packet->index],
+                        (DynamicKeyStroke4x4Normalized*)&packet->dynamic_key);
+                    break;
+                default:
+                    memcpy(&g_keyboard_dynamic_keys[packet->index], &packet->dynamic_key, sizeof(DynamicKey));
+                    break;
+                }
             }
         }
         break;
@@ -88,8 +119,7 @@ void start_load_cargo(void)
 int load_cargo(void)
 {
     uint8_t buf[64] = {0};
-    PacketData *packet = (PacketData *)buf;
-    packet->code = 0xFF;
+    ((PacketData *)buf)->code = 0xFF;
     // max 62 remain
     switch ((page_index >> 8) & 0xFF)
     {
@@ -99,8 +129,7 @@ int load_cargo(void)
             packet->type = PACKET_DATA_ADVANCED_KEY;
             uint8_t key_index = page_index & 0xFF;
             packet->index = g_keyboard_advanced_keys[key_index].key.id;
-            packet->mode = g_keyboard_advanced_keys[key_index].config.mode;
-            memcpy(&packet->activation_value, &g_keyboard_advanced_keys[key_index].config.activation_value, sizeof(AnalogValue) * 10);
+            command_advanced_key_config_normalize(&packet->data, &g_keyboard_advanced_keys[key_index].config);
             if (!hid_send(buf, 63))
             {
                 page_index++;
@@ -111,7 +140,6 @@ int load_cargo(void)
             }
         }
         return 1;
-        break;
     case PACKET_DATA_RGB_SWITCH: // Global LED
         {
             PacketRGBSwitch *packet = (PacketRGBSwitch *)buf;
@@ -123,7 +151,6 @@ int load_cargo(void)
             }
         }
         return 1;
-        break;
     case PACKET_DATA_RGB_CONFIG: // LED
         {
             PacketRGBConfigs *packet = (PacketRGBConfigs *)buf;
@@ -154,7 +181,6 @@ int load_cargo(void)
             }
         }
         return 1;
-        break;
 #define LAYER_PAGE_LENGTH 16
 #define LAYER_PAGE_EXPECTED_NUM ((ADVANCED_KEY_NUM + KEY_NUM + 15) / 16)
     case PACKET_DATA_KEYMAP: // Keymap
@@ -179,7 +205,6 @@ int load_cargo(void)
             }
         }
         return 1;
-        break;
     case PACKET_DATA_DYNAMIC_KEY: // Dynamic Key
         PacketDynamicKey *packet = (PacketDynamicKey *)buf;
         packet->type = PACKET_DATA_DYNAMIC_KEY;
@@ -190,13 +215,21 @@ int load_cargo(void)
             return 1;
         }
         packet->index = dk_index;
-        memcpy(&packet->dynamic_key,&g_keyboard_dynamic_keys[dk_index],sizeof(DynamicKey));
+        switch (g_keyboard_dynamic_keys[dk_index].type)
+        {
+        case DYNAMIC_KEY_STROKE:
+            dynamic_key_stroke_normalize((DynamicKeyStroke4x4Normalized*)&packet->dynamic_key,
+                (DynamicKeyStroke4x4*)&g_keyboard_dynamic_keys[dk_index]);
+            break;
+        default:
+            memcpy(&packet->dynamic_key,&g_keyboard_dynamic_keys[dk_index],sizeof(DynamicKey));
+            break;
+        }
         if (!hid_send(buf,63))
         {
             page_index++;
         }
         return 1;
-        break;
     case 0x80: // config index
         buf[1] = 0x80;
         buf[2] = g_current_config_index;
@@ -205,14 +238,31 @@ int load_cargo(void)
             page_index = 0xFFFF;
         }
         return 1;
-        break;
     default:
         return 0;
-        break;
     }
 }
 
-void command_prase(uint8_t *buf, uint8_t len)
+void send_debug_info(void)
+{
+    static uint8_t buffer[64];
+    static uint32_t report_num = 0;
+    PacketDebug* packet = (PacketDebug*)buffer;
+    packet->code = 0xFE;
+    packet->length = 5;
+    for (int i = 0; i < packet->length; i++)
+    {
+        uint8_t key_index = (report_num + i) % ADVANCED_KEY_NUM;
+        packet->data[i].index = key_index;
+        packet->data[i].state = g_keyboard_advanced_keys[g_keyboard_advanced_keys_inverse_mapping[key_index]].key.report_state;
+        packet->data[i].raw = g_keyboard_advanced_keys[g_keyboard_advanced_keys_inverse_mapping[key_index]].raw;
+        packet->data[i].value = g_keyboard_advanced_keys[g_keyboard_advanced_keys_inverse_mapping[key_index]].value;
+    }
+    hid_send(buffer, 63);
+    report_num += packet->length;
+}
+
+void command_parse(uint8_t *buf, uint8_t len)
 {
     UNUSED(len);
     PacketBase *packet = (PacketBase *)buf;

@@ -15,8 +15,8 @@
 #include "dynamic_key.h"
 
 #define KEYBINDING(keycode, modifier) (((modifier) << 8) | (keycode))
-#define KEY_KEYCODE(binding) ((binding) & 0xFF)
-#define KEY_MODIFIER(binding) (((binding) >> 8) & 0xFF)
+#define KEYCODE(binding) ((binding) & 0xFF)
+#define MODIFIER(binding) (((binding) >> 8) & 0xFF)
 
 typedef struct
 {

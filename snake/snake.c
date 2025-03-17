@@ -230,7 +230,7 @@ void snake_move(Snake *snake)
     if (t.x == snake->apple.x && t.y == snake->apple.y)
     {
         extern uint32_t pulse_counter;
-        pulse_counter = 0;
+        pulse_counter = PULSE_LEN_MS;
         snake_place_apple(snake);
     }
     else

@@ -52,7 +52,7 @@ Keycode keyboard_get_keycode(uint8_t id)
     while (layer>=0)
     {
         keycode = g_keymap[layer][id];
-        if ((keycode & 0xFF ) == KEY_TRANSPARENT)
+        if (KEYCODE(keycode) == KEY_TRANSPARENT)
         {
             layer--;
         }
@@ -78,13 +78,13 @@ void keyboard_event_handler(KeyboardEvent event)
     switch (event.event)
     {
     case KEYBOARD_EVENT_KEY_UP:
-        if ((event.keycode & 0xFF) <= KEY_EXSEL)
+        if (KEYCODE(event.keycode) <= KEY_EXSEL)
         {
             BIT_SET(g_keyboard_send_flags, KEYBOARD_REPORT_FLAG);
         }
         else
         {
-            switch (event.keycode & 0xFF)
+            switch (KEYCODE(event.keycode))
             {
             case MOUSE_COLLECTION:
                 BIT_SET(g_keyboard_send_flags, MOUSE_REPORT_FLAG);
@@ -106,30 +106,30 @@ void keyboard_event_handler(KeyboardEvent event)
         }
         break;
     case KEYBOARD_EVENT_KEY_DOWN:
-        if ((event.keycode & 0xFF) <= KEY_EXSEL)
+        if (KEYCODE(event.keycode) <= KEY_EXSEL)
         {
             BIT_SET(g_keyboard_send_flags, KEYBOARD_REPORT_FLAG);
         }
         else
         {
-            switch (event.keycode & 0xFF)
+            switch (KEYCODE(event.keycode))
             {
             case MOUSE_COLLECTION:
                 BIT_SET(g_keyboard_send_flags, MOUSE_REPORT_FLAG);
                 break;
             case CONSUMER_COLLECTION:
-                keyboard_consumer_buffer = CONSUMER_KEYCODE_TO_RAWCODE((event.keycode >> 8) & 0xFF);
+                keyboard_consumer_buffer = CONSUMER_KEYCODE_TO_RAWCODE(MODIFIER(event.keycode));
                 BIT_SET(g_keyboard_send_flags, CONSUMER_REPORT_FLAG);
                 break;
             case SYSTEM_COLLECTION:
-                keyboard_system_buffer = (event.keycode >> 8) & 0xFF;
+                keyboard_system_buffer = MODIFIER(event.keycode);
                 BIT_SET(g_keyboard_send_flags, SYSTEM_REPORT_FLAG);
                 break;
             case LAYER_CONTROL:
                 layer_control(event.keycode,event.event);
                 break;
             case KEYBOARD_OPERATION:
-                switch ((event.keycode >> 8) & 0xFF)
+                switch (MODIFIER(event.keycode))
                 {
                 case KEYBOARD_REBOOT:
                     keyboard_reboot();
@@ -163,7 +163,7 @@ void keyboard_event_handler(KeyboardEvent event)
                 }
                 break;
             case KEY_USER:
-                keyboard_user_handler((event.keycode >> 8) & 0xFF);
+                keyboard_user_handler(MODIFIER(event.keycode));
                 break;
             default:
                 break;
@@ -207,7 +207,7 @@ void keyboard_advanced_key_event_handler(AdvancedKey*key, KeyboardEvent event)
 
 void keyboard_add_buffer(uint16_t keycode)
 {
-    if ((keycode & 0xFF) <= KEY_EXSEL)
+    if (KEYCODE(keycode) <= KEY_EXSEL)
     {
 #ifdef NKRO_ENABLE
         if (g_keyboard_nkro_enable)
@@ -222,24 +222,24 @@ void keyboard_add_buffer(uint16_t keycode)
     }
     else
     {
-        switch (keycode & 0xFF)
+        switch (KEYCODE(keycode))
         {
         case MOUSE_COLLECTION:
-            mouse_add_buffer(keycode >> 8);
+            mouse_add_buffer(MODIFIER(keycode));
             break;
         case DYNAMIC_KEY:
-            dynamic_key_add_buffer(&g_keyboard_dynamic_keys[keycode >> 8]);
+            dynamic_key_add_buffer(&g_keyboard_dynamic_keys[MODIFIER(keycode)]);
             break;
         case CONSUMER_COLLECTION:
             if (!keyboard_consumer_buffer)
             {
-                keyboard_consumer_buffer = CONSUMER_KEYCODE_TO_RAWCODE((keycode >> 8) & 0xFF);
+                keyboard_consumer_buffer = CONSUMER_KEYCODE_TO_RAWCODE(MODIFIER(keycode));
             }
             break;
         case SYSTEM_COLLECTION:
             if (!keyboard_system_buffer)
             {
-                keyboard_system_buffer = (keycode >> 8) & 0xFF;
+                keyboard_system_buffer = MODIFIER(keycode);
             }
             break;
         default:
@@ -272,10 +272,10 @@ void keyboard_buffer_clear(void)
 
 int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, Keycode keycode)
 {
-    buf->buffer[0] |= KEY_MODIFIER(keycode);
-    if (KEY_KEYCODE(keycode) != KEY_NO_EVENT && buf->keynum < 6)
+    buf->buffer[0] |= MODIFIER(keycode);
+    if (KEYCODE(keycode) != KEY_NO_EVENT && buf->keynum < 6)
     {
-        buf->buffer[2 + buf->keynum] = KEY_KEYCODE(keycode);
+        buf->buffer[2 + buf->keynum] = KEYCODE(keycode);
         buf->keynum++;
         return 0;
     }
@@ -303,12 +303,12 @@ void keyboard_NKRObuffer_init(Keyboard_NKROBuffer*buf,uint8_t* data_buf,uint8_t 
 
 int keyboard_NKRObuffer_add(Keyboard_NKROBuffer*buf,Keycode keycode)
 {
-    uint8_t index = KEY_KEYCODE(keycode)/8+1;
+    uint8_t index = KEYCODE(keycode)/8+1;
     if (index<buf->length)
     {
-        buf->buffer[index] |= (1 << (KEY_KEYCODE(keycode)%8));
+        buf->buffer[index] |= (1 << (KEYCODE(keycode)%8));
     }
-    buf->buffer[0] |= KEY_MODIFIER(keycode);
+    buf->buffer[0] |= MODIFIER(keycode);
     return 0;
 }
 
@@ -338,14 +338,14 @@ __WEAK void keyboard_reset_to_default(void)
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
         g_keyboard_advanced_keys[i].config.mode = DEFAULT_ADVANCED_KEY_MODE;
-        g_keyboard_advanced_keys[i].config.trigger_distance = DEFAULT_TRIGGER_DISTANCE * (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN);
-        g_keyboard_advanced_keys[i].config.release_distance = DEFAULT_RELEASE_DISTANCE * (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN);
-        g_keyboard_advanced_keys[i].config.activation_value = DEFAULT_ACTIVATION_VALUE * (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN);
-        g_keyboard_advanced_keys[i].config.deactivation_value = DEFAULT_DEACTIVATION_VALUE * (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN);
+        g_keyboard_advanced_keys[i].config.trigger_distance = DEFAULT_TRIGGER_DISTANCE * ANALOG_VALUE_RANGE;
+        g_keyboard_advanced_keys[i].config.release_distance = DEFAULT_RELEASE_DISTANCE * ANALOG_VALUE_RANGE;
+        g_keyboard_advanced_keys[i].config.activation_value = DEFAULT_ACTIVATION_VALUE * ANALOG_VALUE_RANGE;
+        g_keyboard_advanced_keys[i].config.deactivation_value = DEFAULT_DEACTIVATION_VALUE * ANALOG_VALUE_RANGE;
         g_keyboard_advanced_keys[i].config.calibration_mode = DEFAULT_CALIBRATION_MODE;
         advanced_key_set_deadzone(g_keyboard_advanced_keys + i, 
-            DEFAULT_UPPER_DEADZONE * (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN), 
-            DEFAULT_LOWER_DEADZONE * (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN));
+            DEFAULT_UPPER_DEADZONE * ANALOG_VALUE_RANGE, 
+            DEFAULT_LOWER_DEADZONE * ANALOG_VALUE_RANGE);
     }
     rgb_factory_reset();
     memset(g_keyboard_dynamic_keys, 0, sizeof(g_keyboard_dynamic_keys));
@@ -409,7 +409,7 @@ void keyboard_send_report(void)
     )
     {
 #ifdef CONTINOUS_POLL
-        usb_send_flags = 0x03;
+        BIT_SET(g_keyboard_send_flags,KEYBOARD_REPORT_FLAG);
 #endif
         keyboard_buffer_clear();
         mouse_buffer_clear(&g_mouse);
@@ -421,13 +421,6 @@ void keyboard_send_report(void)
         for (int i = 0; i < KEY_NUM; i++)
         {        
             keyboard_event_handler(keyboard_make_event(&g_keyboard_keys[i], g_keyboard_keys[i].report_state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
-        }
-        if (BIT_GET(g_keyboard_send_flags,KEYBOARD_REPORT_FLAG))
-        {
-            if (!keyboard_buffer_send())
-            {
-                BIT_RESET(g_keyboard_send_flags,KEYBOARD_REPORT_FLAG);
-            }
         }
         if (BIT_GET(g_keyboard_send_flags,MOUSE_REPORT_FLAG))
         {
@@ -452,6 +445,13 @@ void keyboard_send_report(void)
             if (!keyboard_extra_hid_send(REPORT_ID_SYSTEM, keyboard_system_buffer))
             {
                 BIT_RESET(g_keyboard_send_flags,SYSTEM_REPORT_FLAG);
+            }
+        }
+        if (BIT_GET(g_keyboard_send_flags,KEYBOARD_REPORT_FLAG))
+        {
+            if (!keyboard_buffer_send())
+            {
+                BIT_RESET(g_keyboard_send_flags,KEYBOARD_REPORT_FLAG);
             }
         }
     }
@@ -504,7 +504,7 @@ void keyboard_key_update(Key *key, bool state)
 void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
 {
     const Keycode keycode = keyboard_get_keycode(key->key.id);
-    if ((keycode & 0xFF)==DYNAMIC_KEY)
+    if (KEYCODE(keycode)==DYNAMIC_KEY)
     {
         const uint8_t dynamic_key_index = (keycode>>8)&0xFF;
         dynamic_key_update(&g_keyboard_dynamic_keys[dynamic_key_index], key, state);

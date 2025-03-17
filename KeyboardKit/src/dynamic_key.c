@@ -84,8 +84,8 @@ void dynamic_key_s_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
     uint8_t last_key_state = dynamic_key_s->key_state;
     if (current_value > last_value)
     {
-        if (current_value >= dynamic_key_s->press_begin_distance &&
-            last_value < dynamic_key_s->press_begin_distance)
+        if (current_value - ANALOG_VALUE_MIN >= dynamic_key_s->press_begin_distance &&
+            last_value - ANALOG_VALUE_MIN < dynamic_key_s->press_begin_distance)
         {
             for (int i = 0; i < 4; i++)
             {
@@ -107,8 +107,8 @@ void dynamic_key_s_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
                 }
             }
         }
-        if (current_value >= dynamic_key_s->press_fully_distance &&
-            last_value < dynamic_key_s->press_fully_distance)
+        if (current_value - ANALOG_VALUE_MIN >= dynamic_key_s->press_fully_distance &&
+            last_value - ANALOG_VALUE_MIN < dynamic_key_s->press_fully_distance)
         {
             for (int i = 0; i < 4; i++)
             {
@@ -133,8 +133,8 @@ void dynamic_key_s_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
     }
     if (current_value < last_value)
     {
-        if (current_value <= dynamic_key_s->release_begin_distance &&
-            last_value > dynamic_key_s->release_begin_distance)
+        if (current_value - ANALOG_VALUE_MIN <= dynamic_key_s->release_begin_distance &&
+            last_value - ANALOG_VALUE_MIN > dynamic_key_s->release_begin_distance)
         {
             for (int i = 0; i < 4; i++)
             {
@@ -156,8 +156,8 @@ void dynamic_key_s_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
                 }
             }
         }
-        if (current_value <= dynamic_key_s->release_fully_distance &&
-            last_value > dynamic_key_s->release_fully_distance)
+        if (current_value - ANALOG_VALUE_MIN <= dynamic_key_s->release_fully_distance &&
+            last_value - ANALOG_VALUE_MIN > dynamic_key_s->release_fully_distance)
         {
             for (int i = 0; i < 4; i++)
             {

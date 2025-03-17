@@ -9,9 +9,10 @@
 #include"stdint.h"
 #include"keyboard.h"
 
-void command_prase(uint8_t *buf,uint8_t len);
+void command_parse(uint8_t *buf,uint8_t len);
 void start_load_cargo(void);
 int load_cargo(void);
+void send_debug_info(void);
 int hid_send(uint8_t *report, uint16_t len);
 
 #endif

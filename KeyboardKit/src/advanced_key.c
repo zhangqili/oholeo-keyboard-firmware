@@ -16,18 +16,18 @@ void advanced_key_update(AdvancedKey* advanced_key, AnalogValue value)
             break;
         case KEY_ANALOG_NORMAL_MODE:
             advanced_key->value = value;
-            if(advanced_key->value > advanced_key->config.activation_value)
+            if((advanced_key->value - ANALOG_VALUE_MIN) > advanced_key->config.activation_value)
             {
                 keyboard_advanced_key_update_state(advanced_key, true);
             }
-            if(advanced_key->value < advanced_key->config.deactivation_value)
+            if((advanced_key->value - ANALOG_VALUE_MIN) < advanced_key->config.deactivation_value)
             {
                 keyboard_advanced_key_update_state(advanced_key, false);
             }
             break;
         case KEY_ANALOG_RAPID_MODE:
             advanced_key->value = value;
-            if (advanced_key->value <= advanced_key->config.upper_deadzone)
+            if ((advanced_key->value - ANALOG_VALUE_MIN) <= advanced_key->config.upper_deadzone)
             {
                 keyboard_advanced_key_update_state(advanced_key, false);
                 goto record;
@@ -115,9 +115,9 @@ void advanced_key_update_state(AdvancedKey* advanced_key, bool state)
 __WEAK AnalogValue advanced_key_normalize(AdvancedKey* advanced_key, AnalogRawValue value)
 {
 #ifdef OPTIMIZE_FOR_FLOAT_DIVISION
-    return  (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN) * (advanced_key->config.upper_bound - value) * advanced_key->range_reciprocal;
+    return  ANALOG_VALUE_MIN + ANALOG_VALUE_RANGE * (advanced_key->config.upper_bound - value) * advanced_key->range_reciprocal;
 #else
-    return  (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN) * (advanced_key->config.upper_bound - value) / (advanced_key->config.upper_bound - advanced_key->config.lower_bound);
+    return  ANALOG_VALUE_MIN + ANALOG_VALUE_RANGE * (advanced_key->config.upper_bound - value) / (advanced_key->config.upper_bound - advanced_key->config.lower_bound);
 #endif
 }
 

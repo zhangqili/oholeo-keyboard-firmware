@@ -189,7 +189,7 @@ static void usbd_hid_raw_out_callback(uint8_t busid, uint8_t ep, uint32_t nbytes
     UNUSED(ep);
     UNUSED(nbytes);
     usbd_ep_start_read(0, RAW_EPOUT_ADDR, raw_buffer.read_buffer, 64);
-    command_prase(raw_buffer.read_buffer, sizeof(raw_buffer.read_buffer));
+    command_parse(raw_buffer.read_buffer, sizeof(raw_buffer.read_buffer));
 }
 
 static void usbd_hid_shared_in_callback(uint8_t busid, uint8_t ep, uint32_t nbytes)

@@ -19,8 +19,8 @@ typedef float AnalogRawValue;
 #define ANALOG_VALUE_MIN 0.0f
 #endif
 #else
-typedef int32_t AnalogValue;
-typedef int32_t AnalogRawValue;
+typedef uint16_t AnalogValue;
+typedef uint16_t AnalogRawValue;
 #ifndef ANALOG_VALUE_MAX
 #define ANALOG_VALUE_MAX 65535
 #endif
@@ -28,6 +28,7 @@ typedef int32_t AnalogRawValue;
 #define ANALOG_VALUE_MIN 0
 #endif
 #endif
+#define ANALOG_VALUE_RANGE (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN)
 
 typedef enum
 {
@@ -49,17 +50,17 @@ typedef struct __AdvancedKeyConfiguration
     uint8_t mode;
     uint8_t calibration_mode;
     
-    AnalogValue activation_value;
-    AnalogValue deactivation_value;
+    AnalogValue activation_value;   //relative
+    AnalogValue deactivation_value; //relative
     
-    AnalogValue trigger_distance;
-    AnalogValue release_distance;
-    AnalogValue trigger_speed;
-    AnalogValue release_speed;
-    AnalogValue upper_deadzone;
-    AnalogValue lower_deadzone;
-    AnalogRawValue upper_bound;
-    AnalogRawValue lower_bound;
+    AnalogValue trigger_distance;   //relative
+    AnalogValue release_distance;   //relative
+    AnalogValue trigger_speed;      //relative
+    AnalogValue release_speed;      //relative
+    AnalogValue upper_deadzone;     //relative
+    AnalogValue lower_deadzone;     //relative
+    AnalogRawValue upper_bound;     //absolute
+    AnalogRawValue lower_bound;     //absolute
 } AdvancedKeyConfiguration;
 
 typedef struct __AdvancedKey

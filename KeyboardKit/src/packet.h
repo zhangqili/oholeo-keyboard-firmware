@@ -9,6 +9,7 @@
 #include "stdint.h"
 #include "keyboard_def.h"
 #include "dynamic_key.h"
+#include "storage.h"
 
 enum {
   PACKET_DATA_ADVANCED_KEY = 0x00,
@@ -40,18 +41,8 @@ typedef struct __PacketAdvancedKey
   uint8_t code;
   uint8_t type;
   uint16_t index;
-  uint8_t mode;
-  float activation_value;
-  float deactivation_value;
-  float trigger_distance;
-  float release_distance;
-  float trigger_speed;
-  float release_speed;
-  float upper_deadzone;
-  float lower_deadzone;
-  float upper_bound;
-  float lower_bound;
-} __PACKED PacketAdvancedKey;
+  AdvancedKeyConfigurationNormalized data;
+} PacketAdvancedKey;
 
 typedef struct __PacketRGBSwitch
 {

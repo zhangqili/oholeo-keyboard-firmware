@@ -1146,17 +1146,27 @@ int mouse_hid_send(uint8_t*report,uint16_t len)
 
 AnalogValue advanced_key_normalize(AdvancedKey* advanced_key, AnalogRawValue value)
 {
+
+const uint16_t length = sizeof(table) / sizeof(table[0]);
+#ifndef ENABLE_FIXED_POINT_EXPERIMENTAL
 #ifdef OPTIMIZE_FOR_FLOAT_DIVISION
     float x = (advanced_key->config.upper_bound - value) * advanced_key->range_reciprocal;
 #else
-    float x = (advanced_key->config.upper_bound - value) / (advanced_key->config.upper_bound - advanced_key->config.lower_bound);
+    float x = (advanced_key->config.upper_bound - value) / (float)(advanced_key->config.upper_bound - advanced_key->config.lower_bound);
 #endif
-    uint16_t index = x * 1000.0f;
-    if (index < 1000)
-        return (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN)*table[index];
-    if (index > 5000)
-        return ANALOG_VALUE_MIN;
-    return ANALOG_VALUE_MAX;
+    int16_t index = x * length;
+#else
+    int16_t index = (advanced_key->config.upper_bound - value) * length / (advanced_key->config.upper_bound - advanced_key->config.lower_bound);
+#endif
+    if (index < 0)
+    {
+        index = 0;
+    }
+    if (index >= length)
+    {
+        index = length - 1;
+    }
+    return table[index] * ANALOG_VALUE_RANGE + ANALOG_VALUE_MIN;
     /*
     if (x<0.225)
     {

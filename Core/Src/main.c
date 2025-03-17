@@ -74,7 +74,7 @@ sfud_flash sfud_norflash0 = {
     .chip = {"W25Q128JV", SFUD_MF_ID_WINBOND, 0x40, 0x18, 16L * 1024L * 1024L, SFUD_WM_PAGE_256B, 4096, 0x20},
 };
 
-uint32_t pulse_counter = PULSE_LEN_MS;
+uint32_t pulse_counter = 0;
 bool beep_switch = 0;
 bool em_switch = 0;
 
@@ -116,7 +116,7 @@ __attribute__((weak)) int _write(int file, char *ptr, int len)
 void key_down_cb(void * k)
 {
   UNUSED(k);
-  pulse_counter=0;
+  pulse_counter=PULSE_LEN_MS;
 }
 /**
  * @brief  初始化时间戳
@@ -395,7 +395,6 @@ void SystemClock_Config(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  static uint8_t report_buffer[64];
   if (htim->Instance == TIM7)
   {
     keyboard_scan();
@@ -410,9 +409,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
             advanced_key_update_raw(g_keyboard_advanced_keys + i, g_ADC_Averages[i]);
         }
     }
-    if (pulse_counter < PULSE_LEN_MS)
+    if (pulse_counter)
     {
-      pulse_counter++;
+      pulse_counter--;
       if (beep_switch)
       {
         HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
@@ -430,21 +429,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     switch (g_keyboard_state)
     {
     case KEYBOARD_DEBUG:
-      static uint32_t report_num = 0;
-      memset(report_buffer,0,sizeof(report_buffer));
-      PacketDebug *packet = (PacketDebug *)report_buffer;
-      packet->code = 0xFE;
-      packet->length = 5;
-      for (int i = 0; i < 5; i++)
-      {
-        uint8_t key_index = (report_num + i) % 64;
-        packet->data[i].index = key_index;
-        packet->data[i].state = g_keyboard_advanced_keys[g_keyboard_advanced_keys_inverse_mapping[key_index]].key.report_state;
-        packet->data[i].raw = g_keyboard_advanced_keys[g_keyboard_advanced_keys_inverse_mapping[key_index]].raw;
-        packet->data[i].value = g_keyboard_advanced_keys[g_keyboard_advanced_keys_inverse_mapping[key_index]].value;
-      }
-      report_num += 5;
-      hid_send(report_buffer,63);
+      send_debug_info();
       break;
     case KEYBOARD_UPLOAD_CONFIG:
       if (!load_cargo())

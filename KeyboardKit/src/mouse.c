@@ -10,7 +10,7 @@ __attribute__((section(".noncacheable"))) __attribute__((aligned(4))) Mouse g_mo
 
 void mouse_add_buffer(Keycode keycode)
 {
-    switch ((keycode) & 0xFF)
+    switch (keycode)
     {
     case MOUSE_LBUTTON:
         g_mouse.buttons |= 0x01;
