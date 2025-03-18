@@ -15,6 +15,7 @@
 #define CONFIG_USB_DBG_LEVEL USB_DBG_INFO
 #endif
 
+#define CONFIG_USBDEV_ADVANCE_DESC
 /* Enable print with color */
 #define CONFIG_USB_PRINTF_COLOR_ENABLE
 
@@ -29,7 +30,7 @@
 /* ================= USB Device Stack Configuration ================ */
 
 /* Ep0 max transfer buffer, specially for receiving data from ep0 out */
-#define CONFIG_USBDEV_REQUEST_BUFFER_LEN 256
+#define CONFIG_USBDEV_REQUEST_BUFFER_LEN 1024
 
 /* Setup packet log for debug */
 // #define CONFIG_USBDEV_SETUP_LOG_PRINT

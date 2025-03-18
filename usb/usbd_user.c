@@ -17,91 +17,77 @@ typedef struct __USBDescriptor
     uint8_t strings[];
 } USBDescriptor;
 
-const USBDescriptor usb_descriptor =
+
+static const uint8_t *device_descriptor_callback(uint8_t speed)
 {
-    .device = DeviceDescriptor,
-    .config = ConfigurationDescriptor,
-    .strings = {
-    ///////////////////////////////////////
-    /// string0 descriptor
-    ///////////////////////////////////////
-    USB_LANGID_INIT(USBD_LANGID_STRING),
-    ///////////////////////////////////////
-    /// string1 descriptor
-    ///////////////////////////////////////
-    0x28,                       /* bLength */
-    USB_DESCRIPTOR_TYPE_STRING, /* bDescriptorType */
-    'd', 0x00,                  /* wcChar0 */
-    'w', 0x00,                  /* wcChar1 */
-    'd', 0x00,                  /* wcChar2 */
-    'w', 0x00,                  /* wcChar3 */
-    'd', 0x00,                  /* wcChar4 */
-    'w', 0x00,                  /* wcChar5 */
-    '5', 0x00,                  /* wcChar6 */
-    '1', 0x00,                  /* wcChar7 */
-    '6', 0x00,                  /* wcChar8 */
-    '3', 0x00,                  /* wcChar9 */
-    '&', 0x00,                  /* wcChar10 */
-    'L', 0x00,                  /* wcChar11 */
-    'z', 0x00,                  /* wcChar12 */
-    'q', 0x00,                  /* wcChar13 */
-    '1', 0x00,                  /* wcChar14 */
-    '2', 0x00,                  /* wcChar15 */
-    '3', 0x00,                  /* wcChar16 */
-    '4', 0x00,                  /* wcChar17 */
-    '5', 0x00,                  /* wcChar18 */
-    ///////////////////////////////////////
-    /// string2 descriptor
-    ///////////////////////////////////////
-    0x20,                       /* bLength */
-    USB_DESCRIPTOR_TYPE_STRING, /* bDescriptorType */
-    'O', 0x00,                  /* wcChar0 */
-    'h', 0x00,                  /* wcChar1 */
-    'o', 0x00,                  /* wcChar2 */
-    'l', 0x00,                  /* wcChar3 */
-    'e', 0x00,                  /* wcChar4 */
-    'o', 0x00,                  /* wcChar5 */
-    ' ', 0x00,                  /* wcChar6 */
-    'K', 0x00,                  /* wcChar7 */
-    'e', 0x00,                  /* wcChar8 */
-    'y', 0x00,                  /* wcChar9 */
-    'b', 0x00,                  /* wcChar10 */
-    'o', 0x00,                  /* wcChar11 */
-    'a', 0x00,                  /* wcChar12 */
-    'r', 0x00,                  /* wcChar13 */
-    'd', 0x00,                  /* wcChar14 */
-    ///////////////////////////////////////
-    /// string3 descriptor
-    ///////////////////////////////////////
-    0x16,                       /* bLength */
-    USB_DESCRIPTOR_TYPE_STRING, /* bDescriptorType */
-    '2', 0x00,                  /* wcChar0 */
-    '0', 0x00,                  /* wcChar1 */
-    '2', 0x00,                  /* wcChar2 */
-    '2', 0x00,                  /* wcChar3 */
-    '1', 0x00,                  /* wcChar4 */
-    '2', 0x00,                  /* wcChar5 */
-    '3', 0x00,                  /* wcChar6 */
-    '4', 0x00,                  /* wcChar7 */
-    '5', 0x00,                  /* wcChar8 */
-    '6', 0x00,                  /* wcChar9 */
+    UNUSED(speed);
+
+    return (const uint8_t *)&DeviceDescriptor;
+}
+
+static const uint8_t *config_descriptor_callback(uint8_t speed)
+{
+    UNUSED(speed);
+
+    return (const uint8_t *)&ConfigurationDescriptor;
+}
+
+static const uint8_t *device_quality_descriptor_callback(uint8_t speed)
+{
+    UNUSED(speed);
+
 #ifdef CONFIG_USB_HS
     ///////////////////////////////////////
     /// device qualifier descriptor
     ///////////////////////////////////////
-    0x0a,
-    USB_DESCRIPTOR_TYPE_DEVICE_QUALIFIER,
-    0x00,
-    0x02,
-    0x00,
-    0x00,
-    0x00,
-    0x40,
-    0x01,
-    0x00,
+    static const uint8_t device_quality_descriptor[] = {0x0a,
+        USB_DESCRIPTOR_TYPE_DEVICE_QUALIFIER,
+        0x00,
+        0x02,
+        0x00,
+        0x00,
+        0x00,
+        0x40,
+        0x01,
+        0x00};
+    return device_quality_descriptor; 
+#else
+    return NULL;
 #endif
-    0x00}
-    };
+}
+
+static const uint8_t *other_speed_config_descriptor_callback(uint8_t speed)
+{
+    UNUSED(speed);
+
+    return NULL;
+}
+
+static const char *string_descriptors[] = {
+    (const char[]){ 0x09, 0x04 }, /* Langid */
+    MANUFACTURER,                    /* Manufacturer */
+    PRODUCT,           /* Product */
+    SERIAL_NUMBER,                 /* Serial Number */
+};
+
+static const char *string_descriptor_callback(uint8_t speed, uint8_t index)
+{
+    (void)speed;
+
+    if (index >= (sizeof(string_descriptors) / sizeof(char *))) {
+        return NULL;
+    }
+    return string_descriptors[index];
+}
+
+
+const struct usb_descriptor usb_descriptor = {
+    .device_descriptor_callback = device_descriptor_callback,
+    .config_descriptor_callback = config_descriptor_callback,
+    .device_quality_descriptor_callback = device_quality_descriptor_callback,
+    .other_speed_descriptor_callback = other_speed_config_descriptor_callback,
+    .string_descriptor_callback = string_descriptor_callback,
+};
 
 enum
 {
@@ -239,7 +225,7 @@ static struct usbd_interface intf2;
 
 void usb_init(void)
 {
-    usbd_desc_register(0, (uint8_t*)&usb_descriptor);
+    usbd_desc_register(0, &usb_descriptor);
     usbd_add_interface(0, usbd_hid_init_intf(0, &intf0, KeyboardReport, sizeof(KeyboardReport)));
     usbd_add_endpoint(0, &keyboard_in_ep);
     usbd_add_endpoint(0, &keyboard_out_ep);

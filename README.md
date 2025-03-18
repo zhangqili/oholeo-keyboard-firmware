@@ -61,7 +61,7 @@ Memory region         Used Size  Region Size  %age Used
 
 ### 使用Keil uVision(不推荐)
 
-使用Keil uVision打开`MDK-ARM/oholeo-keyboard-firmware.uvprojx`，工程使用ARM Compiler 6，不兼容ARM Compiler 5
+使用Keil uVision打开`MDK-ARM/oholeo-keyboard-firmware.uvprojx`，工程默认使用ARM Compiler 6
 
 ## 烧录
 
