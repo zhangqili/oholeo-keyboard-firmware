@@ -247,7 +247,16 @@ void send_debug_info(void)
 {
     static uint8_t buffer[64];
     static uint32_t report_num = 0;
+    static uint8_t times = 0;
+    times++;
+    if (times < DEBUG_INTERVAL)
+    {
+        return;
+    }
+    times = 0;
     PacketDebug* packet = (PacketDebug*)buffer;
+
+#ifdef CONTINOUS_DEBUG
     packet->code = 0xFE;
     packet->length = 5;
     for (int i = 0; i < packet->length; i++)
@@ -260,6 +269,36 @@ void send_debug_info(void)
     }
     hid_send(buffer, 63);
     report_num += packet->length;
+#else
+    static AnalogRawValue analog_buffer[64];
+    uint8_t count = 0;
+    packet->code = 0xFE;
+    int i = 0;
+    for (i = report_num%ADVANCED_KEY_NUM; i < ADVANCED_KEY_NUM; i++)
+    {
+        const uint8_t key_index = g_keyboard_advanced_keys_inverse_mapping[i];
+        AdvancedKey* key = &g_keyboard_advanced_keys[key_index];
+        if (analog_buffer[key_index] != key->raw)
+        {
+            packet->data[count].index = i;
+            packet->data[count].state = key->key.report_state;
+            packet->data[count].raw = key->raw;
+            packet->data[count].value = key->value;
+        }
+        analog_buffer[key_index] = key->raw;
+        count++;
+        if (count >= 5)
+        {
+            break;
+        }
+    }
+    packet->length = count;
+    report_num += (i - report_num%ADVANCED_KEY_NUM);
+    if (packet->length)
+    {
+        hid_send(buffer, 63);
+    }
+#endif
 }
 
 void command_parse(uint8_t *buf, uint8_t len)
