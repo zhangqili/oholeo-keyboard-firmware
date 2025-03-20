@@ -14,21 +14,25 @@
 #include "keycode.h"
 #include "dynamic_key.h"
 
+#define NKRO_REPORT_BITS 30
+
 #define KEYBINDING(keycode, modifier) (((modifier) << 8) | (keycode))
 #define KEYCODE(binding) ((binding) & 0xFF)
 #define MODIFIER(binding) (((binding) >> 8) & 0xFF)
 
 typedef struct
 {
-    uint8_t buffer[8];
+    uint8_t modifier;
+    uint8_t reserved;
+    uint8_t buffer[6];
     uint8_t keynum;
-} Keyboard_6KROBuffer;
+} __PACKED Keyboard_6KROBuffer;
 
 typedef struct
 {
-    uint8_t *buffer;
-    uint8_t length;
-} Keyboard_NKROBuffer;
+    uint8_t modifier;
+    uint8_t buffer[NKRO_REPORT_BITS];
+} __PACKED Keyboard_NKROBuffer;
 
 typedef enum
 {
@@ -59,6 +63,7 @@ enum KEYBOARD_REPORT_FLAG
     MOUSE_REPORT_FLAG = 1,
     CONSUMER_REPORT_FLAG = 2,
     SYSTEM_REPORT_FLAG = 3,
+    JOYSTICK_REPORT_FLAG = 4,
 };
 
 
@@ -99,7 +104,6 @@ int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, Keycode keycode);
 int keyboard_6KRObuffer_send(Keyboard_6KROBuffer *buf);
 void keyboard_6KRObuffer_clear(Keyboard_6KROBuffer *buf);
 
-void keyboard_NKRObuffer_init(Keyboard_NKROBuffer*buf,uint8_t* data_buf,uint8_t length);
 int keyboard_NKRObuffer_add(Keyboard_NKROBuffer*buf,Keycode keycode);
 int keyboard_NKRObuffer_send(Keyboard_NKROBuffer*buf);
 void keyboard_NKRObuffer_clear(Keyboard_NKROBuffer*buf);

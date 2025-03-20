@@ -11,6 +11,7 @@
 #include "mouse.h"
 #include "record.h"
 #include "storage.h"
+#include "joystick.h"
 #include "report.h"
 
 #include "stdio.h"
@@ -97,6 +98,9 @@ void keyboard_event_handler(KeyboardEvent event)
                 keyboard_system_buffer = 0;
                 BIT_SET(g_keyboard_send_flags, SYSTEM_REPORT_FLAG);
                 break;
+            case JOYSTICK_COLLECTION:
+                BIT_SET(g_keyboard_send_flags, JOYSTICK_REPORT_FLAG);
+                break;
             case LAYER_CONTROL:
                 layer_control(event.keycode,event.event);
                 break;
@@ -124,6 +128,9 @@ void keyboard_event_handler(KeyboardEvent event)
             case SYSTEM_COLLECTION:
                 keyboard_system_buffer = MODIFIER(event.keycode);
                 BIT_SET(g_keyboard_send_flags, SYSTEM_REPORT_FLAG);
+                break;
+            case JOYSTICK_COLLECTION:
+                BIT_SET(g_keyboard_send_flags, JOYSTICK_REPORT_FLAG);
                 break;
             case LAYER_CONTROL:
                 layer_control(event.keycode,event.event);
@@ -200,6 +207,36 @@ void keyboard_advanced_key_event_handler(AdvancedKey*key, KeyboardEvent event)
     case KEYBOARD_EVENT_KEY_UP:
         keyboard_event_handler(event);
         break;
+    case KEYBOARD_EVENT_KEY_TRUE:
+        switch (KEYCODE(event.keycode))
+        {
+        case JOYSTICK_COLLECTION:
+            if (MODIFIER(event.keycode) & 0xE0)
+            {
+                BIT_SET(g_keyboard_send_flags, JOYSTICK_REPORT_FLAG);
+                joystick_set_axis(MODIFIER(event.keycode), key->value);
+                break;
+            }
+            // fall through
+        default:
+            keyboard_add_buffer(event.keycode);
+            break;
+        }
+        break;
+    case KEYBOARD_EVENT_KEY_FALSE:
+        switch (KEYCODE(event.keycode))
+        {
+        case JOYSTICK_COLLECTION:
+            if (MODIFIER(event.keycode) & 0xE0)
+            {
+                BIT_SET(g_keyboard_send_flags, JOYSTICK_REPORT_FLAG);
+                joystick_set_axis(MODIFIER(event.keycode), key->value);
+                break;
+            }
+        default:
+            break;
+        }
+        break;
     default:
         break;
     }
@@ -242,6 +279,9 @@ void keyboard_add_buffer(uint16_t keycode)
                 keyboard_system_buffer = MODIFIER(keycode);
             }
             break;
+        case JOYSTICK_COLLECTION:
+            joystick_add_buffer(MODIFIER(keycode));
+            break;
         default:
             break;
         }
@@ -272,10 +312,10 @@ void keyboard_buffer_clear(void)
 
 int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, Keycode keycode)
 {
-    buf->buffer[0] |= MODIFIER(keycode);
+    buf->modifier |= MODIFIER(keycode);
     if (KEYCODE(keycode) != KEY_NO_EVENT && buf->keynum < 6)
     {
-        buf->buffer[2 + buf->keynum] = KEYCODE(keycode);
+        buf->buffer[buf->keynum] = KEYCODE(keycode);
         buf->keynum++;
         return 0;
     }
@@ -287,7 +327,7 @@ int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, Keycode keycode)
 
 int keyboard_6KRObuffer_send(Keyboard_6KROBuffer* buf)
 {
-    return keyboard_hid_send(buf->buffer, sizeof(buf->buffer));
+    return keyboard_hid_send((uint8_t*)buf, sizeof(buf->buffer));
 }
 
 void keyboard_6KRObuffer_clear(Keyboard_6KROBuffer* buf)
@@ -295,41 +335,32 @@ void keyboard_6KRObuffer_clear(Keyboard_6KROBuffer* buf)
     memset(buf, 0, sizeof(Keyboard_6KROBuffer));
 }
 
-void keyboard_NKRObuffer_init(Keyboard_NKROBuffer*buf,uint8_t* data_buf,uint8_t length)
-{
-    buf->buffer = data_buf;
-    buf->length = length;
-}
-
 int keyboard_NKRObuffer_add(Keyboard_NKROBuffer*buf,Keycode keycode)
 {
-    uint8_t index = KEYCODE(keycode)/8+1;
-    if (index<buf->length)
+    if (KEYCODE(keycode) > NKRO_REPORT_BITS*8 )
     {
-        buf->buffer[index] |= (1 << (KEYCODE(keycode)%8));
+        return 1;
     }
-    buf->buffer[0] |= MODIFIER(keycode);
+    uint8_t index = KEYCODE(keycode)/8;
+    buf->buffer[index] |= (1 << (KEYCODE(keycode)%8));
+    buf->modifier |= MODIFIER(keycode);
     return 0;
 }
 
 int keyboard_NKRObuffer_send(Keyboard_NKROBuffer*buf)
 {
-    return keyboard_hid_send(buf->buffer, buf->length);
+    return keyboard_hid_send((uint8_t*)buf, sizeof(Keyboard_NKROBuffer));
 }
 
 void keyboard_NKRObuffer_clear(Keyboard_NKROBuffer*buf)
 {
-    memset(buf->buffer, 0, buf->length);
+    memset(buf, 0, sizeof(Keyboard_NKROBuffer));
 }
 
 void keyboard_init(void)
 {
     storage_mount();
     g_current_config_index = storage_read_config_index();
-#ifdef NKRO_ENABLE
-    static uint8_t buffer[64];
-    keyboard_NKRObuffer_init(&keyboard_nkro_buffer, buffer, sizeof(buffer));
-#endif
 }
 
 __WEAK void keyboard_reset_to_default(void)
@@ -402,6 +433,19 @@ void keyboard_set_config_index(uint8_t index)
 void keyboard_send_report(void)
 {
     static uint32_t mouse_value;
+    keyboard_buffer_clear();
+    mouse_buffer_clear(&g_mouse);
+    joystick_buffer_clear(&g_joystick);
+
+    for (int i = 0; i < ADVANCED_KEY_NUM; i++)
+    {
+        keyboard_advanced_key_event_handler(&g_keyboard_advanced_keys[i], 
+            keyboard_make_event(&g_keyboard_advanced_keys[i].key, g_keyboard_advanced_keys[i].key.report_state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
+    }
+    for (int i = 0; i < KEY_NUM; i++)
+    {        
+        keyboard_event_handler(keyboard_make_event(&g_keyboard_keys[i], g_keyboard_keys[i].report_state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
+    }
     if (g_keyboard_send_report_enable 
 #ifndef CONTINOUS_POLL
         && g_keyboard_send_flags
@@ -411,17 +455,6 @@ void keyboard_send_report(void)
 #ifdef CONTINOUS_POLL
         BIT_SET(g_keyboard_send_flags,KEYBOARD_REPORT_FLAG);
 #endif
-        keyboard_buffer_clear();
-        mouse_buffer_clear(&g_mouse);
-
-        for (int i = 0; i < ADVANCED_KEY_NUM; i++)
-        {
-            keyboard_event_handler(keyboard_make_event(&g_keyboard_advanced_keys[i].key, g_keyboard_advanced_keys[i].key.report_state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
-        }
-        for (int i = 0; i < KEY_NUM; i++)
-        {        
-            keyboard_event_handler(keyboard_make_event(&g_keyboard_keys[i], g_keyboard_keys[i].report_state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
-        }
         if (BIT_GET(g_keyboard_send_flags,MOUSE_REPORT_FLAG))
         {
             if ((*(uint32_t*)&g_mouse)!=mouse_value)
@@ -452,6 +485,13 @@ void keyboard_send_report(void)
             if (!keyboard_buffer_send())
             {
                 BIT_RESET(g_keyboard_send_flags,KEYBOARD_REPORT_FLAG);
+            }
+        }
+        if (BIT_GET(g_keyboard_send_flags,JOYSTICK_REPORT_FLAG))
+        {
+            if (!joystick_buffer_send(&g_joystick))
+            {
+                BIT_RESET(g_keyboard_send_flags,JOYSTICK_REPORT_FLAG);
             }
         }
     }

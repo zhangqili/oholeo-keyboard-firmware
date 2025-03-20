@@ -20,6 +20,7 @@ int hid_keyboard_send(uint8_t *buffer, uint8_t size);
 int hid_mouse_send(uint8_t*buffer);
 int hid_raw_send(uint8_t*buffer,int size);
 int hid_extra_send(uint8_t report_id, uint16_t usage);
+int hid_joystick_send(uint8_t *buffer, int size);
 
 #ifdef __cplusplus
 }

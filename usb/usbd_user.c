@@ -340,6 +340,28 @@ int hid_extra_send(uint8_t report_id, uint16_t usage)
     return 0;
 }
 
+
+int hid_joystick_send(uint8_t *buffer, int size)
+{
+    if (shared_buffer.state == HID_STATE_BUSY)
+    {
+        return 1;
+    }
+    else
+    {
+    }
+    memcpy(shared_buffer.send_buffer + 1, buffer, size);
+    shared_buffer.send_buffer[0] = REPORT_ID_JOYSTICK;
+    int ret = usbd_ep_start_write(0, SHARED_EPIN_ADDR, shared_buffer.send_buffer, SHARED_EPSIZE);
+    if (ret < 0)
+    {
+        return 1;
+    }
+    shared_buffer.state = HID_STATE_BUSY;
+    return 0;
+}
+
+
 //		0x05, 0x01,   //Usage Page (Generic Desktop)
 //		0x09, 0x05,   //Usage (Game Pad)
 //		0xA1, 0x01,   //Collection (Application)

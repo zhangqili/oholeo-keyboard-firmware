@@ -45,7 +45,7 @@
 #include "progmem.h"
 #include <stddef.h>
 #include <inttypes.h>
-#include "keyboard_conf.h"
+#include "keyboard.h"
 
 #define ATTR_PACKED __attribute__((packed))
 /** Concatenates the given input into a single token, via the C Preprocessor.
