@@ -94,7 +94,6 @@ extern uint8_t g_current_config_index;
 void keyboard_event_handler(KeyboardEvent event);
 void keyboard_advanced_key_event_handler(AdvancedKey*key, KeyboardEvent event);
 
-Keycode keyboard_get_keycode(uint8_t id);
 void keyboard_add_buffer(Keycode keycode);
 
 int keyboard_buffer_send(void);

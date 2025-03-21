@@ -19,10 +19,10 @@ typedef float AnalogRawValue;
 #define ANALOG_VALUE_MIN 0.0f
 #endif
 #else
-typedef uint16_t AnalogValue;
-typedef uint16_t AnalogRawValue;
+typedef int16_t AnalogValue;
+typedef int16_t AnalogRawValue;
 #ifndef ANALOG_VALUE_MAX
-#define ANALOG_VALUE_MAX 65535
+#define ANALOG_VALUE_MAX 32767
 #endif
 #ifndef ANALOG_VALUE_MIN
 #define ANALOG_VALUE_MIN 0
@@ -69,7 +69,7 @@ typedef struct __AdvancedKey
     AnalogValue value;
     AnalogValue raw;
     AnalogValue extremum;
-
+    AnalogValue difference;
 #ifdef OPTIMIZE_FOR_FLOAT_DIVISION
     float range_reciprocal;
 #endif

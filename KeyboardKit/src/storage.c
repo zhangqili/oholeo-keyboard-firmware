@@ -47,7 +47,7 @@ void dynamic_key_stroke_normalize(DynamicKeyStroke4x4Normalized* buffer, Dynamic
     buffer->press_fully_distance = dks->press_fully_distance / (float)ANALOG_VALUE_RANGE;
     buffer->release_begin_distance = dks->release_begin_distance / (float)ANALOG_VALUE_RANGE;
     buffer->release_fully_distance = dks->release_fully_distance / (float)ANALOG_VALUE_RANGE;
-    memcpy(buffer->key_end_time, dks->key_end_time, sizeof(DynamicKeyStroke4x4) - offsetof(DynamicKeyStroke4x4,key_end_time));
+    //memcpy(buffer->key_end_time, dks->key_end_time, sizeof(DynamicKeyStroke4x4) - offsetof(DynamicKeyStroke4x4,key_end_time));
 }
 
 void dynamic_key_stroke_anti_normalize(DynamicKeyStroke4x4* dks, DynamicKeyStroke4x4Normalized* buffer)
@@ -57,7 +57,7 @@ void dynamic_key_stroke_anti_normalize(DynamicKeyStroke4x4* dks, DynamicKeyStrok
     dks->press_fully_distance = buffer->press_fully_distance * ANALOG_VALUE_RANGE;
     dks->release_begin_distance = buffer->release_begin_distance * ANALOG_VALUE_RANGE;
     dks->release_fully_distance = buffer->release_fully_distance * ANALOG_VALUE_RANGE;
-    memcpy(dks->key_end_time, buffer->key_end_time, sizeof(DynamicKeyStroke4x4) - offsetof(DynamicKeyStroke4x4,key_end_time));
+    //memcpy(dks->key_end_time, buffer->key_end_time, sizeof(DynamicKeyStroke4x4) - offsetof(DynamicKeyStroke4x4,key_end_time));
 }
 
 static inline void save_advanced_key_config(lfs_t *lfs, lfs_file_t *file, AdvancedKey* key)

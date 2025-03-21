@@ -19,5 +19,6 @@ void layer_reset(uint8_t layer);
 void layer_toggle(uint8_t layer);
 void layer_cache_set(uint16_t id, uint8_t layer);
 uint8_t layer_cache_get(uint16_t id);
+Keycode layer_cache_get_keycode(uint16_t id);
 
 #endif /* LAYER_H_ */

@@ -46,31 +46,11 @@ static Keyboard_6KROBuffer keyboard_6kro_buffer;
 static uint16_t keyboard_consumer_buffer;
 static uint16_t keyboard_system_buffer;
 
-Keycode keyboard_get_keycode(uint8_t id)
-{
-    int8_t layer = layer_cache_get(id);
-    Keycode keycode = 0;
-    while (layer>=0)
-    {
-        keycode = g_keymap[layer][id];
-        if (KEYCODE(keycode) == KEY_TRANSPARENT)
-        {
-            layer--;
-        }
-        else
-        {
-            return keycode;
-        }
-    }
-    return KEY_NO_EVENT;
-}
-
-
 KeyboardEvent keyboard_make_event(Key*key, uint8_t event)
 {
     if (event == KEYBOARD_EVENT_KEY_DOWN)
         layer_cache_set(key->id, g_current_layer);
-    Keycode keycode = keyboard_get_keycode(key->id);
+    Keycode keycode = layer_cache_get_keycode(key->id);
     return MK_EVENT(keycode, event);
 }
 
@@ -224,18 +204,6 @@ void keyboard_advanced_key_event_handler(AdvancedKey*key, KeyboardEvent event)
         }
         break;
     case KEYBOARD_EVENT_KEY_FALSE:
-        switch (KEYCODE(event.keycode))
-        {
-        case JOYSTICK_COLLECTION:
-            if (MODIFIER(event.keycode) & 0xE0)
-            {
-                BIT_SET(g_keyboard_send_flags, JOYSTICK_REPORT_FLAG);
-                joystick_set_axis(MODIFIER(event.keycode), key->value);
-                break;
-            }
-        default:
-            break;
-        }
         break;
     default:
         break;
@@ -437,21 +405,21 @@ void keyboard_send_report(void)
     mouse_buffer_clear(&g_mouse);
     joystick_buffer_clear(&g_joystick);
 
-    for (int i = 0; i < ADVANCED_KEY_NUM; i++)
-    {
-        keyboard_advanced_key_event_handler(&g_keyboard_advanced_keys[i], 
-            keyboard_make_event(&g_keyboard_advanced_keys[i].key, g_keyboard_advanced_keys[i].key.report_state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
-    }
-    for (int i = 0; i < KEY_NUM; i++)
-    {        
-        keyboard_event_handler(keyboard_make_event(&g_keyboard_keys[i], g_keyboard_keys[i].report_state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
-    }
     if (g_keyboard_send_report_enable 
 #ifndef CONTINOUS_POLL
         && g_keyboard_send_flags
 #endif
     )
     {
+        for (int i = 0; i < ADVANCED_KEY_NUM; i++)
+        {
+            keyboard_advanced_key_event_handler(&g_keyboard_advanced_keys[i], 
+                keyboard_make_event(&g_keyboard_advanced_keys[i].key, g_keyboard_advanced_keys[i].key.report_state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
+        }
+        for (int i = 0; i < KEY_NUM; i++)
+        {        
+            keyboard_event_handler(keyboard_make_event(&g_keyboard_keys[i], g_keyboard_keys[i].report_state ? KEYBOARD_EVENT_KEY_TRUE : KEYBOARD_EVENT_KEY_FALSE));
+        }
 #ifdef CONTINOUS_POLL
         BIT_SET(g_keyboard_send_flags,KEYBOARD_REPORT_FLAG);
 #endif
@@ -543,14 +511,22 @@ void keyboard_key_update(Key *key, bool state)
 
 void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
 {
-    const Keycode keycode = keyboard_get_keycode(key->key.id);
-    if (KEYCODE(keycode)==DYNAMIC_KEY)
+    const Keycode keycode = layer_cache_get_keycode(key->key.id);
+    switch (KEYCODE(keycode))
     {
+    case DYNAMIC_KEY:
         const uint8_t dynamic_key_index = (keycode>>8)&0xFF;
         dynamic_key_update(&g_keyboard_dynamic_keys[dynamic_key_index], key, state);
-    }
-    else
-    {
+        break;
+    case JOYSTICK_COLLECTION:
+        if (MODIFIER(keycode) & 0xE0)
+        {
+            BIT_SET(g_keyboard_send_flags, JOYSTICK_REPORT_FLAG);
+            key->key.report_state = true;
+            break;
+        }
+        // fall through
+    default:
         if (!key->key.state && state)
         {
             KeyboardEvent event = keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_DOWN);
@@ -563,5 +539,6 @@ void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
         }
         advanced_key_update_state(key, state);
         key->key.report_state = state;
+        break;
     }
 }

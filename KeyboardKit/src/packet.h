@@ -95,6 +95,7 @@ typedef struct __PacketDynamicKey
   uint8_t code;
   uint8_t type;
   uint8_t index;
+  uint8_t reserved;
   uint8_t dynamic_key[];
 } __PACKED PacketDynamicKey;
 

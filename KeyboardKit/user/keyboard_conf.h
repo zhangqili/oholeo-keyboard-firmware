@@ -61,6 +61,12 @@
 #define RGB_BOTTOM              -0.5f
 #define RGB_USE_LIST_EXPERIMENTAL
 
+/************/
+/* Joystick */
+/************/
+#define JOYSTICK_BUTTON_COUNT 32
+#define JOYSTICK_AXIS_COUNT 6
+
 /**********/
 /* Filter */
 /**********/
