@@ -30,6 +30,8 @@ extern RingBuf adc_ringbuf[ADVANCED_KEY_NUM];
 
 extern uint8_t g_analog_active_channel;
 
+extern const uint16_t g_analog_map[ADVANCED_KEY_NUM];
+
 void analog_init(void);
 void analog_channel_select(uint8_t x);
 void analog_scan(void);

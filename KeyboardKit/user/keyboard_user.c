@@ -48,84 +48,85 @@ const RGBLocation g_rgb_locations[RGB_NUM]={{0.625,0},{1.875,0},{3.125,0},{6.875
                                              {0.875,2},{2.25,2},{3.25,2},{4.25,2},{5.25,2},{6.25,2},{7.25,2},{8.25,2},{9.25,2},{10.25,2},{11.25,2},{12.25,2},{13.875,2},
                                              {0.75,3},{2,3},{3,3},{4,3},{5,3},{6,3},{7,3},{8,3},{9,3},{10,3},{11,3},{12,3},{13,3},{14.25,3},
                                              {0.5,4},{1.5,4},{2.5,4},{3.5,4},{4.5,4},{5.5,4},{6.5,4},{7.5,4},{8.5,4},{9.5,4},{10.5,4},{11.5,4},{12.5,4},{14,4}};
-const uint8_t g_keyboard_advanced_keys_inverse_mapping[ADVANCED_KEY_NUM] = {15, 14, 13, 12, 44, 43, 37, 63,
-                                                                      59, 58, 31, 30, 29, 28, 8, 9,
-                                                                      10, 11, 42, 36, 35, 62, 56, 57,
-                                                                      24, 25, 26, 27, 3, 2, 1, 0,
-                                                                      41, 38, 34, 61, 55, 19, 18, 17,
-                                                                      16, 4, 5, 6, 7, 40, 39, 33,
-                                                                      60, 54, 53, 20, 21, 22, 23, 45,
-                                                                      46, 47, 32, 48, 49, 50, 51, 52};
+
 AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM] =
 {
     //Group 1 Begin
-    {.key.id = 31},
-    {.key.id = 30},
-    {.key.id = 29},
-    {.key.id = 28},
-    {.key.id = 41}, //Left Shift
-    {.key.id = 42},
-    {.key.id = 43},
-    {.key.id = 44},//C
+    {.key.id = 0},
+    {.key.id = 1},
+    {.key.id = 2},
+    {.key.id = 3},
+    {.key.id = 4}, //Left Shift
+    {.key.id = 5},
+    {.key.id = 6},
+    {.key.id = 7},//C
+    {.key.id = 8},
+    {.key.id = 9},
+    {.key.id = 10},
+    {.key.id = 11},
+    {.key.id = 12},
+    {.key.id = 13},
     {.key.id = 14},
     {.key.id = 15},
+    //Group 2 Begin
     {.key.id = 16},
     {.key.id = 17},
-    {.key.id = 3},
-    {.key.id = 2},
-    {.key.id = 1},
-    {.key.id = 0},
-    //Group 2 Begin
-    {.key.id = 40},
-    {.key.id = 39},
-    {.key.id = 38},
-    {.key.id = 37},
-    {.key.id = 51},
-    {.key.id = 52}, //Right Shift
-    {.key.id = 53},
-    {.key.id = 54},
+    {.key.id = 18},
+    {.key.id = 19},
+    {.key.id = 20},
+    {.key.id = 21}, //Right Shift
+    {.key.id = 22},
+    {.key.id = 23},
     {.key.id = 24},
     {.key.id = 25},
     {.key.id = 26},
     {.key.id = 27},
-    {.key.id = 13},
-    {.key.id = 12},
-    {.key.id = 11},
-    {.key.id = 10},
+    {.key.id = 28},
+    {.key.id = 29},
+    {.key.id = 30},
+    {.key.id = 31},
     //Group 3 Begin
-    {.key.id = 58},
-    {.key.id = 47},
-    {.key.id = 34},
-    {.key.id = 20},
-    {.key.id = 19},
-    {.key.id = 6},
-    {.key.id = 33},
-    {.key.id = 46},//B
-    {.key.id = 45},//V
     {.key.id = 32},
-    {.key.id = 18},
-    {.key.id = 5},
-    {.key.id = 4},
-    {.key.id = 55}, //Left Control
-    {.key.id = 56}, //Left GUI
-    {.key.id = 57}, //Left Alt
+    {.key.id = 33},
+    {.key.id = 34},
+    {.key.id = 35},
+    {.key.id = 36},
+    {.key.id = 37},
+    {.key.id = 38},
+    {.key.id = 39},//B
+    {.key.id = 40},//V
+    {.key.id = 41},
+    {.key.id = 42},
+    {.key.id = 43},
+    {.key.id = 44},
+    {.key.id = 45}, //Left Control
+    {.key.id = 46}, //Left GUI
+    {.key.id = 47}, //Left Alt
     //Group 4 Begin
-    {.key.id = 59}, //Right alt
-    {.key.id = 60}, //Fn
+    {.key.id = 48}, //Right alt
+    {.key.id = 49}, //Fn
+    {.key.id = 50},
+    {.key.id = 51},
+    {.key.id = 52},
+    {.key.id = 53},
+    {.key.id = 54},
+    {.key.id = 55},
+    {.key.id = 56},
+    {.key.id = 57},
+    {.key.id = 58},
+    {.key.id = 59},
+    {.key.id = 60},
     {.key.id = 61},
     {.key.id = 62},
-    {.key.id = 63},
-    {.key.id = 50},
-    {.key.id = 49},
-    {.key.id = 36},
-    {.key.id = 22},
-    {.key.id = 23},
-    {.key.id = 9},
-    {.key.id = 8},
-    {.key.id = 48},
-    {.key.id = 35},
-    {.key.id = 21},
-    {.key.id = 7}
+    {.key.id = 63}
+};
+
+const uint16_t g_analog_map[ADVANCED_KEY_NUM] =
+{
+    31, 30, 29, 28, 41, 42, 43, 44, 14, 15, 16, 17, 3,  2,  1,  0, 
+    40, 39, 38, 37, 51, 52, 53, 54, 24, 25, 26, 27, 13, 12, 11, 10, 
+    58, 47, 34, 20, 19, 6,  33, 46, 45, 32, 18, 5,  4,  55, 56, 57,
+    59, 60, 61, 62, 63, 50, 49, 36, 22, 23, 9,  8,  48, 35, 21, 7
 };
 
 static const float table[]=

@@ -18,6 +18,8 @@ RingBuf adc_ringbuf[ADVANCED_KEY_NUM];
 
 uint8_t g_analog_active_channel;
 
+__WEAK const uint16_t g_analog_map[ADVANCED_KEY_NUM];
+
 void analog_init(void)
 {
 }
@@ -46,9 +48,10 @@ void analog_check(void)
 {
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-        if (g_keyboard_advanced_keys[i].config.mode != KEY_DIGITAL_MODE)
+        AdvancedKey*advanced_key = &g_keyboard_advanced_keys[g_analog_map[i]];
+        if (advanced_key->config.mode != KEY_DIGITAL_MODE)
         {
-            advanced_key_update_raw(g_keyboard_advanced_keys + i, g_ADC_Averages[i]);
+            advanced_key_update_raw(advanced_key, g_ADC_Averages[i]);
         }
     }
 }
@@ -58,7 +61,7 @@ void analog_reset_range(void)
     analog_average();
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-        advanced_key_reset_range(g_keyboard_advanced_keys + i, g_ADC_Averages[i]);
+        advanced_key_reset_range(&g_keyboard_advanced_keys[g_analog_map[i]], g_ADC_Averages[i]);
     }
 }
 

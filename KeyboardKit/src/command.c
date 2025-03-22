@@ -50,7 +50,7 @@ void unload_cargo(uint8_t *buf)
     case PACKET_DATA_ADVANCED_KEY: // Advanced Key
         {
             PacketAdvancedKey* packet = (PacketAdvancedKey*)buf;
-            uint16_t key_index = g_keyboard_advanced_keys_inverse_mapping[packet->index];
+            uint16_t key_index = packet->index;
             command_advanced_key_config_anti_normalize(&g_keyboard_advanced_keys[key_index].config, &packet->data);
         }
         break;
@@ -128,7 +128,7 @@ int load_cargo(void)
             PacketAdvancedKey *packet = (PacketAdvancedKey *)buf;
             packet->type = PACKET_DATA_ADVANCED_KEY;
             uint8_t key_index = page_index & 0xFF;
-            packet->index = g_keyboard_advanced_keys[key_index].key.id;
+            packet->index = key_index;
             command_advanced_key_config_normalize(&packet->data, &g_keyboard_advanced_keys[key_index].config);
             if (!hid_send(buf, 63))
             {
@@ -162,7 +162,7 @@ int load_cargo(void)
                 uint8_t key_index = key_base_index + i;
                 if (key_index < RGB_NUM)
                 {
-                    uint8_t rgb_index = g_rgb_mapping[g_keyboard_advanced_keys[g_keyboard_advanced_keys_inverse_mapping[key_index]].key.id];
+                    uint8_t rgb_index = g_rgb_mapping[key_index];
                     packet->data[i].index = key_index;
                     packet->data[i].mode = g_rgb_configs[rgb_index].mode;
                     packet->data[i].r = g_rgb_configs[rgb_index].rgb.r;
@@ -263,9 +263,9 @@ void send_debug_info(void)
     {
         uint8_t key_index = (report_num + i) % ADVANCED_KEY_NUM;
         packet->data[i].index = key_index;
-        packet->data[i].state = g_keyboard_advanced_keys[g_keyboard_advanced_keys_inverse_mapping[key_index]].key.report_state;
-        packet->data[i].raw = g_keyboard_advanced_keys[g_keyboard_advanced_keys_inverse_mapping[key_index]].raw;
-        packet->data[i].value = g_keyboard_advanced_keys[g_keyboard_advanced_keys_inverse_mapping[key_index]].value;
+        packet->data[i].state = g_keyboard_advanced_keys[key_index].key.report_state;
+        packet->data[i].raw = g_keyboard_advanced_keys[key_index].raw;
+        packet->data[i].value = g_keyboard_advanced_keys[key_index].value;
     }
     hid_send(buffer, 63);
     report_num += packet->length;
@@ -276,7 +276,7 @@ void send_debug_info(void)
     int i = 0;
     for (i = report_num%ADVANCED_KEY_NUM; i < ADVANCED_KEY_NUM; i++)
     {
-        const uint8_t key_index = g_keyboard_advanced_keys_inverse_mapping[i];
+        const uint8_t key_index = i;
         AdvancedKey* key = &g_keyboard_advanced_keys[key_index];
         if (analog_buffer[key_index] != key->raw)
         {

@@ -406,9 +406,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 #ifdef ENABLE_FILTER
         g_ADC_Averages[i] = adaptive_schimidt_filter(g_analog_filters+i,g_ADC_Averages[i]);
 #endif
-        if (g_keyboard_advanced_keys[i].config.mode != KEY_DIGITAL_MODE)
+        AdvancedKey* key = &g_keyboard_advanced_keys[g_analog_map[i]];
+        if (key->config.mode != KEY_DIGITAL_MODE)
         {
-            advanced_key_update_raw(g_keyboard_advanced_keys + i, g_ADC_Averages[i]);
+            advanced_key_update_raw(key, g_ADC_Averages[i]);
         }
     }
     if (pulse_counter)
@@ -444,28 +445,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       keyboard_send_report();
       break;
     }
-    /*
-    switch (global_state)
-    {
-    case JOYSTICK:
-      int8_t Ry, Rx, y, x;
-      y = (g_keyboard_advanced_keys[1].upper_bound - g_keyboard_advanced_keys[1].raw) / (g_keyboard_advanced_keys[1].upper_bound - g_keyboard_advanced_keys[1].lower_bound) * 127.0 - (g_keyboard_advanced_keys[10].upper_bound - g_keyboard_advanced_keys[10].raw) / (g_keyboard_advanced_keys[10].upper_bound - g_keyboard_advanced_keys[10].lower_bound) * 127.0;
-      x = (g_keyboard_advanced_keys[0].upper_bound - g_keyboard_advanced_keys[0].raw) / (g_keyboard_advanced_keys[0].upper_bound - g_keyboard_advanced_keys[0].lower_bound) * 127.0 - (g_keyboard_advanced_keys[2].upper_bound - g_keyboard_advanced_keys[2].raw) / (g_keyboard_advanced_keys[2].upper_bound - g_keyboard_advanced_keys[2].lower_bound) * 127.0;
-
-      g_usb_report_buffer[0] = 3;
-      // Ry,Rx,y,x
-      g_usb_report_buffer[1] = 128;
-      g_usb_report_buffer[2] = 0;
-      g_usb_report_buffer[3] = y - 128;
-      g_usb_report_buffer[4] = x - 128;
-      g_usb_report_buffer[5] = 0;
-      USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, g_usb_report_buffer, 5 + 1);
-
-      break;
-    default:
-      break;
-    }
-    */  
   }
   if (htim->Instance == TIM2)
   {

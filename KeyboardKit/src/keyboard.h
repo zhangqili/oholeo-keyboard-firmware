@@ -71,7 +71,6 @@ extern Key g_keyboard_keys[KEY_NUM];
 extern AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM];
 extern const Keycode g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 extern Keycode g_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
-extern const uint8_t g_keyboard_advanced_keys_inverse_mapping[ADVANCED_KEY_NUM];
 
 extern DynamicKey g_keyboard_dynamic_keys[DYNAMIC_KEY_NUM];
 
