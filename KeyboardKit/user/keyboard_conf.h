@@ -67,6 +67,11 @@
 #define JOYSTICK_BUTTON_COUNT 32
 #define JOYSTICK_AXIS_COUNT 6
 
+/********/
+/* MIDI */
+/********/
+#define MIDI_REF_VELOCITY 0.01
+
 /**********/
 /* Filter */
 /**********/
@@ -115,6 +120,7 @@
 //#define DIGITIZER_ENABLE
 //#define DIGITIZER_SHARED_EP
 //#define PROGRAMMABLE_BUTTON_ENABLE
+#define MIDI_ENABLE
 
 /****************/
 /* User Defines */

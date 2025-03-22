@@ -43,6 +43,7 @@
 #include "command.h"
 #include "snake.h"
 #include "packet.h"
+#include "qmk_midi.h"
 
 /* USER CODE END Includes */
 
@@ -281,6 +282,7 @@ int main(void)
 
   HAL_GPIO_WritePin(INHIBIT_GPIO_Port, INHIBIT_Pin, GPIO_PIN_RESET);
   keyboard_init();
+  setup_midi();
   for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
   {
     key_attach(&g_keyboard_advanced_keys[i].key,KEY_EVENT_DOWN,key_down_cb);

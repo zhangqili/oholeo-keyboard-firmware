@@ -47,6 +47,8 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 
 file(GLOB_RECURSE MY_SOURCES
     "./KeyboardKit/src/*.c"
+    "./KeyboardKit/src/midi/*.c"
+    "./KeyboardKit/src/midi/bytequeue*.c"
     "./KeyboardKit/user/*.c"
     "./KeyboardKit/littlefs/*.c"
     #"./KeyboardKit/usb/usb_descriptor.c"
@@ -68,6 +70,9 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
     ./KeyboardKit/src/
+    ./KeyboardKit/src/midi/
+    ./KeyboardKit/src/midi/bytequeue
+    ./KeyboardKit/src/midi/Config
     ./KeyboardKit/user/
     ./KeyboardKit/littlefs/
     ./KeyboardKit/usb/
@@ -77,6 +82,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ./CherryUSB/core
     ./CherryUSB/common
     ./CherryUSB/class/hid
+    ./CherryUSB/class/midi
     ./CherryUSB/port/fsdev
     ./Drivers/CMSIS/Device/ST/STM32F3xx/Include
     ./snake/

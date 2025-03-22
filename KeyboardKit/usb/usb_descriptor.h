@@ -441,6 +441,8 @@ extern const USB_Descriptor_String_t PROGMEM SerialNumberString;
 #endif
 
 #ifdef MIDI_ENABLE
+#define MIDI_EPIN_ADDR  (ENDPOINT_DIR_IN | MIDI_STREAM_IN_EPNUM)
+#define MIDI_EPOUT_ADDR  (ENDPOINT_DIR_OUT | MIDI_STREAM_OUT_EPNUM)
 #endif
 
 #if defined(JOYSTICK_ENABLE) && !defined(JOYSTICK_SHARED_EP)
@@ -493,7 +495,7 @@ extern const USB_Descriptor_String_t PROGMEM SerialNumberString;
 
 #include "util.h"
 #include "report.h"
-#include "usb_descriptor.h"
+//#include "usb_descriptor.h"
 #include "usb_descriptor_common.h"
 
 #ifdef JOYSTICK_ENABLE

@@ -13,9 +13,11 @@
 #include "storage.h"
 #include "joystick.h"
 #include "report.h"
+#include "process_midi.h"
 
 #include "stdio.h"
 #include "string.h"
+#include "math.h"
 
 __WEAK const Keycode g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM];
 __WEAK AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM];
@@ -517,6 +519,29 @@ void keyboard_advanced_key_update_state(AdvancedKey *key, bool state)
     case DYNAMIC_KEY:
         const uint8_t dynamic_key_index = (keycode>>8)&0xFF;
         dynamic_key_update(&g_keyboard_dynamic_keys[dynamic_key_index], key, state);
+        break;
+    case MIDI_COLLECTION:
+    case MIDI_NOTE:
+        float intensity = fabs(key->difference/(float)MIDI_REF_VELOCITY);
+        if (intensity > 1.0f)
+        {
+            intensity = 1.0f;
+        }
+        uint8_t velocity = intensity*127;
+        if (!key->key.state && state)
+        {
+            KeyboardEvent event = keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_DOWN);
+            midi_event_handler(event, true, velocity);
+            keyboard_advanced_key_event_handler(key,event);
+        }
+        if (key->key.state && !state)
+        {
+            KeyboardEvent event = keyboard_make_event(&key->key, KEYBOARD_EVENT_KEY_UP);
+            midi_event_handler(event, true, velocity);
+            keyboard_advanced_key_event_handler(key,event);
+        }
+        advanced_key_update_state(key, state);
+        key->key.report_state = state;
         break;
     case JOYSTICK_COLLECTION:
         if (MODIFIER(keycode) & 0xE0)
