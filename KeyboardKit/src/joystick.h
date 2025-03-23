@@ -7,7 +7,6 @@
 #ifndef JOYSTICK_H
 #define JOYSTICK_H
 
-#include "stdbool.h"
 #include "stdint.h"
 #include "keycode.h"
 #include "keyboard_def.h"
@@ -61,17 +60,6 @@
 #define JOYSTICK_AXIS_IN(INPUT_PIN, LOW, REST, HIGH) \
 { INPUT_PIN, LOW, REST, HIGH }
 
-typedef struct {
-    //pin_t input_pin;
-
-    // the AVR ADC offers 10 bit precision, with significant bits on the higher part
-    uint16_t min_digit;
-    uint16_t mid_digit;
-    uint16_t max_digit;
-} joystick_config_t;
-
-extern joystick_config_t joystick_axes[JOYSTICK_AXIS_COUNT];
-
 #if JOYSTICK_AXIS_RESOLUTION > 8
 typedef int16_t JoystickAxis;
 #else
@@ -93,13 +81,11 @@ typedef struct {
 #endif
 } __PACKED Joystick;
 
-extern Joystick g_joystick;
-
-#define joystick_buffer_clear(x) memset((x), 0, sizeof(Joystick))
-
+void joystick_event_handler(KeyboardEvent event);
+void joystick_buffer_clear(void);
 void joystick_add_buffer(Keycode keycode);
 void joystick_set_axis(Keycode keycode, AnalogValue value);
-int joystick_buffer_send(Joystick *buf);
+int joystick_buffer_send(void);
 int joystick_hid_send(uint8_t *report, uint16_t len);
 
 #endif //JOYSTICK_H

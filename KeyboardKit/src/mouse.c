@@ -5,42 +5,77 @@
  */
 #include "keyboard.h"
 #include "mouse.h"
+#include "string.h"
 
-__attribute__((section(".noncacheable"))) __attribute__((aligned(4))) Mouse g_mouse;
+static Mouse mouse;
 
-void mouse_add_buffer(Keycode keycode)
+void mouse_event_handler(KeyboardEvent event)
 {
-    switch (keycode)
+    switch (event.event)
     {
-    case MOUSE_LBUTTON:
-        g_mouse.buttons |= 0x01;
+    case KEYBOARD_EVENT_KEY_UP:
+    case KEYBOARD_EVENT_KEY_DOWN:
+        BIT_SET(g_keyboard_send_flags, MOUSE_REPORT_FLAG);
         break;
-    case MOUSE_RBUTTON:
-        g_mouse.buttons |= 0x02;
+    case KEYBOARD_EVENT_KEY_TRUE:
+        mouse_add_buffer(MODIFIER(event.keycode));
         break;
-    case MOUSE_MBUTTON:
-        g_mouse.buttons |= 0x04;
-        break;
-    case MOUSE_FORWARD:
-        g_mouse.buttons |= 0x08;
-        break;
-    case MOUSE_BACK:
-        g_mouse.buttons |= 0x10;
-        break;
-    case MOUSE_WHEEL_UP:
-        g_mouse.v = 1;
-        break;
-    case MOUSE_WHEEL_DOWN:
-        g_mouse.v = -1;
+    case KEYBOARD_EVENT_KEY_FALSE:
         break;
     default:
         break;
     }
 }
 
-int mouse_buffer_send(Mouse *buf)
+
+void mouse_buffer_clear(void)
 {
-    return mouse_hid_send((uint8_t*)buf, sizeof(Mouse));
+    memset(&mouse, 0, sizeof(Mouse));
+}
+
+void mouse_add_buffer(Keycode keycode)
+{
+    switch (keycode)
+    {
+    case MOUSE_LBUTTON:
+        mouse.buttons |= 0x01;
+        break;
+    case MOUSE_RBUTTON:
+        mouse.buttons |= 0x02;
+        break;
+    case MOUSE_MBUTTON:
+        mouse.buttons |= 0x04;
+        break;
+    case MOUSE_FORWARD:
+        mouse.buttons |= 0x08;
+        break;
+    case MOUSE_BACK:
+        mouse.buttons |= 0x10;
+        break;
+    case MOUSE_WHEEL_UP:
+        mouse.v = 1;
+        break;
+    case MOUSE_WHEEL_DOWN:
+        mouse.v = -1;
+        break;
+    default:
+        break;
+    }
+}
+
+int mouse_buffer_send(void)
+{
+    static uint32_t mouse_value;
+    int ret = 0;
+    if ((*(uint32_t*)&mouse)!=mouse_value)
+    {
+        ret = mouse_hid_send((uint8_t*)&mouse, sizeof(Mouse));
+        if (!ret)
+        {
+            mouse_value = *(uint32_t*)&mouse;
+        }
+    }
+    return ret;
 }
 
 __WEAK int mouse_hid_send(uint8_t *report, uint16_t len)

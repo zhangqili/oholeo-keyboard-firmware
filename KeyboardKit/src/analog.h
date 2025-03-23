@@ -9,7 +9,7 @@
 #include "filter.h"
 
 #define ADDRESS BCD_TO_GRAY(g_analog_active_channel)
-#define BCD_TO_GRAY(x) (x^(x>>1))
+#define BCD_TO_GRAY(x) ((x)^((x)>>1))
 
 #ifndef RING_BUF_LEN
 #define RING_BUF_LEN 8

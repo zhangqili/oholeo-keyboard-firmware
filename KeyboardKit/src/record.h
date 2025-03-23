@@ -39,26 +39,26 @@ typedef struct __LoopArray
     int16_t len;
 } LoopArray;
 
-#ifdef ENABLE_COUNTER
+#ifdef COUNTER_ENABLE
 extern uint32_t g_key_init_counts[ADVANCED_KEY_NUM];
 extern uint32_t g_key_counts[ADVANCED_KEY_NUM];
 #endif
 
-#ifdef ENABLE_KPS
+#ifdef KPS_ENABLE
 extern uint16_t g_kps;
 extern LoopArray g_kps_data;
 #endif
 
-#ifdef ENABLE_KPS_HISTORY
+#ifdef KPS_HISTORY_ENABLE
 extern LoopArray g_kps_history;
 extern uint16_t g_kps_max_since_last_timer;
 #endif
 
-#ifdef ENABLE_BIT_STREAM
+#ifdef BIT_STREAM_ENABLE
 extern size_t g_bit_stream_datas[ADVANCED_KEY_NUM][BIT_DATA_LENGTH];
 #endif
 
-#ifdef ENABLE_ANALOG_HISTORY
+#ifdef ANALOG_HISTORY_ENABLE
 extern LoopArray g_analog_historys[ADVANCED_KEY_NUM];
 #endif
 void loop_array_push_back(LoopArray *arr,LoopArrayElement t);

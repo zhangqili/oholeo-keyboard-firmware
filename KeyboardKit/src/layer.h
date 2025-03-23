@@ -7,12 +7,13 @@
 #define LAYER_H_
 #include "stdint.h"
 #include "keycode.h"
+#include "event.h"
 #include "keyboard_conf.h"
 
 extern uint8_t g_layer_cache[ADVANCED_KEY_NUM + KEY_NUM];
 extern uint8_t g_current_layer;
 
-void layer_control(Keycode keycode, uint8_t event);
+void layer_control(KeyboardEvent event);
 uint8_t layer_get(void);
 void layer_set(uint8_t layer);
 void layer_reset(uint8_t layer);

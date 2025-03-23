@@ -12,6 +12,7 @@
 #include "math.h"
 
 #include "keyboard.h"
+#include "layer.h"
 #include "rgb.h"
 
 static const Keycode snake_layer[ADVANCED_KEY_NUM + KEY_NUM] = {
@@ -114,7 +115,7 @@ void draw_snake(Snake *snake)
 
 void snake_launch(Snake *snake)
 {
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < LAYER_NUM; i++)
     {
         memcpy(g_keymap[i], snake_layer, sizeof(snake_layer));
         layer_reset(i);

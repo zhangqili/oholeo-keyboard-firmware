@@ -38,7 +38,7 @@ __WEAK void analog_average(void)
     for (uint8_t i = 0; i < ANALOG_BUFFER_LENGTH; i++)
     {
         g_ADC_Averages[i] = ringbuf_avg(&adc_ringbuf[i]);
-#ifdef ENABLE_FILTER
+#ifdef FILTER_ENABLE
         g_ADC_Averages[i] = adaptive_schimidt_filter(&g_analog_filters[i],g_ADC_Averages[i]);
 #endif
     }

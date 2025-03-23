@@ -10,7 +10,7 @@
 #include "advanced_key.h"
 #include "keyboard_conf.h"
 #include "keyboard_def.h"
-#include "layer.h"
+#include "event.h"
 #include "keycode.h"
 #include "dynamic_key.h"
 
@@ -33,22 +33,6 @@ typedef struct
     uint8_t modifier;
     uint8_t buffer[NKRO_REPORT_BITS];
 } __PACKED Keyboard_NKROBuffer;
-
-typedef enum
-{
-    KEYBOARD_EVENT_KEY_UP,
-    KEYBOARD_EVENT_KEY_DOWN,
-    KEYBOARD_EVENT_KEY_TRUE,
-    KEYBOARD_EVENT_KEY_FALSE,
-    KEYBOARD_EVENT_NUM
-} KeyboardEventType;
-
-typedef struct
-{
-    Keycode keycode;
-    uint8_t event;
-} KeyboardEvent;
-#define MK_EVENT(keycode, event) ((KeyboardEvent){(keycode), (event)})
 
 typedef enum
 {
@@ -86,14 +70,13 @@ extern uint8_t g_keyboard_knob_flag;
 extern volatile bool g_keyboard_send_report_enable;
 
 extern KEYBOARD_STATE g_keyboard_state;
-extern volatile uint8_t g_keyboard_send_flag;
+extern volatile uint8_t g_keyboard_send_flags;
 
 extern uint8_t g_current_config_index;
 
 void keyboard_event_handler(KeyboardEvent event);
+void keyboard_operation_event_handler(KeyboardEvent event);
 void keyboard_advanced_key_event_handler(AdvancedKey*key, KeyboardEvent event);
-
-void keyboard_add_buffer(Keycode keycode);
 
 int keyboard_buffer_send(void);
 void keyboard_buffer_clear(void);
@@ -115,7 +98,7 @@ void keyboard_reboot(void);
 void keyboard_reset_to_default(void);
 void keyboard_factory_reset(void);
 void keyboard_jump_to_bootloader(void);
-void keyboard_user_handler(uint8_t code);
+void keyboard_user_event_handler(KeyboardEvent event);
 void keyboard_scan(void);
 void keyboard_send_report(void);
 void keyboard_recovery(void);
@@ -123,7 +106,6 @@ void keyboard_save(void);
 void keyboard_set_config_index(uint8_t index);
 void keyboard_task(void);
 void keyboard_delay(uint32_t ms);
-int keyboard_extra_hid_send(uint8_t report_id, uint16_t usage);
 int keyboard_hid_send(uint8_t *report, uint16_t len);
 
 #endif /* KEYBOARD_H_ */

@@ -14,12 +14,13 @@ uint8_t g_current_layer;
 static uint16_t layer_state;
 static Keycode keymap_cache[ADVANCED_KEY_NUM + KEY_NUM];
 
-void layer_control(Keycode keycode, uint8_t event)
+void layer_control(KeyboardEvent event)
 {
-    uint8_t layer = (keycode >> 8 & 0x0F);
-    if (event == KEY_EVENT_DOWN)
+    const uint8_t layer = ((event.keycode >> 8) & 0x0F);
+    switch (event.event)
     {
-        switch ((keycode >> 12) & 0x0F)
+    case KEYBOARD_EVENT_KEY_DOWN:
+        switch ((event.keycode >> 12) & 0x0F)
         {
         case LAYER_MOMENTARY:
             layer_toggle(layer);
@@ -36,10 +37,9 @@ void layer_control(Keycode keycode, uint8_t event)
         default:
             break;
         }
-    }
-    else if (event == KEY_EVENT_UP)
-    {
-        switch ((keycode >> 12) & 0x0F)
+        break;
+    case KEYBOARD_EVENT_KEY_UP:
+        switch ((event.keycode >> 12) & 0x0F)
         {
         case LAYER_MOMENTARY:
             layer_toggle(layer);
@@ -47,6 +47,9 @@ void layer_control(Keycode keycode, uint8_t event)
         default:
             break;
         }
+        break;
+    default:
+        break;
     }
 }
 

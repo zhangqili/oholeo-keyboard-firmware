@@ -1146,7 +1146,7 @@ AnalogValue advanced_key_normalize(AdvancedKey* advanced_key, AnalogRawValue val
 {
 
 const uint16_t length = sizeof(table) / sizeof(table[0]);
-#ifndef ENABLE_FIXED_POINT_EXPERIMENTAL
+#ifndef FIXED_POINT_EXPERIMENTAL
 #ifdef OPTIMIZE_FOR_FLOAT_DIVISION
     float x = (advanced_key->config.upper_bound - value) * advanced_key->range_reciprocal;
 #else
@@ -1208,11 +1208,15 @@ void keyboard_jump_to_bootloader(void)
     JumpToBootloader();
 }
 
-void keyboard_user_handler(uint8_t code)
+void keyboard_user_event_handler(KeyboardEvent event)
 {
+    if (event.event != KEYBOARD_EVENT_KEY_DOWN)
+    {
+        return;
+    }
     extern bool beep_switch;
     extern bool em_switch;
-    switch (code)
+    switch (MODIFIER(event.keycode))
     {
     case USER_BEEP:
         beep_switch = !beep_switch;
@@ -1242,7 +1246,7 @@ void keyboard_user_handler(uint8_t code)
     case USER_SNAKE_UP:
     case USER_SNAKE_RIGHT:
     case USER_SNAKE_DOWN:
-        snake_turn(&g_snake, code&0x07);
+        snake_turn(&g_snake, MODIFIER(event.keycode)&0x07);
         break;
     default:
         beep_switch = false;
@@ -1262,7 +1266,7 @@ int hid_send(uint8_t *report, uint16_t len)
     return hid_raw_send(report, len);
 }
 
-int keyboard_extra_hid_send(uint8_t report_id, uint16_t usage)
+int extra_key_hid_send(uint8_t report_id, uint16_t usage)
 {
     return hid_extra_send(report_id, usage);
 }

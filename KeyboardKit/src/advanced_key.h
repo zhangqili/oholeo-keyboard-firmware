@@ -9,7 +9,7 @@
 #include "key.h"
 #include "keyboard_conf.h"
 
-#ifndef ENABLE_FIXED_POINT_EXPERIMENTAL
+#ifndef FIXED_POINT_EXPERIMENTAL
 typedef float AnalogValue;
 typedef float AnalogRawValue;
 #ifndef ANALOG_VALUE_MAX

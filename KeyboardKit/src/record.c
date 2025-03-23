@@ -5,29 +5,29 @@
  */
 #include "record.h"
 
-#ifdef ENABLE_ANALOG_HISTORY
+#ifdef ANALOG_HISTORY_ENABLE
 LoopArray g_analog_historys[ADVANCED_KEY_NUM];
 static LoopArrayElement analog_datas[ADVANCED_KEY_NUM][ANALOG_HISTORY_LENGTH];
 #endif
 
-#ifdef ENABLE_KPS
+#ifdef KPS_ENABLE
 LoopArray g_kps_data;
 uint16_t g_kps;
 static LoopArrayElement kps_buf;
 static LoopArrayElement kps_data[KPS_REFRESH_RATE];
 #endif
 
-#ifdef ENABLE_KPS_HISTORY
+#ifdef KPS_HISTORY_ENABLE
 LoopArray g_kps_history;
 uint16_t g_kps_max;
 static LoopArrayElement kps_history_data[KPS_HISTORY_LENGTH];
 #endif
 
-#ifdef ENABLE_BIT_STREAM
+#ifdef BIT_STREAM_ENABLE
 size_t g_bit_stream_datas[ADVANCED_KEY_NUM][BIT_DATA_LENGTH];
 #endif
 
-#ifdef ENABLE_COUNTER
+#ifdef COUNTER_ENABLE
 uint32_t g_key_init_counts[ADVANCED_KEY_NUM];
 uint32_t g_key_counts[ADVANCED_KEY_NUM];
 #endif
@@ -78,16 +78,16 @@ void record_init()
 {
     for (int i = 0; i < ADVANCED_KEY_NUM; i++)
     {
-#ifdef ENABLE_ANALOG_HISTORY
+#ifdef ANALOG_HISTORY_ENABLE
         loop_array_init(&g_analog_historys[i],analog_datas[i],ANALOG_HISTORY_LENGTH);
 #endif
-#ifdef ENABLE_KPS
+#ifdef KPS_ENABLE
         loop_array_init(&g_kps_data,kps_data,KPS_REFRESH_RATE);
 #endif
-#ifdef ENABLE_KPS_HISTORY
+#ifdef KPS_HISTORY_ENABLE
         loop_array_init(&g_kps_history,kps_history_data,KPS_HISTORY_LENGTH);
 #endif
-#ifdef ENABLE_BIT_STREAM
+#ifdef BIT_STREAM_ENABLE
 #endif
     }
     
@@ -130,7 +130,7 @@ void record_analog_register(AdvancedKey*k)
 }
 */
 
-#ifdef ENABLE_BIT_STREAM
+#ifdef BIT_STREAM_ENABLE
 void record_bit_stream_timer()
 {
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
@@ -146,7 +146,7 @@ void record_bit_stream_timer()
 }
 #endif
 
-#ifdef ENABLE_ANALOG_HISTORY
+#ifdef ANALOG_HISTORY_ENABLE
 void record_analog_timer()
 {
     for (int i = 0; i < ADVANCED_KEY_NUM; i++)
@@ -157,7 +157,7 @@ void record_analog_timer()
 }
 #endif
 
-#ifdef ENABLE_KPS_HISTORY
+#ifdef KPS_HISTORY_ENABLE
 void record_kps_history_timer()
 {
     loop_array_push_back(&g_kps_history,g_kps_max);
@@ -176,7 +176,7 @@ void record_kps_timer()
 }
 #endif
 
-#ifdef ENABLE_KPS
+#ifdef KPS_ENABLE
 void record_kps_tick()
 {
     kps_buf++;

@@ -49,13 +49,12 @@ uint8_t midi_compute_note(uint16_t keycode) {
     return 12 * midi_config.octave + (keycode - MIDI_TONE_MIN) + midi_config.transpose;
 }
 
-bool midi_event_handler(KeyboardEvent event, bool is_input_velocity, uint8_t input_velocity)
+bool midi_event_handler(KeyboardEvent event, uint8_t velocity)
 {
     uint8_t keycode = MODIFIER(event.keycode);
     if (KEYCODE(event.keycode) == MIDI_NOTE)
     {
         uint8_t channel  = midi_config.channel;
-        uint8_t velocity = is_input_velocity ? input_velocity : midi_config.velocity;
         if ((event.event == KEYBOARD_EVENT_KEY_DOWN))
         {
             midi_send_noteon(&midi_device, channel, keycode, velocity);
@@ -70,7 +69,6 @@ bool midi_event_handler(KeyboardEvent event, bool is_input_velocity, uint8_t inp
         case MIDI_TONE_MIN ... MIDI_TONE_MAX: {
             uint8_t channel  = midi_config.channel;
             uint8_t tone     = keycode - MIDI_TONE_MIN;
-            uint8_t velocity = is_input_velocity ? input_velocity : midi_config.velocity;
             if ((event.event == KEYBOARD_EVENT_KEY_DOWN)) {
                 if (tone_status[tone] == MIDI_INVALID_NOTE) {
                     uint8_t note = midi_compute_note(keycode);

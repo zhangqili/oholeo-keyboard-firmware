@@ -42,18 +42,16 @@ void rgb_init(void)
 }
 
 #define COLOR_INTERVAL(key, low, up) (uint8_t)((key) < 0 ? (low) : ((key) > ANALOG_VALUE_MAX ? (up) : (key) * (up)))
-#define FORWARD_LINK_SKIP_AND_REMOVE_THIS(__index)\
+#define FORWARD_LINK_REMOVE_THIS(__index)\
             if ((__index) == rgb_argument_list.head)\
             {\
                 rgb_forward_list_erase_after(&rgb_argument_list, NULL);\
                 (__index) = rgb_argument_list.head;\
-                continue;\
             }\
             else\
             {\
                 rgb_forward_list_erase_after(&rgb_argument_list, last_node);\
                 (__index) = last_node->next;\
-                continue;\
             }\
 
 void rgb_update(void)
@@ -100,7 +98,7 @@ void rgb_update(void)
         // if (distance > 25)
         {
 #ifdef RGB_USE_LIST_EXPERIMENTAL
-            FORWARD_LINK_SKIP_AND_REMOVE_THIS(iterator);
+            FORWARD_LINK_REMOVE_THIS(iterator);
 #endif
             continue;
         }
@@ -316,7 +314,7 @@ void rgb_flash(void)
     {
         float distance = (g_keyboard_tick - begin_time);
         memset(g_rgb_colors, 0, sizeof(g_rgb_colors));
-        intensity = (RGB_FLASH_MAX_DURATION/2 - fabs(distance - (RGB_FLASH_MAX_DURATION/2)))/((float)(RGB_FLASH_MAX_DURATION/2));
+        intensity = (RGB_FLASH_MAX_DURATION/2 - fabsf(distance - (RGB_FLASH_MAX_DURATION/2)))/((float)(RGB_FLASH_MAX_DURATION/2));
         for (int8_t i = 0; i < RGB_NUM; i++)
         {
             temp_rgb.r = ((uint8_t)(intensity * 255));

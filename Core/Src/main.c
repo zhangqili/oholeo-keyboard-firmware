@@ -43,6 +43,7 @@
 #include "command.h"
 #include "snake.h"
 #include "packet.h"
+#include "layer.h"
 #include "qmk_midi.h"
 
 /* USER CODE END Includes */

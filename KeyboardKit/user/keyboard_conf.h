@@ -12,7 +12,7 @@
 #define LAYER_NUM               5
 #define ADVANCED_KEY_NUM        64
 #define KEY_NUM                 0
-//#define ENABLE_FIXED_POINT_EXPERIMENTAL
+//#define FIXED_POINT_EXPERIMENTAL
 //#define CONTINOUS_POLL
 #define OPTIMIZE_FOR_FLOAT_DIVISION
 //#define CONTINOUS_DEBUG
@@ -78,17 +78,17 @@
 /* Filter */
 /**********/
 //#define TOLERANCE               3
-#define ENABLE_FILTER
+#define FILTER_ENABLE
 
 /**********/
 /* Record */
 /**********/
 //#define STATIC_RECORD
-//#define ENABLE_ANALOG_HISTORY
-//#define ENABLE_KPS
-//#define ENABLE_KPS_HISTORY
-//#define ENABLE_BIT_STREAM
-//#define ENABLE_COUNTER
+//#define ANALOG_HISTORY_ENABLE
+//#define KPS_ENABLE
+//#define KPS_HISTORY_ENABLE
+//#define BIT_STREAM_ENABLE
+//#define COUNTER_ENABLE
 
 #define KPS_HISTORY_LENGTH      65
 #define BIT_STREAM_LENGTH       128

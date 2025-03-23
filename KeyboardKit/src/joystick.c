@@ -3,18 +3,41 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-
 #include "joystick.h"
 #include "keyboard_def.h"
+#include "string.h"
 
-Joystick g_joystick;
+static Joystick joystick;
+
+void joystick_event_handler(KeyboardEvent event)
+{
+    switch (event.event)
+    {
+    case KEYBOARD_EVENT_KEY_UP:
+    case KEYBOARD_EVENT_KEY_DOWN:
+        BIT_SET(g_keyboard_send_flags, JOYSTICK_REPORT_FLAG);
+        break;
+    case KEYBOARD_EVENT_KEY_TRUE:
+        joystick_add_buffer(MODIFIER(event.keycode));
+        break;
+    case KEYBOARD_EVENT_KEY_FALSE:
+        break;
+    default:
+        break;
+    }
+}
+
+void joystick_buffer_clear(void)
+{
+    memset(&joystick, 0, sizeof(Joystick));
+}
 
 void joystick_add_buffer(Keycode keycode)
 {
     if (keycode >= JOYSTICK_BUTTON_COUNT) return;
 
-    g_joystick.buttons[keycode / 8] |= 1 << (keycode % 8);
-    //g_joystick.dirty = true;
+    joystick.buttons[keycode / 8] |= 1 << (keycode % 8);
+    //joystick.dirty = true;
 }
 
 void joystick_set_axis(Keycode keycode, AnalogValue value)
@@ -26,22 +49,22 @@ void joystick_set_axis(Keycode keycode, AnalogValue value)
     switch ((keycode >> 5) & 0x03)
     {
     case 0x01:
-        g_joystick.axes[axis] += analog_value;
+        joystick.axes[axis] += analog_value;
         break;
     case 0x02:
-        g_joystick.axes[axis] -= analog_value;
+        joystick.axes[axis] -= analog_value;
         break;
     case 0x03:
-        g_joystick.axes[axis] += ((keycode & 0x80) ? -(analog_value*2 - JOYSTICK_MAX_VALUE) : (analog_value*2 - JOYSTICK_MAX_VALUE));
+        joystick.axes[axis] += ((keycode & 0x80) ? -(analog_value*2 - JOYSTICK_MAX_VALUE) : (analog_value*2 - JOYSTICK_MAX_VALUE));
         break;
     default:
         break;
     }
 
 }
-int joystick_buffer_send(Joystick *buf)
+int joystick_buffer_send(void)
 {
-    return joystick_hid_send((uint8_t*)buf, sizeof(Joystick));
+    return joystick_hid_send((uint8_t*)&joystick, sizeof(Joystick));
 }
 
 __WEAK int joystick_hid_send(uint8_t *report, uint16_t len)

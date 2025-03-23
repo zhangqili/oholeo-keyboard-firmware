@@ -51,7 +51,7 @@ typedef union {
 extern MIDIConfig midi_config;
 
 void midi_init(void);
-bool midi_event_handler(KeyboardEvent event, bool is_input_velocity, uint8_t input_velocity);
+bool midi_event_handler(KeyboardEvent event, uint8_t velocity);
 
 #        define MIDI_INVALID_NOTE 0xFF
 #        define MIDI_TONE_COUNT (MIDI_TONE_MAX - MIDI_TONE_MIN + 1)
