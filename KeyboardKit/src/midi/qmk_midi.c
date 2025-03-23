@@ -25,6 +25,7 @@ MIDIDevice midi_device;
 #define SYS_COMMON_3 0x30
 
 static void usb_send_func(MIDIDevice* device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
+    UNUSED(device);
     MIDIEventPacket event;
     event.Data1 = byte0;
     event.Data2 = byte1;

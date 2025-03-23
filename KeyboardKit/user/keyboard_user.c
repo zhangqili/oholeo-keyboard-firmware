@@ -51,15 +51,14 @@ const RGBLocation g_rgb_locations[RGB_NUM]={{0.625,0},{1.875,0},{3.125,0},{6.875
 
 AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM] =
 {
-    //Group 1 Begin
     {.key.id = 0},
     {.key.id = 1},
     {.key.id = 2},
     {.key.id = 3},
-    {.key.id = 4}, //Left Shift
+    {.key.id = 4},
     {.key.id = 5},
     {.key.id = 6},
-    {.key.id = 7},//C
+    {.key.id = 7},
     {.key.id = 8},
     {.key.id = 9},
     {.key.id = 10},
@@ -68,13 +67,12 @@ AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM] =
     {.key.id = 13},
     {.key.id = 14},
     {.key.id = 15},
-    //Group 2 Begin
     {.key.id = 16},
     {.key.id = 17},
     {.key.id = 18},
     {.key.id = 19},
     {.key.id = 20},
-    {.key.id = 21}, //Right Shift
+    {.key.id = 21},
     {.key.id = 22},
     {.key.id = 23},
     {.key.id = 24},
@@ -85,7 +83,6 @@ AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM] =
     {.key.id = 29},
     {.key.id = 30},
     {.key.id = 31},
-    //Group 3 Begin
     {.key.id = 32},
     {.key.id = 33},
     {.key.id = 34},
@@ -93,18 +90,17 @@ AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM] =
     {.key.id = 36},
     {.key.id = 37},
     {.key.id = 38},
-    {.key.id = 39},//B
-    {.key.id = 40},//V
+    {.key.id = 39},
+    {.key.id = 40},
     {.key.id = 41},
     {.key.id = 42},
     {.key.id = 43},
     {.key.id = 44},
-    {.key.id = 45}, //Left Control
-    {.key.id = 46}, //Left GUI
-    {.key.id = 47}, //Left Alt
-    //Group 4 Begin
-    {.key.id = 48}, //Right alt
-    {.key.id = 49}, //Fn
+    {.key.id = 45},
+    {.key.id = 46},
+    {.key.id = 47},
+    {.key.id = 48},
+    {.key.id = 49},
     {.key.id = 50},
     {.key.id = 51},
     {.key.id = 52},
@@ -118,7 +114,7 @@ AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM] =
     {.key.id = 60},
     {.key.id = 61},
     {.key.id = 62},
-    {.key.id = 63}
+    {.key.id = 63},
 };
 
 const uint16_t g_analog_map[ADVANCED_KEY_NUM] =
@@ -1184,9 +1180,6 @@ const uint16_t length = sizeof(table) / sizeof(table[0]);
     }
     */
     
-}
-void keyboard_post_process()
-{
 }
 
 void keyboard_delay(uint32_t ms)

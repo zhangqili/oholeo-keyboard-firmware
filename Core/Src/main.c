@@ -282,12 +282,10 @@ int main(void)
 
   HAL_GPIO_WritePin(INHIBIT_GPIO_Port, INHIBIT_Pin, GPIO_PIN_RESET);
   keyboard_init();
-  setup_midi();
   for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
   {
     key_attach(&g_keyboard_advanced_keys[i].key,KEY_EVENT_DOWN,key_down_cb);
   }
-  rgb_init();
 
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
@@ -441,7 +439,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       }
       break;
     default:
-      keyboard_post_process();
       keyboard_send_report();
       break;
     }

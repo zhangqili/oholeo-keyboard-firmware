@@ -11,7 +11,9 @@
 
 #define DK_TAP_DURATION 5
 
-//static uint8_t g_keyboard_dynamic_keys_length;
+#ifdef DYNAMICKEY_ENABLE
+DynamicKey g_keyboard_dynamic_keys[DYNAMIC_KEY_NUM];
+#endif
 
 void dynamic_key_update(DynamicKey*dynamic_key,AdvancedKey*advanced_key, bool state)
 {

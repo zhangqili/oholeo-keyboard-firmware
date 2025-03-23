@@ -17,6 +17,8 @@
 #define OPTIMIZE_FOR_FLOAT_DIVISION
 //#define CONTINOUS_DEBUG
 #define DEBUG_INTERVAL 1
+#define DYNAMICKEY_ENABLE
+#define STORAGE_ENABLE
 
 /********************/
 /* Keyboard Default */
@@ -39,7 +41,7 @@
 /*******/
 /* RGB */
 /*******/
-#define ENABLE_RGB              
+#define RGB_ENABLE
 #define RGB_NUM                 (ADVANCED_KEY_NUM)
 #define ONE_PULSE               (60)
 #define ZERO_PULSE              (29)

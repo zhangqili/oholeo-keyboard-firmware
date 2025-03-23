@@ -10,7 +10,6 @@
 #include "string.h"
 #include "packet.h"
 
-
 static inline void command_advanced_key_config_normalize(AdvancedKeyConfigurationNormalized* buffer, AdvancedKeyConfiguration* config)
 {
     buffer->mode = config->mode;

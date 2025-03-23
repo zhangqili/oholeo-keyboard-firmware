@@ -118,7 +118,6 @@ void keyboard_jump_to_bootloader(void);
 void keyboard_user_handler(uint8_t code);
 void keyboard_scan(void);
 void keyboard_send_report(void);
-void keyboard_post_process(void);
 void keyboard_recovery(void);
 void keyboard_save(void);
 void keyboard_set_config_index(uint8_t index);
