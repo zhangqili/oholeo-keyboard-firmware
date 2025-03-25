@@ -10,6 +10,10 @@
 #include "stddef.h"
 #include "stdbool.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum
 {
     KEY_EVENT_UP,
@@ -26,5 +30,9 @@ typedef struct __Key
 } Key;
 void key_update(Key *key, bool state);
 void key_attach(Key *key, KEY_EVENT e, key_cb_t cb);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

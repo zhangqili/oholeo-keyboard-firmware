@@ -10,6 +10,10 @@
 #include "stddef.h"
 #include "stdbool.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct __ColorRGB
 {
     uint8_t r;
@@ -33,4 +37,9 @@ void color_set_rgb(Color *color, ColorRGB *rgb);
 void color_get_hsv(Color *color, ColorHSV *hsv);
 void color_set_hsv(Color *color, ColorHSV *hsv);
 void color_mix(Color *dest, Color *source);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

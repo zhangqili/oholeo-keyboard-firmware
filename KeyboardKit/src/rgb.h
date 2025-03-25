@@ -10,6 +10,10 @@
 #include "keyboard.h"
 #include "keyboard_conf.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef RGB_NUM
 #define RGB_NUM                 (ADVANCED_KEY_NUM)
 #endif
@@ -174,5 +178,9 @@ void rgb_turn_off(void);
 void rgb_factory_reset(void);
 void rgb_save(void);
 void rgb_activate(uint16_t id);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* RGB_H_ */

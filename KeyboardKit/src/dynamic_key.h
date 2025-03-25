@@ -13,6 +13,10 @@
 #include "keycode.h"
 #include "advanced_key.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define DYNAMIC_KEY_NUM 32
 typedef enum __DynamicKeyType
 {
@@ -97,5 +101,9 @@ void dynamic_key_s_update (DynamicKey*dynamic_key, AdvancedKey*key, bool state);
 void dynamic_key_mt_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state);
 void dynamic_key_tk_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state);
 void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

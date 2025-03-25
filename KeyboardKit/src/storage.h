@@ -12,6 +12,10 @@
 #include "dynamic_key.h"
 #include "keycode.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef STORAGE_CONFIG_FILE_NUM
 #define STORAGE_CONFIG_FILE_NUM 4
 #endif
@@ -58,5 +62,9 @@ uint8_t storage_read_config_index(void);
 void storage_save_config_index(uint8_t index);
 void storage_read_config(uint8_t index);
 void storage_save_config(uint8_t index);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -8,6 +8,10 @@
 #include "keyboard.h"
 #include "keyboard_conf.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef KPS_HISTORY_LENGTH
 #define KPS_HISTORY_LENGTH    65
 #endif
@@ -75,5 +79,9 @@ uint16_t record_get_kps(void);
 void record_kps_tick(void);
 void record_kps_timer(void);
 void record_kps_history_timer(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* RECORD_H_ */

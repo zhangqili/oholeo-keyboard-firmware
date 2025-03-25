@@ -9,6 +9,10 @@
 #include "key.h"
 #include "keyboard_conf.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef FIXED_POINT_EXPERIMENTAL
 typedef float AnalogValue;
 typedef float AnalogRawValue;
@@ -85,5 +89,9 @@ AnalogValue advanced_key_normalize(AdvancedKey *advanced_key, AnalogRawValue val
 void advanced_key_set_range(AdvancedKey *advanced_key, AnalogRawValue upper, AnalogRawValue lower);
 void advanced_key_reset_range(AdvancedKey* advanced_key, AnalogRawValue value);
 void advanced_key_set_deadzone(AdvancedKey *advanced_key, AnalogValue upper, AnalogValue lower);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

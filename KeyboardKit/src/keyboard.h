@@ -14,6 +14,10 @@
 #include "keycode.h"
 #include "dynamic_key.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define NKRO_REPORT_BITS 30
 
 #define KEYBINDING(keycode, modifier) (((modifier) << 8) | (keycode))
@@ -107,5 +111,9 @@ void keyboard_set_config_index(uint8_t index);
 void keyboard_task(void);
 void keyboard_delay(uint32_t ms);
 int keyboard_hid_send(uint8_t *report, uint16_t len);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* KEYBOARD_H_ */

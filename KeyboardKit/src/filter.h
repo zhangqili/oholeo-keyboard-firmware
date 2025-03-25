@@ -12,6 +12,10 @@
 #include "keyboard_conf.h"
 #include "advanced_key.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef TOLERANCE
 #define TOLERANCE 3
 #endif
@@ -27,5 +31,9 @@ typedef struct __AdaptiveSchimidtFilter
 } AdaptiveSchimidtFilter;
 
 AnalogRawValue adaptive_schimidt_filter(AdaptiveSchimidtFilter*filter,AnalogRawValue value);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

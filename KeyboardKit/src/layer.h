@@ -10,6 +10,10 @@
 #include "event.h"
 #include "keyboard_conf.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern uint8_t g_layer_cache[ADVANCED_KEY_NUM + KEY_NUM];
 extern uint8_t g_current_layer;
 
@@ -21,5 +25,9 @@ void layer_toggle(uint8_t layer);
 void layer_cache_set(uint16_t id, uint8_t layer);
 uint8_t layer_cache_get(uint16_t id);
 Keycode layer_cache_get_keycode(uint16_t id);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LAYER_H_ */

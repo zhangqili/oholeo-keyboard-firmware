@@ -12,6 +12,10 @@
 #include "keyboard_def.h"
 #include "analog.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * \file
  *
@@ -87,5 +91,9 @@ void joystick_add_buffer(Keycode keycode);
 void joystick_set_axis(Keycode keycode, AnalogValue value);
 int joystick_buffer_send(void);
 int joystick_hid_send(uint8_t *report, uint16_t len);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //JOYSTICK_H

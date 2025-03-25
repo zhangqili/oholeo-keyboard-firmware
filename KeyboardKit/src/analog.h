@@ -8,6 +8,10 @@
 #include "keyboard.h"
 #include "filter.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define ADDRESS BCD_TO_GRAY(g_analog_active_channel)
 #define BCD_TO_GRAY(x) ((x)^((x)>>1))
 
@@ -52,5 +56,9 @@ void analog_reset_range(void);
 
 void ringbuf_push(RingBuf *ringbuf, AnalogRawValue data);
 AnalogRawValue ringbuf_avg(RingBuf *ringbuf);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ANALOG_H_ */
