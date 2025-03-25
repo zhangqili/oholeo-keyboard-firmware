@@ -322,7 +322,7 @@ void command_parse(uint8_t *buf, uint8_t len)
         g_keyboard_state = buf[1];
         break;
     case 0xB1: // upload config
-        g_keyboard_state = KEYBOARD_UPLOAD_CONFIG;
+        g_keyboard_state = KEYBOARD_STATE_UPLOAD_CONFIG;
         start_load_cargo();
         break;
     case 0xFF: // Legacy

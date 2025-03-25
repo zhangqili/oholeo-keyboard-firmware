@@ -29,11 +29,11 @@ const Keycode g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM] = {
         KEY_TRANSPARENT,        KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_HOME,       KEY_PAGE_DOWN,  KEY_END,
     },
     {
-        KEYBOARD_OPERATION | (KEYBOARD_BOOTLOADER << 8),  KEYBOARD_OPERATION | (KEYBOARD_CONFIG0 << 8), KEYBOARD_OPERATION | (KEYBOARD_CONFIG1 << 8), KEYBOARD_OPERATION | (KEYBOARD_CONFIG2 << 8), KEYBOARD_OPERATION | (KEYBOARD_CONFIG3 << 8),         KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,        KEYBOARD_OPERATION | (KEYBOARD_RESET_TO_DEFAULT << 8),
-        KEY_TRANSPARENT,                        KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEYBOARD_OPERATION | (KEYBOARD_REBOOT << 8),           KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,        KEY_TRANSPARENT,
-        KEY_USER | (USER_SNAKE_LAUNCH << 8),    KEY_TRANSPARENT,                    KEYBOARD_OPERATION | (KEYBOARD_SAVE << 8),    KEYBOARD_OPERATION | (KEYBOARD_TOGGLE_DEBUG << 8),   KEYBOARD_OPERATION | (KEYBOARD_FACTORY_RESET << 8),   KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,
-        KEY_TRANSPARENT,                        KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_USER | (USER_EM << 8),                  KEY_USER | (USER_BEEP << 8), KEY_USER | (USER_RESET << 8),  KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,        KEY_TRANSPARENT,
-        KEY_TRANSPARENT,                        KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_TRANSPARENT,                    KEY_TRANSPARENT,                            KEY_TRANSPARENT,             KEY_TRANSPARENT,               KEY_TRANSPARENT,  KEY_TRANSPARENT,
+        KEYBOARD_OPERATION | (KEYBOARD_BOOTLOADER << 8),  KEYBOARD_OPERATION | (KEYBOARD_CONFIG0 << 8), KEYBOARD_OPERATION | (KEYBOARD_CONFIG1 << 8), KEYBOARD_OPERATION | (KEYBOARD_CONFIG2 << 8),     KEYBOARD_OPERATION | (KEYBOARD_CONFIG3 << 8),       KEY_TRANSPARENT,                                    KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                                KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEYBOARD_OPERATION | (KEYBOARD_RESET_TO_DEFAULT << 8),
+        KEY_TRANSPARENT,                                  KEY_TRANSPARENT,                              KEY_TRANSPARENT,                              KEY_TRANSPARENT,                                  KEYBOARD_OPERATION | (KEYBOARD_REBOOT << 8),        KEYBOARD_OPERATION | (KEYBOARD_NKRO_TOGGLE << 8),   KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                                KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEY_TRANSPARENT,
+        KEY_USER | (USER_SNAKE_LAUNCH << 8),              KEY_TRANSPARENT,                              KEYBOARD_OPERATION | (KEYBOARD_SAVE << 8),    KEYBOARD_OPERATION | (KEYBOARD_DEBUG_TOGGLE << 8),KEYBOARD_OPERATION | (KEYBOARD_FACTORY_RESET << 8), KEY_TRANSPARENT,                                    KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_USER | (USER_TOGGLE_LOW_LATENCY_MODE << 8), KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEY_TRANSPARENT,
+        KEY_TRANSPARENT,                                  KEY_TRANSPARENT,                              KEY_TRANSPARENT,                              KEY_TRANSPARENT,                                  KEY_USER | (USER_EM << 8),                          KEY_USER | (USER_BEEP << 8),                        KEY_USER | (USER_RESET << 8),  KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                                KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,
+        KEY_TRANSPARENT,                                  KEY_TRANSPARENT,                              KEY_TRANSPARENT,                              KEY_TRANSPARENT,                                  KEY_TRANSPARENT,                                    KEY_TRANSPARENT,                                    KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,
     }
 
 };
@@ -48,6 +48,8 @@ const RGBLocation g_rgb_locations[RGB_NUM]={{0.625,0},{1.875,0},{3.125,0},{6.875
                                              {0.875,2},{2.25,2},{3.25,2},{4.25,2},{5.25,2},{6.25,2},{7.25,2},{8.25,2},{9.25,2},{10.25,2},{11.25,2},{12.25,2},{13.875,2},
                                              {0.75,3},{2,3},{3,3},{4,3},{5,3},{6,3},{7,3},{8,3},{9,3},{10,3},{11,3},{12,3},{13,3},{14.25,3},
                                              {0.5,4},{1.5,4},{2.5,4},{3.5,4},{4.5,4},{5.5,4},{6.5,4},{7.5,4},{8.5,4},{9.5,4},{10.5,4},{11.5,4},{12.5,4},{14,4}};
+
+volatile uint8_t low_latency_mode = 0;
 
 AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM] =
 {
@@ -1225,7 +1227,10 @@ void keyboard_user_event_handler(KeyboardEvent event)
         em_switch = !em_switch;
         break;
     case USER_SNAKE_LAUNCH:
-        snake_launch(&g_snake);
+        if (!low_latency_mode)
+        {
+            snake_launch(&g_snake);
+        }
         break;
     case USER_SNAKE_QUIT:
         snake_quit(&g_snake);
@@ -1248,10 +1253,14 @@ void keyboard_user_event_handler(KeyboardEvent event)
     case USER_SNAKE_DOWN:
         snake_turn(&g_snake, MODIFIER(event.keycode)&0x07);
         break;
+    case USER_TOGGLE_LOW_LATENCY_MODE:
+        low_latency_mode = !low_latency_mode;
+        break;
     default:
         beep_switch = false;
         em_switch = false;
-        g_keyboard_state = KEYBOARD_IDLE;
+        low_latency_mode = false;
+        g_keyboard_state = KEYBOARD_STATE_IDLE;
         break;
     }
 }

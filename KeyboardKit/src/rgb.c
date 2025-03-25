@@ -234,7 +234,7 @@ void rgb_update(void)
         }
     }
     rgb_update_callback();
-    for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+    for (uint8_t i = 0; i < RGB_NUM; i++)
     {
         rgb_set(i, g_rgb_colors[i].r, g_rgb_colors[i].g, g_rgb_colors[i].b);
     }
@@ -297,7 +297,7 @@ void rgb_init_flash(void)
         {
             break;
         }
-        for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+        for (uint8_t i = 0; i < RGB_NUM; i++)
         {
             rgb_set(i, g_rgb_colors[i].r, g_rgb_colors[i].g, g_rgb_colors[i].b);
         }
@@ -322,7 +322,7 @@ void rgb_flash(void)
             temp_rgb.b = ((uint8_t)(intensity * 255));
             color_mix(&g_rgb_colors[i], &temp_rgb);
         }
-        for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+        for (uint8_t i = 0; i < RGB_NUM; i++)
         {
             rgb_set(i, g_rgb_colors[i].r, g_rgb_colors[i].g, g_rgb_colors[i].b);
         }

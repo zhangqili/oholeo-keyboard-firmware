@@ -156,13 +156,13 @@ void keyboard_operation_event_handler(KeyboardEvent event)
         case KEYBOARD_BOOTLOADER:
             keyboard_jump_to_bootloader();
             break;
-        case KEYBOARD_TOGGLE_DEBUG:
-            g_keyboard_state = (g_keyboard_state != KEYBOARD_DEBUG);
+        case KEYBOARD_DEBUG_TOGGLE:
+            g_keyboard_state = (g_keyboard_state != KEYBOARD_STATE_DEBUG);
             break;
         case KEYBOARD_RESET_TO_DEFAULT:
             keyboard_reset_to_default();
             break;
-        case KEYBOARD_TOGGLE_NKRO:
+        case KEYBOARD_NKRO_TOGGLE:
             g_keyboard_nkro_enable = !g_keyboard_nkro_enable;
             break;
         case KEYBOARD_CONFIG0:
@@ -303,8 +303,6 @@ void keyboard_init(void)
 #ifdef STORAGE_ENABLE
     storage_mount();
     g_current_config_index = storage_read_config_index();
-#else
-    keyboard_reset_to_default();
 #endif
 #ifdef RGB_ENABLE
     rgb_init();
@@ -312,6 +310,7 @@ void keyboard_init(void)
 #ifdef MIDI_ENABLE
     setup_midi();
 #endif
+    keyboard_recovery();
 }
 
 __WEAK void keyboard_reset_to_default(void)

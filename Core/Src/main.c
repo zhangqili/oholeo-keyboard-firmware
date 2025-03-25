@@ -81,6 +81,8 @@ bool beep_switch = 0;
 bool em_switch = 0;
 
 uint32_t ADC_Buffer[4*DMA_BUF_LEN];
+
+extern volatile uint8_t low_latency_mode;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -303,7 +305,6 @@ int main(void)
 
   rgb_init_flash();
 
-  keyboard_recovery();
   analog_reset_range();
 
   if (g_ADC_Averages[15] < 1400 || g_ADC_Averages[15] > (4096 - 1400))
@@ -335,7 +336,75 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    rgb_update();
+    if (low_latency_mode == 1)
+    {
+      low_latency_mode = 2;
+      rgb_turn_off();
+    }
+    
+    if (low_latency_mode)
+    {
+      keyboard_task();
+      if(g_keyboard_led_state&BIT(1))
+      {
+        rgb_set(g_rgb_mapping[28],  0xff, 0xff, 0xff);
+      }
+      else
+      {
+        rgb_set(g_rgb_mapping[28],  0, 0, 0);
+      }
+      if(g_keyboard_led_state&BIT(2))
+      {
+        rgb_set(g_rgb_mapping[26],  0xff, 0xff, 0xff);
+      }
+      else
+      {
+        rgb_set(g_rgb_mapping[26],  0, 0, 0);
+      }
+      if (g_current_layer == 2)
+      {
+        rgb_set(g_rgb_mapping[0], 0xff, 0, 0);
+        rgb_set(g_rgb_mapping[1], 0, 0, 0);
+        rgb_set(g_rgb_mapping[2], 0, 0, 0);
+        rgb_set(g_rgb_mapping[3], 0, 0, 0);
+        rgb_set(g_rgb_mapping[4], 0, 0, 0);
+        rgb_set(g_rgb_mapping[g_current_config_index+1], 0xff, 0xff, 0xff);
+        rgb_set(g_rgb_mapping[37], 0xff, 0xff, 0xff);
+        if (g_keyboard_nkro_enable)
+          rgb_set(g_rgb_mapping[19], 0xff, 0xff, 0xff);
+        else
+          rgb_set(g_rgb_mapping[19], 0, 0, 0);
+        if (g_keyboard_state == KEYBOARD_STATE_DEBUG)
+          rgb_set(g_rgb_mapping[31], 0xff, 0xff, 0xff);
+        else
+          rgb_set(g_rgb_mapping[31], 0, 0, 0);
+        if (beep_switch)
+          rgb_set(g_rgb_mapping[46], 0xff, 0xff, 0xff);
+        else
+          rgb_set(g_rgb_mapping[46], 0, 0, 0);
+        if (em_switch)
+          rgb_set(g_rgb_mapping[45], 0xff, 0xff, 0xff);
+        else
+          rgb_set(g_rgb_mapping[45], 0, 0, 0);
+      }
+      else
+      {
+        rgb_set(g_rgb_mapping[0], 0, 0, 0);
+        rgb_set(g_rgb_mapping[1], 0, 0, 0);
+        rgb_set(g_rgb_mapping[2], 0, 0, 0);
+        rgb_set(g_rgb_mapping[3], 0, 0, 0);
+        rgb_set(g_rgb_mapping[4], 0, 0, 0);
+        rgb_set(g_rgb_mapping[19], 0, 0, 0);
+        rgb_set(g_rgb_mapping[31], 0, 0, 0);
+        rgb_set(g_rgb_mapping[46], 0, 0, 0);
+        rgb_set(g_rgb_mapping[45], 0, 0, 0);
+        rgb_set(g_rgb_mapping[37], 0, 0, 0);
+      }
+    }
+    else
+    {
+      rgb_update();
+    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -393,56 +462,65 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void keyboard_task(void)
+{
+  keyboard_scan();
+  for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+  {
+      g_ADC_Averages[i] = ringbuf_avg(&adc_ringbuf[i]);
+#ifdef ENABLE_FILTER
+      g_ADC_Averages[i] = adaptive_schimidt_filter(g_analog_filters+i,g_ADC_Averages[i]);
+#endif
+      AdvancedKey* key = &g_keyboard_advanced_keys[g_analog_map[i]];
+      if (key->config.mode != KEY_DIGITAL_MODE)
+      {
+          advanced_key_update_raw(key, g_ADC_Averages[i]);
+      }
+  }
+  if (pulse_counter)
+  {
+    pulse_counter--;
+    if (beep_switch)
+    {
+      HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+    }
+    if (em_switch)
+    {
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 1);
+    }
+  }
+  else
+  {
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 0);
+    HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
+  }
+  switch (g_keyboard_state)
+  {
+  case KEYBOARD_STATE_DEBUG:
+    send_debug_info();
+    break;
+  case KEYBOARD_STATE_UPLOAD_CONFIG:
+    if (!load_cargo())
+    {
+      g_keyboard_state = KEYBOARD_STATE_IDLE;
+    }
+    break;
+  default:
+    keyboard_send_report();
+    break;
+  }
+}
+
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance == TIM7)
   {
-    keyboard_scan();
-    for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
+    if (!low_latency_mode)
     {
-        g_ADC_Averages[i] = ringbuf_avg(&adc_ringbuf[i]);
-#ifdef ENABLE_FILTER
-        g_ADC_Averages[i] = adaptive_schimidt_filter(g_analog_filters+i,g_ADC_Averages[i]);
-#endif
-        AdvancedKey* key = &g_keyboard_advanced_keys[g_analog_map[i]];
-        if (key->config.mode != KEY_DIGITAL_MODE)
-        {
-            advanced_key_update_raw(key, g_ADC_Averages[i]);
-        }
+      keyboard_task();
     }
-    if (pulse_counter)
-    {
-      pulse_counter--;
-      if (beep_switch)
-      {
-        HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
-      }
-      if (em_switch)
-      {
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 1);
-      }
-    }
-    else
-    {
-      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 0);
-      HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
-    }
-    switch (g_keyboard_state)
-    {
-    case KEYBOARD_DEBUG:
-      send_debug_info();
-      break;
-    case KEYBOARD_UPLOAD_CONFIG:
-      if (!load_cargo())
-      {
-        g_keyboard_state = KEYBOARD_IDLE;
-      }
-      break;
-    default:
-      keyboard_send_report();
-      break;
-    }
+    
   }
   if (htim->Instance == TIM2)
   {
@@ -520,6 +598,36 @@ void rgb_update_callback()
 	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].r = 0xff;
 	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].g = 0xff;
 	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].b = 0xff;
+    if (g_keyboard_nkro_enable)
+    {
+      g_rgb_colors[g_rgb_mapping[19]].r = 0xff;
+      g_rgb_colors[g_rgb_mapping[19]].g = 0xff;
+      g_rgb_colors[g_rgb_mapping[19]].b = 0xff;
+    }
+    if (g_keyboard_state == KEYBOARD_STATE_DEBUG)
+    {
+      g_rgb_colors[g_rgb_mapping[31]].r = 0xff;
+      g_rgb_colors[g_rgb_mapping[31]].g = 0xff;
+      g_rgb_colors[g_rgb_mapping[31]].b = 0xff;
+    }
+    if (beep_switch)
+    {
+      g_rgb_colors[g_rgb_mapping[46]].r = 0xff;
+      g_rgb_colors[g_rgb_mapping[46]].g = 0xff;
+      g_rgb_colors[g_rgb_mapping[46]].b = 0xff;
+    }
+    if (em_switch)
+    {
+      g_rgb_colors[g_rgb_mapping[45]].r = 0xff;
+      g_rgb_colors[g_rgb_mapping[45]].g = 0xff;
+      g_rgb_colors[g_rgb_mapping[45]].b = 0xff;
+    }
+    if (low_latency_mode)
+    {
+      g_rgb_colors[g_rgb_mapping[37]].r = 0xff;
+      g_rgb_colors[g_rgb_mapping[37]].g = 0xff;
+      g_rgb_colors[g_rgb_mapping[37]].b = 0xff;
+    }
   }
 }
 
