@@ -8,36 +8,6 @@
 #ifndef LFS_UTIL_H
 #define LFS_UTIL_H
 
-//
-// 是否使用动态内存申请
-//
-//#define LFS_NO_MALLOC
-
-//
-// 是否使用断言
-//
-#define LFS_NO_ASSERT
-
-//
-// 是否使用函数调用跟踪信息打印
-//
-//#define LFS_YES_TRACE
-
-//
-// 是否使用调试信息输出
-//
-#define LFS_NO_DEBUG
-
-//
-// 是否使用错误信息输出
-//
-#define LFS_NO_ERROR
-
-//
-// 是否使用警告信息输出
-//
-#define LFS_NO_WARN
-
 #define LFS_STRINGIZE(x) LFS_STRINGIZE2(x)
 #define LFS_STRINGIZE2(x) #x
 
