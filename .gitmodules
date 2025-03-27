@@ -1,3 +1,6 @@
 [submodule "CherryUSB"]
 	path = CherryUSB
 	url = https://github.com/cherry-embedded/CherryUSB.git
+[submodule "libamp"]
+	path = libamp
+	url = https://github.com/zhangqili/libamp.git
