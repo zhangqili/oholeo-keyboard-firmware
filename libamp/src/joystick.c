@@ -45,7 +45,7 @@ void joystick_set_axis(Keycode keycode, AnalogValue value)
     if (!(keycode & 0xE0)) return;
     uint8_t axis = (keycode & 0x1F);
     if (axis >= JOYSTICK_AXIS_COUNT) return;
-    JoystickAxis analog_value = (value - ANALOG_VALUE_MIN) / (float)ANALOG_VALUE_RANGE * JOYSTICK_MAX_VALUE;
+    JoystickAxis analog_value = ANALOG_VALUE_NORMALIZE((value - ANALOG_VALUE_MIN)) * JOYSTICK_MAX_VALUE;
     switch ((keycode >> 5) & 0x03)
     {
     case 0x01:

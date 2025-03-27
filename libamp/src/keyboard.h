@@ -78,6 +78,7 @@ extern volatile uint8_t g_keyboard_send_flags;
 
 extern uint8_t g_current_config_index;
 
+KeyboardEvent keyboard_make_event(Key*key, uint8_t event);
 void keyboard_event_handler(KeyboardEvent event);
 void keyboard_operation_event_handler(KeyboardEvent event);
 void keyboard_advanced_key_event_handler(AdvancedKey*key, KeyboardEvent event);

@@ -6,7 +6,7 @@
 #include "color.h"
 #include "string.h"
 
-void rgb_to_hsv(ColorHSV *hsv, ColorRGB *rgb)
+void rgb_to_hsv(ColorHSV * restrict hsv, ColorRGB * restrict rgb)
 {
 	float max;
 	float min;
@@ -47,7 +47,7 @@ void rgb_to_hsv(ColorHSV *hsv, ColorRGB *rgb)
 	hsv->v=max*100/255;
 }
 
-void hsv_to_rgb(ColorRGB *rgb, ColorHSV *hsv)
+void hsv_to_rgb(ColorRGB * restrict rgb, ColorHSV * restrict hsv)
 {
     float c = 0;
     float x = 0;
@@ -108,20 +108,20 @@ void hsv_to_rgb(ColorRGB *rgb, ColorHSV *hsv)
     }
 }
 
-void color_get_rgb(Color*color, ColorRGB*rgb)
+void color_get_rgb(Color* restrict color, ColorRGB* restrict rgb)
 {
     memcpy(rgb,color,sizeof(Color));
 }
-void color_set_rgb(Color*color, ColorRGB*rgb)
+void color_set_rgb(Color* restrict  color, ColorRGB* restrict rgb)
 {
     memcpy(color,rgb,sizeof(Color));
 }
 
-void color_get_hsv(Color*color, ColorHSV*hsv)
+void color_get_hsv(Color* restrict color, ColorHSV* restrict hsv)
 {
     rgb_to_hsv(hsv, color);
 }
-void color_set_hsv(Color*color, ColorHSV*hsv)
+void color_set_hsv(Color* restrict color, ColorHSV* restrict hsv)
 {
     hsv_to_rgb(color, hsv);
 }

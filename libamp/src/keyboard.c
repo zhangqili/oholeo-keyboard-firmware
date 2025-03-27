@@ -268,7 +268,7 @@ int keyboard_6KRObuffer_add(Keyboard_6KROBuffer *buf, Keycode keycode)
 
 int keyboard_6KRObuffer_send(Keyboard_6KROBuffer* buf)
 {
-    return keyboard_hid_send((uint8_t*)buf, sizeof(buf->buffer));
+    return keyboard_hid_send((uint8_t*)buf, 8);
 }
 
 void keyboard_6KRObuffer_clear(Keyboard_6KROBuffer* buf)
@@ -300,6 +300,7 @@ void keyboard_NKRObuffer_clear(Keyboard_NKROBuffer*buf)
 
 void keyboard_init(void)
 {
+    g_keyboard_tick = 0;
 #ifdef STORAGE_ENABLE
     storage_mount();
     g_current_config_index = storage_read_config_index();
@@ -319,14 +320,14 @@ __WEAK void keyboard_reset_to_default(void)
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
         g_keyboard_advanced_keys[i].config.mode = DEFAULT_ADVANCED_KEY_MODE;
-        g_keyboard_advanced_keys[i].config.trigger_distance = DEFAULT_TRIGGER_DISTANCE * ANALOG_VALUE_RANGE;
-        g_keyboard_advanced_keys[i].config.release_distance = DEFAULT_RELEASE_DISTANCE * ANALOG_VALUE_RANGE;
-        g_keyboard_advanced_keys[i].config.activation_value = DEFAULT_ACTIVATION_VALUE * ANALOG_VALUE_RANGE;
-        g_keyboard_advanced_keys[i].config.deactivation_value = DEFAULT_DEACTIVATION_VALUE * ANALOG_VALUE_RANGE;
+        g_keyboard_advanced_keys[i].config.trigger_distance = ANALOG_VALUE_ANTI_NORMALIZE(DEFAULT_TRIGGER_DISTANCE);
+        g_keyboard_advanced_keys[i].config.release_distance = ANALOG_VALUE_ANTI_NORMALIZE(DEFAULT_RELEASE_DISTANCE);
+        g_keyboard_advanced_keys[i].config.activation_value = ANALOG_VALUE_ANTI_NORMALIZE(DEFAULT_ACTIVATION_VALUE);
+        g_keyboard_advanced_keys[i].config.deactivation_value = ANALOG_VALUE_ANTI_NORMALIZE(DEFAULT_DEACTIVATION_VALUE);
         g_keyboard_advanced_keys[i].config.calibration_mode = DEFAULT_CALIBRATION_MODE;
         advanced_key_set_deadzone(g_keyboard_advanced_keys + i, 
-            DEFAULT_UPPER_DEADZONE * ANALOG_VALUE_RANGE, 
-            DEFAULT_LOWER_DEADZONE * ANALOG_VALUE_RANGE);
+            ANALOG_VALUE_ANTI_NORMALIZE(DEFAULT_UPPER_DEADZONE), 
+            ANALOG_VALUE_ANTI_NORMALIZE(DEFAULT_LOWER_DEADZONE));
     }
 #ifdef RGB_ENABLE
     rgb_factory_reset();

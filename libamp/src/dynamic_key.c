@@ -276,7 +276,7 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
 
         bool last_key0_state = key0->key.report_state;
         if (((key0->value > key1->value) && (key0->value > key0->config.upper_deadzone)) ||
-        ((key0->value>= (ANALOG_VALUE_MAX - key0->config.lower_deadzone))&&
+        ((dynamic_key_m->mode & 0x80) && (key0->value>= (ANALOG_VALUE_MAX - key0->config.lower_deadzone))&&
         (key1->value>= (ANALOG_VALUE_MAX - key1->config.lower_deadzone))))
         {
             key0->key.report_state = true;
@@ -298,7 +298,7 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
 
         bool last_key1_state = key1->key.report_state;
         if (((key0->value < key1->value) && (key1->value > key1->config.upper_deadzone))||
-        ((key0->value>= (ANALOG_VALUE_MAX - key0->config.lower_deadzone))&&
+        ((dynamic_key_m->mode & 0x80) && (key0->value>= (ANALOG_VALUE_MAX - key0->config.lower_deadzone))&&
         (key1->value>= (ANALOG_VALUE_MAX - key1->config.lower_deadzone))))
         {
             key1->key.report_state = true;
@@ -324,27 +324,27 @@ void dynamic_key_m_update(DynamicKey*dynamic_key, AdvancedKey*key, bool state)
     switch (dynamic_key_m->mode & 0x0F)
     {
     case DK_MUTEX_LAST_PRIORITY:
-        if (state && !key->key.state)
+        if (key->key.id == dynamic_key_m->key_id[0])
         {
-            if (key->key.id == dynamic_key_m->key_id[0])
+            if (state && !key->key.state)
             {
-                key1->key.report_state = false;
                 key0->key.report_state = true;
+                key1->key.report_state = false;
             }
-            else if (key->key.id == dynamic_key_m->key_id[1])
-            {
-                key0->key.report_state = false;
-                key1->key.report_state = true;
-            }
-        }
-        if (!state && key->key.state)
-        {
-            if (key->key.id == dynamic_key_m->key_id[0])
+            if (!state && key->key.state)
             {
                 key0->key.report_state = false;
                 key1->key.report_state = key1->key.state;
             }
-            else if (key->key.id == dynamic_key_m->key_id[1])
+        }
+        else if (key->key.id == dynamic_key_m->key_id[1])
+        {
+            if (state && !key->key.state)
+            {
+                key0->key.report_state = false;
+                key1->key.report_state = true;
+            }
+            if (!state && key->key.state)
             {
                 key0->key.report_state = key0->key.state;
                 key1->key.report_state = false;

@@ -34,6 +34,13 @@ typedef int16_t AnalogRawValue;
 #endif
 #define ANALOG_VALUE_RANGE (ANALOG_VALUE_MAX - ANALOG_VALUE_MIN)
 
+#ifdef OPTIMIZE_FOR_FLOAT_DIVISION
+#define ANALOG_VALUE_NORMALIZE(x) ((x)*(1/(float)ANALOG_VALUE_RANGE))
+#else
+#define ANALOG_VALUE_NORMALIZE(x) ((x)/(float)ANALOG_VALUE_RANGE)
+#endif
+#define ANALOG_VALUE_ANTI_NORMALIZE(x) ((x)*ANALOG_VALUE_RANGE)
+
 typedef enum
 {
     KEY_DIGITAL_MODE,

@@ -14,14 +14,14 @@ static inline void command_advanced_key_config_normalize(AdvancedKeyConfiguratio
 {
     buffer->mode = config->mode;
     //buffer->calibration_mode = config->calibration_mode;
-    buffer->activation_value = config->activation_value / (float)ANALOG_VALUE_RANGE;
-    buffer->deactivation_value = config->deactivation_value / (float)ANALOG_VALUE_RANGE;
-    buffer->trigger_distance = config->trigger_distance / (float)ANALOG_VALUE_RANGE;
-    buffer->release_distance = config->release_distance / (float)ANALOG_VALUE_RANGE;
-    buffer->trigger_speed = config->trigger_speed / (float)ANALOG_VALUE_RANGE;
-    buffer->release_speed = config->release_speed / (float)ANALOG_VALUE_RANGE;
-    buffer->upper_deadzone = config->upper_deadzone / (float)ANALOG_VALUE_RANGE;
-    buffer->lower_deadzone = config->lower_deadzone / (float)ANALOG_VALUE_RANGE;
+    buffer->activation_value = ANALOG_VALUE_NORMALIZE(config->activation_value);
+    buffer->deactivation_value = ANALOG_VALUE_NORMALIZE(config->deactivation_value);
+    buffer->trigger_distance = ANALOG_VALUE_NORMALIZE(config->trigger_distance);
+    buffer->release_distance = ANALOG_VALUE_NORMALIZE(config->release_distance);
+    buffer->trigger_speed = ANALOG_VALUE_NORMALIZE(config->trigger_speed);
+    buffer->release_speed = ANALOG_VALUE_NORMALIZE(config->release_speed);
+    buffer->upper_deadzone = ANALOG_VALUE_NORMALIZE(config->upper_deadzone);
+    buffer->lower_deadzone = ANALOG_VALUE_NORMALIZE(config->lower_deadzone);
     //buffer->upper_bound = config->upper_bound;
     //buffer->lower_bound = config->lower_bound;
 }
@@ -30,14 +30,14 @@ static inline void command_advanced_key_config_anti_normalize(AdvancedKeyConfigu
 {
     config->mode = buffer->mode;
     //config->calibration_mode = buffer->calibration_mode;
-    config->activation_value = buffer->activation_value * ANALOG_VALUE_RANGE;
-    config->deactivation_value = buffer->deactivation_value * ANALOG_VALUE_RANGE;
-    config->trigger_distance = buffer->trigger_distance * ANALOG_VALUE_RANGE;
-    config->release_distance = buffer->release_distance * ANALOG_VALUE_RANGE;
-    config->trigger_speed = buffer->trigger_speed * ANALOG_VALUE_RANGE;
-    config->release_speed = buffer->release_speed * ANALOG_VALUE_RANGE;
-    config->upper_deadzone = buffer->upper_deadzone * ANALOG_VALUE_RANGE;
-    config->lower_deadzone = buffer->lower_deadzone * ANALOG_VALUE_RANGE;
+    config->activation_value = ANALOG_VALUE_ANTI_NORMALIZE(buffer->activation_value);
+    config->deactivation_value = ANALOG_VALUE_ANTI_NORMALIZE(buffer->deactivation_value);
+    config->trigger_distance = ANALOG_VALUE_ANTI_NORMALIZE(buffer->trigger_distance);
+    config->release_distance = ANALOG_VALUE_ANTI_NORMALIZE(buffer->release_distance);
+    config->trigger_speed = ANALOG_VALUE_ANTI_NORMALIZE(buffer->trigger_speed);
+    config->release_speed = ANALOG_VALUE_ANTI_NORMALIZE(buffer->release_speed);
+    config->upper_deadzone = ANALOG_VALUE_ANTI_NORMALIZE(buffer->upper_deadzone);
+    config->lower_deadzone = ANALOG_VALUE_ANTI_NORMALIZE(buffer->lower_deadzone);
     //config->upper_bound = buffer->upper_bound;
     //config->lower_bound = buffer->lower_bound;
 }

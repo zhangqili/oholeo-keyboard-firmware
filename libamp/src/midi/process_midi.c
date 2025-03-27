@@ -126,7 +126,7 @@ bool midi_event_handler(KeyboardEvent event, uint8_t velocity)
             return false;
         case MIDI_VELOCITY_MIN ... MIDI_VELOCITY_MAX:
             if ((event.event == KEYBOARD_EVENT_KEY_DOWN)) {
-                midi_config.velocity = compute_velocity(keycode - MIDI_VELOCITY_MIN);
+                midi_config.velocity = (uint8_t)(keycode - MIDI_VELOCITY_MIN)* (128 / (MIDI_VELOCITY_MAX - MIDI_VELOCITY_MIN));
                 //dprintf("midi velocity %d\n", midi_config.velocity);
             }
             return false;
