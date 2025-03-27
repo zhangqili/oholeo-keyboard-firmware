@@ -1,6 +1,3 @@
 [submodule "CherryUSB"]
 	path = CherryUSB
 	url = https://github.com/cherry-embedded/CherryUSB.git
-[submodule "KeyboardKit/usb/lufa"]
-	path = libamp/usb/lufa
-	url = https://github.com/abcminiuser/lufa
