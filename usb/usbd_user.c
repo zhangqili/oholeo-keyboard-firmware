@@ -9,7 +9,6 @@
 #include "mouse.h"
 #include "stm32f303xc.h"
 #include "usb_descriptor.h"
-#include "usb_midi.h"
 #include "qmk_midi.h"
 
 static const uint8_t *device_descriptor_callback(uint8_t speed)
@@ -381,49 +380,6 @@ int hid_joystick_send(uint8_t *buffer, int size)
     }
     shared_buffer.state = USB_STATE_BUSY;
     return 0;
-}
-
-
-void midi_task_286ms(uint8_t busid)
-{
-    static uint32_t s_note_pos;
-    static uint32_t s_note_pos_prev;
-    static uint8_t buffer[4];
-    static const uint8_t s_note_sequence[] = {
-        74
-    };
-    const uint8_t cable_num = 0; /* MIDI jack associated with USB endpoint */
-    const uint8_t channel = 1;   /* 0 for channel 1 */
-
-    if (usb_device_is_configured(busid) == false) {
-        return;
-    }
-
-    buffer[0] = (cable_num << 4) | MIDI_CIN_NOTE_ON;
-    buffer[1] = NoteOn | channel;
-    buffer[2] = s_note_sequence[s_note_pos];
-    buffer[3] = 127;  /* velocity */
-    send_midi_packet((MIDIEventPacket*)buffer);
-    while (midi_buffer.state) {
-    }
-
-    if (s_note_pos > 0) {
-        s_note_pos_prev = s_note_pos - 1;
-    } else {
-        s_note_pos_prev = sizeof(s_note_sequence) - 1;
-    }
-    buffer[0] = (cable_num << 4) | MIDI_CIN_NOTE_OFF;
-    buffer[1] = NoteOff | channel;
-    buffer[2] = s_note_sequence[s_note_pos_prev];
-    buffer[3] = 0;  /* velocity */
-    send_midi_packet((MIDIEventPacket*)buffer);
-    while (midi_buffer.state) {
-    }
-
-    s_note_pos++;
-    if (s_note_pos >= sizeof(s_note_sequence)) {
-        s_note_pos = 0;
-    }
 }
 
 int usb_midi_send(uint8_t* buffer)

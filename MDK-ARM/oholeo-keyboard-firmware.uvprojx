@@ -10,7 +10,7 @@
       <TargetName>oholeo-keyboard-firmware</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>6220000::V6.22::ARMCLANG</pCCUsed>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
       <uAC6>1</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -338,9 +338,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER,STM32F303xC</Define>
+              <Define>USE_HAL_DRIVER,STM32F303xC,LFS_NO_ASSERT,LFS_NO_DEBUG,LFS_NO_ERROR,LFS_NO_WARN</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\KeyboardKit\src\;..\KeyboardKit\user\;..\KeyboardKit\littlefs\;..\sfud\inc\;..\usb\;..\CherryUSB\core;..\CherryUSB\common;..\CherryUSB\class\hid;..\CherryUSB\port\fsdev;..\KeyboardKit\usb;..\KeyboardKit\usb\lufa;..\snake</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\libamp\src\;..\libamp\src\midi\;..\libamp\src\midi\bytequeue;..\libamp\littlefs\;..\libamp\usb\;..\libamp\usb\lufa;..\libamp_user\;..\sfud\inc\;..\usb\;..\CherryUSB\core;..\CherryUSB\common;..\CherryUSB\class\hid;..\CherryUSB\port\fsdev;..\snake</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -577,121 +577,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>KeyboardKit/src</GroupName>
-          <Files>
-            <File>
-              <FileName>action.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\src\action.c</FilePath>
-            </File>
-            <File>
-              <FileName>advanced_key.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\src\advanced_key.c</FilePath>
-            </File>
-            <File>
-              <FileName>analog.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\src\analog.c</FilePath>
-            </File>
-            <File>
-              <FileName>color.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\src\color.c</FilePath>
-            </File>
-            <File>
-              <FileName>command.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\src\command.c</FilePath>
-            </File>
-            <File>
-              <FileName>communication.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\src\communication.c</FilePath>
-            </File>
-            <File>
-              <FileName>dynamic_key.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\src\dynamic_key.c</FilePath>
-            </File>
-            <File>
-              <FileName>filter.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\src\filter.c</FilePath>
-            </File>
-            <File>
-              <FileName>key.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\src\key.c</FilePath>
-            </File>
-            <File>
-              <FileName>keyboard.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\src\keyboard.c</FilePath>
-            </File>
-            <File>
-              <FileName>layer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\src\layer.c</FilePath>
-            </File>
-            <File>
-              <FileName>mouse.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\src\mouse.c</FilePath>
-            </File>
-            <File>
-              <FileName>record.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\src\record.c</FilePath>
-            </File>
-            <File>
-              <FileName>rgb.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\src\rgb.c</FilePath>
-            </File>
-            <File>
-              <FileName>storage.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\src\storage.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>KeyboardKit/user</GroupName>
-          <Files>
-            <File>
-              <FileName>keyboard_user.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\user\keyboard_user.c</FilePath>
-            </File>
-            <File>
-              <FileName>lfs_port.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\user\lfs_port.c</FilePath>
-            </File>
-            <File>
-              <FileName>keyboard_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\KeyboardKit\user\keyboard_conf.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>KeyboardKit/littlefs</GroupName>
-          <Files>
-            <File>
-              <FileName>lfs.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\littlefs\lfs.c</FilePath>
-            </File>
-            <File>
-              <FileName>lfs_util.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\KeyboardKit\littlefs\lfs_util.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>sfud</GroupName>
           <Files>
             <File>
@@ -748,6 +633,161 @@
               <FileName>snake.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\snake\snake.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libamp/src</GroupName>
+          <Files>
+            <File>
+              <FileName>advanced_key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\advanced_key.c</FilePath>
+            </File>
+            <File>
+              <FileName>analog.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\analog.c</FilePath>
+            </File>
+            <File>
+              <FileName>color.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\color.c</FilePath>
+            </File>
+            <File>
+              <FileName>command.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\command.c</FilePath>
+            </File>
+            <File>
+              <FileName>communication.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\communication.c</FilePath>
+            </File>
+            <File>
+              <FileName>dynamic_key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\dynamic_key.c</FilePath>
+            </File>
+            <File>
+              <FileName>extra_key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\extra_key.c</FilePath>
+            </File>
+            <File>
+              <FileName>filter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\filter.c</FilePath>
+            </File>
+            <File>
+              <FileName>joystick.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\joystick.c</FilePath>
+            </File>
+            <File>
+              <FileName>key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\key.c</FilePath>
+            </File>
+            <File>
+              <FileName>keyboard.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\keyboard.c</FilePath>
+            </File>
+            <File>
+              <FileName>layer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\layer.c</FilePath>
+            </File>
+            <File>
+              <FileName>mouse.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\mouse.c</FilePath>
+            </File>
+            <File>
+              <FileName>record.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\record.c</FilePath>
+            </File>
+            <File>
+              <FileName>rgb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\rgb.c</FilePath>
+            </File>
+            <File>
+              <FileName>storage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\storage.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libamp/src/midi</GroupName>
+          <Files>
+            <File>
+              <FileName>midi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\midi\midi.c</FilePath>
+            </File>
+            <File>
+              <FileName>midi_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\midi\midi_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>process_midi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\midi\process_midi.c</FilePath>
+            </File>
+            <File>
+              <FileName>qmk_midi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\midi\qmk_midi.c</FilePath>
+            </File>
+            <File>
+              <FileName>sysex_tools.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\midi\sysex_tools.c</FilePath>
+            </File>
+            <File>
+              <FileName>bytequeue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\midi\bytequeue\bytequeue.c</FilePath>
+            </File>
+            <File>
+              <FileName>interrupt_setting.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\midi\bytequeue\interrupt_setting.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libamp/littlefs</GroupName>
+          <Files>
+            <File>
+              <FileName>lfs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\littlefs\lfs.c</FilePath>
+            </File>
+            <File>
+              <FileName>lfs_util.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\littlefs\lfs_util.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libamp_user</GroupName>
+          <Files>
+            <File>
+              <FileName>keyboard_user.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp_user\keyboard_user.c</FilePath>
+            </File>
+            <File>
+              <FileName>lfs_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp_user\lfs_port.c</FilePath>
             </File>
           </Files>
         </Group>
