@@ -280,7 +280,6 @@ int main(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 0);
 
   DWT_Init();
-  usb_init();
   sfud_device_init(&sfud_norflash0);
 
   HAL_GPIO_WritePin(INHIBIT_GPIO_Port, INHIBIT_Pin, GPIO_PIN_RESET);
@@ -327,6 +326,7 @@ int main(void)
     keyboard_factory_reset();
     keyboard_reboot();
   }
+  usb_init();
   g_keyboard_nkro_enable = true;
   HAL_TIM_Base_Start_IT(&htim7);
 
