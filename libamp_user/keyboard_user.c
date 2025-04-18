@@ -1132,18 +1132,6 @@ static const float table[]=
     1.000000
 };
 
-int keyboard_hid_send(uint8_t*report,uint16_t len)
-{
-    UNUSED(len);
-    return hid_keyboard_send(report, len);
-}
-
-int mouse_hid_send(uint8_t*report,uint16_t len)
-{
-    UNUSED(len);
-    return hid_mouse_send(report);
-}
-
 AnalogValue advanced_key_normalize(AdvancedKey* advanced_key, AnalogRawValue value)
 {
 
@@ -1270,22 +1258,42 @@ void rgb_flush(void)
     HAL_TIM_PWM_Start_DMA(&htim1, TIM_CHANNEL_1, (uint32_t *)g_rgb_buffer, RGB_BUFFER_LENGTH);
 }
 
-int hid_send(uint8_t *report, uint16_t len)
+int hid_send_shared_ep(uint8_t *report, uint16_t len)
 {
-    return hid_raw_send(report, len);
+    return usb_send_shared_ep(report, len);
 }
 
-int extra_key_hid_send(uint8_t report_id, uint16_t usage)
+int hid_send_keyboard(uint8_t *report, uint16_t len)
 {
-    return hid_extra_send(report_id, usage);
+    return usb_send_keyboard(report, len);
 }
 
-int joystick_hid_send(uint8_t *report, uint16_t len)
+int hid_send_nkro(uint8_t *report, uint16_t len)
 {
-    return hid_joystick_send(report, len);
+    return usb_send_shared_ep(report, len);
 }
 
-void send_midi_packet(MIDIEventPacket* event)
+int hid_send_extra_key(uint8_t*report,uint16_t len)
 {
-    usb_midi_send((uint8_t*)event);
+    return usb_send_shared_ep(report, len);
+}
+
+int hid_send_mouse(uint8_t*report,uint16_t len)
+{
+    return usb_send_shared_ep(report, len);
+}
+
+int hid_send_joystick(uint8_t*report,uint16_t len)
+{
+    return usb_send_shared_ep(report, len);
+}
+
+int hid_send_raw(uint8_t *report, uint16_t len)
+{
+    return usb_send_raw(report, len);
+}
+
+void send_midi(uint8_t *report, uint16_t len)
+{
+    usb_send_midi(report, len);
 }

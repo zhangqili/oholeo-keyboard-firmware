@@ -5,11 +5,8 @@
  */
 #include "usbd_user.h"
 #include "command.h"
-#include "keyboard.h"
-#include "mouse.h"
 #include "stm32f303xc.h"
 #include "usb_descriptor.h"
-#include "qmk_midi.h"
 
 static const uint8_t *device_descriptor_callback(uint8_t speed)
 {
@@ -261,51 +258,13 @@ void usb_init(void)
     usbd_initialize(0, USB_BASE, usbd_event_handler);
 }
 
-int hid_keyboard_send(uint8_t *buffer, uint8_t size)
-{
-    if (size <= 8)
-    {
-        if (keyboard_buffer.state == USB_STATE_BUSY)
-        {
-            return 1;
-        }
-        memcpy(keyboard_buffer.send_buffer, buffer, KEYBOARD_EPSIZE);
-        int ret = usbd_ep_start_write(0, KEYBOARD_EPIN_ADDR, keyboard_buffer.send_buffer, KEYBOARD_EPSIZE);
-        if (ret < 0)
-        {
-            return 1;
-        }
-        keyboard_buffer.state = USB_STATE_BUSY;
-    }
-    else
-    {
-        if (shared_buffer.state == USB_STATE_BUSY)
-        {
-            return 1;
-        }
-        memcpy(shared_buffer.send_buffer + 1, buffer, 31);
-        shared_buffer.send_buffer[0] = REPORT_ID_NKRO;
-        int ret = usbd_ep_start_write(0, SHARED_EPIN_ADDR, shared_buffer.send_buffer, SHARED_EPSIZE);
-        if (ret < 0)
-        {
-            return 1;
-        }
-        shared_buffer.state = USB_STATE_BUSY;
-    }
-    return 0;
-}
-
-int hid_mouse_send(uint8_t *buffer)
+int usb_send_shared_ep(uint8_t *buffer, uint8_t size)
 {
     if (shared_buffer.state == USB_STATE_BUSY)
     {
         return 1;
     }
-    else
-    {
-    }
-    memcpy(shared_buffer.send_buffer + 1, buffer, SHARED_EPSIZE);
-    shared_buffer.send_buffer[0] = REPORT_ID_MOUSE;
+    memcpy(shared_buffer.send_buffer, buffer, size);
     int ret = usbd_ep_start_write(0, SHARED_EPIN_ADDR, shared_buffer.send_buffer, SHARED_EPSIZE);
     if (ret < 0)
     {
@@ -315,8 +274,26 @@ int hid_mouse_send(uint8_t *buffer)
     return 0;
 }
 
-int hid_raw_send(uint8_t *buffer, int size)
+int usb_send_keyboard(uint8_t *buffer, uint8_t size)
 {
+    UNUSED(size);
+    if (keyboard_buffer.state == USB_STATE_BUSY)
+    {
+        return 1;
+    }
+    memcpy(keyboard_buffer.send_buffer, buffer, KEYBOARD_EPSIZE);
+    int ret = usbd_ep_start_write(0, KEYBOARD_EPIN_ADDR, keyboard_buffer.send_buffer, KEYBOARD_EPSIZE);
+    if (ret < 0)
+    {
+        return 1;
+    }
+    keyboard_buffer.state = USB_STATE_BUSY;
+    return 0;
+}
+
+int usb_send_raw(uint8_t *buffer, uint8_t size)
+{
+    UNUSED(size);
     if (raw_buffer.state == USB_STATE_BUSY)
     {
         return 1;
@@ -340,49 +317,10 @@ int hid_raw_send(uint8_t *buffer, int size)
     }
     raw_buffer.state = USB_STATE_BUSY;
     return 0;
+
 }
 
-int hid_extra_send(uint8_t report_id, uint16_t usage)
-{
-    if (shared_buffer.state == USB_STATE_BUSY)
-    {
-        return 1;
-    }
-    else
-    {
-    }
-    memcpy(shared_buffer.send_buffer + 1, &usage, sizeof(usage));
-    shared_buffer.send_buffer[0] = report_id;
-    int ret = usbd_ep_start_write(0, SHARED_EPIN_ADDR, shared_buffer.send_buffer, SHARED_EPSIZE);
-    if (ret < 0)
-    {
-        return 1;
-    }
-    shared_buffer.state = USB_STATE_BUSY;
-    return 0;
-}
-
-int hid_joystick_send(uint8_t *buffer, int size)
-{
-    if (shared_buffer.state == USB_STATE_BUSY)
-    {
-        return 1;
-    }
-    else
-    {
-    }
-    memcpy(shared_buffer.send_buffer + 1, buffer, size);
-    shared_buffer.send_buffer[0] = REPORT_ID_JOYSTICK;
-    int ret = usbd_ep_start_write(0, SHARED_EPIN_ADDR, shared_buffer.send_buffer, SHARED_EPSIZE);
-    if (ret < 0)
-    {
-        return 1;
-    }
-    shared_buffer.state = USB_STATE_BUSY;
-    return 0;
-}
-
-int usb_midi_send(uint8_t* buffer)
+int usb_send_midi(uint8_t *buffer, uint8_t size)
 {
     if (midi_buffer.state == USB_STATE_BUSY)
     {
@@ -391,7 +329,7 @@ int usb_midi_send(uint8_t* buffer)
     else
     {
     }
-    memcpy(midi_buffer.send_buffer, buffer, 4);
+    memcpy(midi_buffer.send_buffer, buffer, size);
     int ret = usbd_ep_start_write(0, MIDI_EPIN_ADDR, midi_buffer.send_buffer, 4);
     if (ret < 0)
     {

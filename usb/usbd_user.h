@@ -23,12 +23,10 @@ typedef struct __USBBuffer
 } USBBuffer;
 
 void usb_init(void);
-int hid_keyboard_send(uint8_t *buffer, uint8_t size);
-int hid_mouse_send(uint8_t*buffer);
-int hid_raw_send(uint8_t*buffer,int size);
-int hid_extra_send(uint8_t report_id, uint16_t usage);
-int hid_joystick_send(uint8_t *buffer, int size);
-int usb_midi_send(uint8_t* buffer);
+int usb_send_shared_ep(uint8_t *buffer, uint8_t size);
+int usb_send_keyboard(uint8_t *buffer, uint8_t size);
+int usb_send_raw(uint8_t *buffer, uint8_t size);
+int usb_send_midi(uint8_t *buffer, uint8_t size);
 
 #ifdef __cplusplus
 }
