@@ -462,56 +462,6 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void keyboard_task(void)
-{
-  keyboard_scan();
-  for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
-  {
-      g_ADC_Averages[i] = ringbuf_avg(&adc_ringbuf[i]);
-#ifdef ENABLE_FILTER
-      g_ADC_Averages[i] = adaptive_schimidt_filter(g_analog_filters+i,g_ADC_Averages[i]);
-#endif
-      AdvancedKey* key = &g_keyboard_advanced_keys[g_analog_map[i]];
-      if (key->config.mode != KEY_DIGITAL_MODE)
-      {
-          advanced_key_update_raw(key, g_ADC_Averages[i]);
-      }
-  }
-  if (pulse_counter)
-  {
-    pulse_counter--;
-    if (beep_switch)
-    {
-      HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
-    }
-    if (em_switch)
-    {
-      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 1);
-    }
-  }
-  else
-  {
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 0);
-    HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
-  }
-  switch (g_keyboard_state)
-  {
-  case KEYBOARD_STATE_DEBUG:
-    send_debug_info();
-    break;
-  case KEYBOARD_STATE_UPLOAD_CONFIG:
-    if (!load_cargo())
-    {
-      g_keyboard_state = KEYBOARD_STATE_IDLE;
-    }
-    break;
-  default:
-    keyboard_send_report();
-    break;
-  }
-}
-
-
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance == TIM7)
@@ -519,14 +469,27 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (!low_latency_mode)
     {
       keyboard_task();
+      if (pulse_counter)
+      {
+        pulse_counter--;
+        if (beep_switch)
+        {
+          HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+        }
+        if (em_switch)
+        {
+          HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 1);
+        }
+      }
+      else
+      {
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 0);
+        HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
+      }
     }
-    
   }
   if (htim->Instance == TIM2)
   {
-    static uint32_t test_cnt = 0;
-    test_cnt++;
-    //	  if(test_cnt%2==0) {
     uint32_t adc1 = 0;
     uint32_t adc2 = 0;
     uint32_t adc3 = 0;
@@ -534,10 +497,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
     for (int i = 0; i < DMA_BUF_LEN; i++)
     {
-      adc1 += ADC_Buffer[DMA_BUF_LEN * 0 + i] & 0xfff;
-      adc2 += ADC_Buffer[DMA_BUF_LEN * 1 + i] & 0xfff;
-      adc3 += ADC_Buffer[DMA_BUF_LEN * 2 + i] & 0xfff;
-      adc4 += ADC_Buffer[DMA_BUF_LEN * 3 + i] & 0xfff;
+      adc1 += ADC_Buffer[DMA_BUF_LEN * 0 + i];
+      adc2 += ADC_Buffer[DMA_BUF_LEN * 1 + i];
+      adc3 += ADC_Buffer[DMA_BUF_LEN * 2 + i];
+      adc4 += ADC_Buffer[DMA_BUF_LEN * 3 + i];
     }
 
     ringbuf_push(&adc_ringbuf[0 * 16 + ADDRESS], (float)adc1 / (float)DMA_BUF_LEN);
@@ -554,7 +517,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       }
       analog_channel_select(g_analog_active_channel);
     }
-    //	  }
   }
 }
 

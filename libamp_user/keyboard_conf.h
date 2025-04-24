@@ -77,7 +77,7 @@
 /**********/
 /* Filter */
 /**********/
-//#define TOLERANCE               3
+#define TOLERANCE               1
 #define FILTER_ENABLE
 
 /**********/
