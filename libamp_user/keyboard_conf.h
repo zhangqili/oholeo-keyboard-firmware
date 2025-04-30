@@ -49,8 +49,8 @@
 #define RGB_RESET_LENGTH        (400)
 #define RGB_BUFFER_LENGTH       (RGB_RESET_LENGTH+3*8*(RGB_NUM))
 #define RGB_MAX_DURATION        2000
-#define FADING_DISTANCE         5.0f
-#define JELLY_DISTANCE          10.0f
+#define FADING_DISTANCE         8.0f
+#define JELLY_DISTANCE          8.0f
 #define PORT_LOCATION           {1, 4.5}
 #define RGB_FLASH_MAX_DURATION  1000
 #define RGB_FLASH_RIPPLE_SPEED  0.03

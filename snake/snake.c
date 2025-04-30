@@ -128,12 +128,11 @@ void snake_launch(Snake *snake)
 void snake_quit(Snake *snake)
 {
     snake->running = false;
-    keyboard_recovery();
     for (int i = 0; i < LAYER_NUM; i++)
     {
         layer_reset(i);
     }
-    layer_cache_refresh();
+    keyboard_recovery();
 }
 
 void snake_pause(Snake *snake)
