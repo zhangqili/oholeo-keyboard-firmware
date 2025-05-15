@@ -62,6 +62,8 @@
 #define RGB_RIGHT               15.0f
 #define RGB_BOTTOM              -0.5f
 #define RGB_USE_LIST_EXPERIMENTAL
+#define RGB_GAMMA_ENABLE
+#define RGB_GAMMA               2.2f
 
 /************/
 /* Joystick */
