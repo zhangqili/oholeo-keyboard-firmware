@@ -18,7 +18,6 @@
 //#define CONTINOUS_DEBUG
 #define DEBUG_INTERVAL 1
 #define DYNAMICKEY_ENABLE
-#define STORAGE_ENABLE
 
 /********************/
 /* Keyboard Default */
@@ -37,6 +36,20 @@
 /* Analog */
 /**********/
 #define RING_BUF_LEN            8
+
+/***********/
+/* Storage */
+/***********/
+#define STORAGE_ENABLE
+#define LFS_ENABLE
+#define LFS_READ_SIZE       16
+#define LFS_PROG_SIZE       16
+#define LFS_BLOCK_SIZE      4096
+#define LFS_BLOCK_COUNT     4096
+#define LFS_CACHE_SIZE      16
+#define LFS_LOOKAHEAD_SIZE  16
+#define LFS_BLOCK_CYCLES    500
+#define LFS_BUFFER_SIZE     16
 
 /*******/
 /* RGB */

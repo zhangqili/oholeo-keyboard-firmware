@@ -12,6 +12,7 @@
 #include "tim.h"
 #include "snake.h"
 #include "qmk_midi.h"
+#include "sfud.h"
 
 const Keycode g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM] = {
     {
@@ -1296,4 +1297,21 @@ int hid_send_raw(uint8_t *report, uint16_t len)
 void send_midi(uint8_t *report, uint16_t len)
 {
     usb_send_midi(report, len);
+}
+
+extern sfud_flash sfud_norflash0;
+
+int flash_read(uint32_t addr, uint32_t size, uint8_t *data)
+{
+    return sfud_read(&sfud_norflash0, addr, size, data);
+}
+
+int flash_write(uint32_t addr, uint32_t size, const uint8_t *data)
+{
+    return sfud_write(&sfud_norflash0, addr, size, data);
+}
+
+int flash_erase(uint32_t addr, uint32_t size)
+{
+    return sfud_erase(&sfud_norflash0, addr, size);
 }
