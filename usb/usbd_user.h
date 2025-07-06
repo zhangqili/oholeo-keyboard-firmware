@@ -15,6 +15,12 @@ extern "C" {
 
 #define USBD_LANGID_STRING 1033
 
+enum
+{
+    USB_STATE_IDLE = 0,
+    USB_STATE_BUSY
+};
+
 typedef struct __USBBuffer
 {
     uint8_t read_buffer[64];

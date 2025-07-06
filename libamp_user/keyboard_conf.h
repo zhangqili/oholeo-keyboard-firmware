@@ -121,6 +121,7 @@
 #define PRODUCT_ID 22319
 #define DEVICE_VER 2
 #define FIXED_NUM_CONFIGURATIONS 1
+#define USB_ENDPOINTS_ARE_REORDERABLE
 
 #define MANUFACTURER "dwdwdw5163&Lzq12345"
 #define PRODUCT "Oholeo Keyboard"
