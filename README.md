@@ -17,6 +17,7 @@
 + 支持模拟MIDI键盘
 + 支持低延迟模式，该模式会关闭大部分灯效
 + 配套免驱配置器
++ 支持Windows动态光效(实验性，需要在keyboard_conf.h中取消注释LIGHTING_ENABLE，可能会干扰ADC采样)
 + ~~没有主机也能玩贪食蛇~~
 
 ## TODO
@@ -29,6 +30,7 @@
 - CMake
 - Ninja
 - 在ST官网上下载安装STM32Cube开发套件 <https://www.st.com.cn/zh/development-tools/stm32cubeclt.html>
+- 在ST官网上下载安装STM32CubeProgrammer <https://www.st.com.cn/zh/development-tools/stm32cubeprog.html>，安装STM32Bootloader驱动
 - 将该仓库克隆到本地并在该仓库文件夹打开命令行终端
 ```PowerShell
 git clone --recurse-submodules https://github.com/zhangqili/oholeo-keyboard-firmware.git

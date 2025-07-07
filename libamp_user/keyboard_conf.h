@@ -65,16 +65,16 @@
 #define FADING_DISTANCE         8.0f
 #define JELLY_DISTANCE          5.0f
 #define BUBBLE_DISTANCE         2.5f
-#define PORT_LOCATION           {1, 4.5}
+#define PORT_LOCATION           {1, -0.5}
 #define RGB_FLASH_MAX_DURATION  1000
 #define RGB_FLASH_RIPPLE_SPEED  0.03
 #define RGB_DEFAULT_MODE        RGB_MODE_LINEAR
 #define RGB_DEFAULT_SPEED       0.03
 #define RGB_DEFAULT_COLOR_HSV   {273, 78, 99}
-#define RGB_LEFT                0.0f
-#define RGB_TOP                 4.5f
-#define RGB_RIGHT               15.0f
-#define RGB_BOTTOM              -0.5f
+#define RGB_LEFT                -0.5f
+#define RGB_TOP                 -0.5f
+#define RGB_RIGHT               14.5f
+#define RGB_BOTTOM              4.5f
 #define RGB_USE_LIST_EXPERIMENTAL
 #define RGB_GAMMA_ENABLE
 #define RGB_GAMMA               2.2f
@@ -140,6 +140,7 @@
 //#define DIGITIZER_SHARED_EP
 //#define PROGRAMMABLE_BUTTON_ENABLE
 #define MIDI_ENABLE
+//#define LIGHTING_ENABLE
 
 /****************/
 /* User Defines */
