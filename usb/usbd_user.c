@@ -306,6 +306,7 @@ static void usbd_event_handler(uint8_t busid, uint8_t event)
     {
     case USBD_EVENT_RESET:
         keyboard_state = USB_STATE_IDLE;
+        shared_state = USB_STATE_IDLE;
         raw_state = USB_STATE_IDLE;
         break;
     case USBD_EVENT_CONNECTED:
@@ -315,6 +316,7 @@ static void usbd_event_handler(uint8_t busid, uint8_t event)
     case USBD_EVENT_RESUME:
         break;
     case USBD_EVENT_SUSPEND:
+        g_keyboard_is_suspend = usb_device_is_suspend(0);
         break;
     case USBD_EVENT_CONFIGURED:
         memset(raw_out_buffer, 0, sizeof(raw_out_buffer));

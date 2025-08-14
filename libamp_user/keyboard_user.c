@@ -1294,6 +1294,11 @@ void send_midi(uint8_t *report, uint16_t len)
     usb_send_midi(report, len);
 }
 
+int send_remote_wakeup(void)
+{
+    return usbd_send_remote_wakeup(0);
+}
+
 extern sfud_flash sfud_norflash0;
 
 int flash_read(uint32_t addr, uint32_t size, uint8_t *data)
