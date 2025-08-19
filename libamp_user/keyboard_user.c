@@ -122,10 +122,11 @@ AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM] =
 
 const uint16_t g_analog_map[ADVANCED_KEY_NUM] =
 {
-    31, 30, 29, 28, 41, 42, 43, 44, 14, 15, 16, 17, 3,  2,  1,  0, 
-    40, 39, 38, 37, 51, 52, 53, 54, 24, 25, 26, 27, 13, 12, 11, 10, 
-    58, 47, 34, 20, 19, 6,  33, 46, 45, 32, 18, 5,  4,  55, 56, 57,
-    59, 60, 61, 62, 63, 50, 49, 36, 22, 23, 9,  8,  48, 35, 21, 7
+    15, 14, 13, 12, 44, 43, 37, 63, 59, 58, 31, 30, 29, 28, 
+    8,  9,  10, 11, 42, 36, 35, 62, 56, 57, 24, 25, 26, 27, 
+    3,  2,  1,  0,  41, 38, 34, 61, 55, 19, 18, 17,     16, 
+    4,  5,  6,  7,  40, 39, 33, 60, 54, 53, 20, 21, 22, 23, 
+    45, 46, 47,         32,             48, 49, 50, 51, 52,
 };
 
 static const float table[]=
@@ -1314,4 +1315,11 @@ int flash_write(uint32_t addr, uint32_t size, const uint8_t *data)
 int flash_erase(uint32_t addr, uint32_t size)
 {
     return sfud_erase(&sfud_norflash0, addr, size);
+}
+
+AnalogRawValue advanced_key_read(AdvancedKey *advanced_key)
+{
+    advanced_key->raw = adaptive_schimidt_filter(&g_analog_filters[advanced_key->key.id], 
+        ringbuf_avg(&g_adc_ringbufs[g_analog_map[advanced_key->key.id]]));
+    return advanced_key->raw;
 }

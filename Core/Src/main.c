@@ -306,7 +306,7 @@ int main(void)
 
   analog_reset_range();
 
-  if (g_ADC_Averages[15] < 1400 || g_ADC_Averages[15] > (4096 - 1400))
+  if (g_keyboard_advanced_keys[0].raw < 1400 || g_keyboard_advanced_keys[0].raw > (4096 - 1400))
   {
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
@@ -315,13 +315,13 @@ int main(void)
     HAL_Delay(2);
     JumpToBootloader();
   }
-  if (g_ADC_Averages[28] < 1400 || g_ADC_Averages[28] > (4096 - 1400))
+  if (g_keyboard_advanced_keys[13].raw < 1400 || g_keyboard_advanced_keys[13].raw > (4096 - 1400))
   {
     keyboard_reset_to_default();
     keyboard_save();
     keyboard_reboot();
   }
-  if (g_ADC_Averages[49] < 1400 || g_ADC_Averages[49] > (4096 - 1400))
+  if (g_keyboard_advanced_keys[60].raw < 1400 || g_keyboard_advanced_keys[60].raw > (4096 - 1400))
   {
     keyboard_factory_reset();
     keyboard_reboot();
@@ -503,10 +503,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       adc4 += ADC_Buffer[DMA_BUF_LEN * 3 + i];
     }
 
-    ringbuf_push(&adc_ringbuf[0 * 16 + ADDRESS], (float)adc1 / (float)DMA_BUF_LEN);
-    ringbuf_push(&adc_ringbuf[1 * 16 + ADDRESS], (float)adc2 / (float)DMA_BUF_LEN);
-    ringbuf_push(&adc_ringbuf[2 * 16 + ADDRESS], (float)adc3 / (float)DMA_BUF_LEN);
-    ringbuf_push(&adc_ringbuf[3 * 16 + ADDRESS], (float)adc4 / (float)DMA_BUF_LEN);
+    ringbuf_push(&g_adc_ringbufs[0 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc1 / (float)DMA_BUF_LEN);
+    ringbuf_push(&g_adc_ringbufs[1 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc2 / (float)DMA_BUF_LEN);
+    ringbuf_push(&g_adc_ringbufs[2 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc3 / (float)DMA_BUF_LEN);
+    ringbuf_push(&g_adc_ringbufs[3 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc4 / (float)DMA_BUF_LEN);
 
     if (htim->Instance->CNT < 700)
     {
