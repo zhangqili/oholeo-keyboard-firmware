@@ -23,8 +23,8 @@
 /********************/
 /* Keyboard Default */
 /********************/
-#define DEFAULT_ADVANCED_KEY_MODE   KEY_ANALOG_NORMAL_MODE
-#define DEFAULT_CALIBRATION_MODE    KEY_AUTO_CALIBRATION_UNDEFINED
+#define DEFAULT_ADVANCED_KEY_MODE   ADVANCED_KEY_ANALOG_NORMAL_MODE
+#define DEFAULT_CALIBRATION_MODE    ADVANCED_KEY_AUTO_CALIBRATION_UNDEFINED
 #define DEFAULT_TRIGGER_DISTANCE    0.08
 #define DEFAULT_RELEASE_DISTANCE    0.08
 #define DEFAULT_UPPER_DEADZONE      0.00
@@ -37,6 +37,7 @@
 /* Analog */
 /**********/
 #define RING_BUF_LEN            8
+#define CALIBRATION_LPF_ENABLE
 
 /***********/
 /* Storage */
