@@ -30,11 +30,11 @@ const Keycode g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM] = {
         KEY_TRANSPARENT,        KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_HOME,       KEY_PAGE_DOWN,  KEY_END,
     },
     {
-        KEYBOARD_OPERATION | (KEYBOARD_BOOTLOADER << 8),  KEYBOARD_OPERATION | (KEYBOARD_CONFIG0 << 8), KEYBOARD_OPERATION | (KEYBOARD_CONFIG1 << 8), KEYBOARD_OPERATION | (KEYBOARD_CONFIG2 << 8),     KEYBOARD_OPERATION | (KEYBOARD_CONFIG3 << 8),       KEY_TRANSPARENT,                                    KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                                KEY_TRANSPARENT,    KEYBOARD_OPERATION | (KEYBOARD_RGB_BRIGHTNESS_DOWN << 8),    KEYBOARD_OPERATION | (KEYBOARD_RGB_BRIGHTNESS_UP << 8),    KEYBOARD_OPERATION | (KEYBOARD_RESET_TO_DEFAULT << 8),
-        KEY_TRANSPARENT,                                  KEY_TRANSPARENT,                              KEY_TRANSPARENT,                              KEY_TRANSPARENT,                                  KEYBOARD_OPERATION | (KEYBOARD_REBOOT << 8),        KEYBOARD_OPERATION | (KEYBOARD_NKRO_TOGGLE << 8),   KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                                KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEY_TRANSPARENT,
-        KEY_USER | (USER_SNAKE_LAUNCH << 8),              KEY_TRANSPARENT,                              KEYBOARD_OPERATION | (KEYBOARD_SAVE << 8),    KEYBOARD_OPERATION | (KEYBOARD_DEBUG_TOGGLE << 8),KEYBOARD_OPERATION | (KEYBOARD_FACTORY_RESET << 8), KEY_TRANSPARENT,                                    KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_USER | (USER_TOGGLE_LOW_LATENCY_MODE << 8), KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEY_TRANSPARENT,
-        KEY_TRANSPARENT,                                  KEY_TRANSPARENT,                              KEY_TRANSPARENT,                              KEY_TRANSPARENT,                                  KEY_USER | (USER_EM << 8),                          KEY_USER | (USER_BEEP << 8),                        KEY_USER | (USER_RESET << 8),  KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                                KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,
-        KEY_TRANSPARENT,                                  KEY_TRANSPARENT,                              KEY_TRANSPARENT,                              KEY_TRANSPARENT,                                  KEY_TRANSPARENT,                                    KEY_TRANSPARENT,                                    KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,
+        KEYBOARD_OPERATION | (KEYBOARD_BOOTLOADER << 8),  KEYBOARD_OPERATION | (KEYBOARD_CONFIG0 << 8),         KEYBOARD_OPERATION | (KEYBOARD_CONFIG1 << 8), KEYBOARD_OPERATION | (KEYBOARD_CONFIG2 << 8),     KEYBOARD_OPERATION | (KEYBOARD_CONFIG3 << 8),       KEY_TRANSPARENT,                                    KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                                KEY_TRANSPARENT,    KEYBOARD_OPERATION | (KEYBOARD_RGB_BRIGHTNESS_DOWN << 8),    KEYBOARD_OPERATION | (KEYBOARD_RGB_BRIGHTNESS_UP << 8),    KEYBOARD_OPERATION | (KEYBOARD_RESET_TO_DEFAULT << 8),
+        KEY_TRANSPARENT,                                  KEY_TRANSPARENT,                                      KEY_TRANSPARENT,                              KEY_TRANSPARENT,                                  KEYBOARD_OPERATION | (KEYBOARD_REBOOT << 8),        KEYBOARD_OPERATION | (KEYBOARD_NKRO_TOGGLE << 8),   KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                                KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEY_TRANSPARENT,
+        KEY_USER | (USER_SNAKE_LAUNCH << 8),              KEY_TRANSPARENT,                                      KEYBOARD_OPERATION | (KEYBOARD_SAVE << 8),    KEYBOARD_OPERATION | (KEYBOARD_DEBUG_TOGGLE << 8),KEYBOARD_OPERATION | (KEYBOARD_FACTORY_RESET << 8), KEY_TRANSPARENT,                                    KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_USER | (USER_TOGGLE_LOW_LATENCY_MODE << 8), KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEY_TRANSPARENT,
+        KEY_TRANSPARENT,                                  KEY_TRANSPARENT,                                      KEY_TRANSPARENT,                              KEY_TRANSPARENT,                                  KEY_USER | (USER_EM << 8),                          KEY_USER | (USER_BEEP << 8),                        KEY_USER | (USER_RESET << 8),  KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                                KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEY_TRANSPARENT,        KEY_TRANSPARENT,
+        KEY_TRANSPARENT,                                  KEYBOARD_OPERATION | (KEYBOARD_TOGGLE_WINLOCK << 8),  KEY_TRANSPARENT,                              KEY_TRANSPARENT,                                  KEY_TRANSPARENT,                                    KEY_TRANSPARENT,                                    KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,
     }
 
 };
@@ -1315,11 +1315,4 @@ int flash_write(uint32_t addr, uint32_t size, const uint8_t *data)
 int flash_erase(uint32_t addr, uint32_t size)
 {
     return sfud_erase(&sfud_norflash0, addr, size);
-}
-
-AnalogRawValue advanced_key_read(AdvancedKey *advanced_key)
-{
-    advanced_key->raw = adaptive_schimidt_filter(&g_analog_filters[advanced_key->key.id], 
-        ringbuf_avg(&g_adc_ringbufs[g_analog_map[advanced_key->key.id]]));
-    return advanced_key->raw;
 }

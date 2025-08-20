@@ -386,6 +386,10 @@ int main(void)
           rgb_set(g_rgb_mapping[45], 0xff, 0xff, 0xff);
         else
           rgb_set(g_rgb_mapping[45], 0, 0, 0);
+        if (g_keyboard_winlock)
+          rgb_set(g_rgb_mapping[56], 0xff, 0xff, 0xff);
+        else
+          rgb_set(g_rgb_mapping[56], 0, 0, 0);
       }
       else
       {
@@ -399,6 +403,7 @@ int main(void)
         rgb_set(g_rgb_mapping[46], 0, 0, 0);
         rgb_set(g_rgb_mapping[45], 0, 0, 0);
         rgb_set(g_rgb_mapping[37], 0, 0, 0);
+        rgb_set(g_rgb_mapping[56], 0, 0, 0);
       }
     }
     else
@@ -589,6 +594,12 @@ void rgb_update_callback()
       g_rgb_colors[g_rgb_mapping[37]].r = 0xff;
       g_rgb_colors[g_rgb_mapping[37]].g = 0xff;
       g_rgb_colors[g_rgb_mapping[37]].b = 0xff;
+    }
+    if (g_keyboard_winlock)
+    {
+      g_rgb_colors[g_rgb_mapping[56]].r = 0xff;
+      g_rgb_colors[g_rgb_mapping[56]].g = 0xff;
+      g_rgb_colors[g_rgb_mapping[56]].b = 0xff;
     }
   }
 }
