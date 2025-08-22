@@ -36,11 +36,9 @@
 #include "keyboard_conf.h"
 #include "math.h"
 #include "lfs.h"
-#include "command.h"
 #include "sfud.h"
 #include "keyboard_def.h"
 #include "usbd_user.h"
-#include "command.h"
 #include "snake.h"
 #include "packet.h"
 #include "layer.h"
@@ -327,7 +325,7 @@ int main(void)
     keyboard_reboot();
   }
   usb_init();
-  g_keyboard_nkro_enable = true;
+  g_keyboard_config.nkro = true;
   HAL_TIM_Base_Start_IT(&htim7);
 
   /* USER CODE END 2 */
@@ -370,11 +368,11 @@ int main(void)
         rgb_set(g_rgb_mapping[4], 0, 0, 0);
         rgb_set(g_rgb_mapping[g_current_config_index+1], 0xff, 0xff, 0xff);
         rgb_set(g_rgb_mapping[37], 0xff, 0xff, 0xff);
-        if (g_keyboard_nkro_enable)
+        if (g_keyboard_config.nkro)
           rgb_set(g_rgb_mapping[19], 0xff, 0xff, 0xff);
         else
           rgb_set(g_rgb_mapping[19], 0, 0, 0);
-        if (g_keyboard_state == KEYBOARD_STATE_DEBUG)
+        if (g_keyboard_config.debug)
           rgb_set(g_rgb_mapping[31], 0xff, 0xff, 0xff);
         else
           rgb_set(g_rgb_mapping[31], 0, 0, 0);
@@ -386,7 +384,7 @@ int main(void)
           rgb_set(g_rgb_mapping[45], 0xff, 0xff, 0xff);
         else
           rgb_set(g_rgb_mapping[45], 0, 0, 0);
-        if (g_keyboard_winlock)
+        if (g_keyboard_config.winlock)
           rgb_set(g_rgb_mapping[56], 0xff, 0xff, 0xff);
         else
           rgb_set(g_rgb_mapping[56], 0, 0, 0);
@@ -565,13 +563,13 @@ void rgb_update_callback()
 	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].r = 0xff;
 	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].g = 0xff;
 	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].b = 0xff;
-    if (g_keyboard_nkro_enable)
+    if (g_keyboard_config.nkro)
     {
       g_rgb_colors[g_rgb_mapping[19]].r = 0xff;
       g_rgb_colors[g_rgb_mapping[19]].g = 0xff;
       g_rgb_colors[g_rgb_mapping[19]].b = 0xff;
     }
-    if (g_keyboard_state == KEYBOARD_STATE_DEBUG)
+    if (g_keyboard_config.debug)
     {
       g_rgb_colors[g_rgb_mapping[31]].r = 0xff;
       g_rgb_colors[g_rgb_mapping[31]].g = 0xff;
@@ -595,7 +593,7 @@ void rgb_update_callback()
       g_rgb_colors[g_rgb_mapping[37]].g = 0xff;
       g_rgb_colors[g_rgb_mapping[37]].b = 0xff;
     }
-    if (g_keyboard_winlock)
+    if (g_keyboard_config.winlock)
     {
       g_rgb_colors[g_rgb_mapping[56]].r = 0xff;
       g_rgb_colors[g_rgb_mapping[56]].g = 0xff;

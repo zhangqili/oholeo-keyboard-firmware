@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 #include "usbd_user.h"
-#include "command.h"
+#include "packet.h"
 #include "stm32f303xc.h"
 #include "usb_descriptor.h"
 #include "lamp_array.h"
@@ -230,7 +230,7 @@ static void usbd_hid_raw_out_callback(uint8_t busid, uint8_t ep, uint32_t nbytes
     UNUSED(ep);
     UNUSED(nbytes);
     usbd_ep_start_read(0, RAW_EPOUT_ADDR, raw_out_buffer, 64);
-    command_parse(raw_out_buffer, sizeof(raw_out_buffer));
+    packet_process(raw_out_buffer, sizeof(raw_out_buffer));
 }
 
 static struct usbd_interface raw_intf;
