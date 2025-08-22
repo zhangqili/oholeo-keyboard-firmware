@@ -117,6 +117,7 @@ C:/ST/STM32CubeCLT_1.17.0/STM32CubeProgrammer/bin/STM32_Programmer_CLI.exe -c po
 |`FN`+`DEL`+`3`|使用配置文件2|
 |`FN`+`DEL`+`4`|使用配置文件3|
 |`FN`+`DEL`+`CapsLock`|在键盘上玩贪食蛇|
+|`FN`+`DEL`+`Win`|切换锁定Win键|
 
 ### 贪食蛇快捷键
 

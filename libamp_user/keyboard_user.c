@@ -1251,6 +1251,8 @@ void keyboard_user_event_handler(KeyboardEvent event)
         em_switch = false;
         low_latency_mode = false;
         g_keyboard_config.debug = false;
+        g_keyboard_config.winlock = false;
+        g_keyboard_config.nkro = true;
         break;
     }
 }
