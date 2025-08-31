@@ -130,12 +130,12 @@ void usbd_hid_set_report(uint8_t busid, uint8_t intf, uint8_t report_id, uint8_t
         if (report_len == 2)
         {
             if (report_id == REPORT_ID_KEYBOARD || report_id == REPORT_ID_NKRO) {
-                g_keyboard_led_state = report[1];
+                g_keyboard_led_state.raw = report[1];
             }
         }
         else if (report_len == 1)
         {
-            g_keyboard_led_state = report[0];
+            g_keyboard_led_state.raw = report[0];
         }
     }
 #ifdef LIGHTING_ENABLE

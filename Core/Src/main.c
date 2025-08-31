@@ -23,7 +23,6 @@
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
-#include "usb.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -43,6 +42,7 @@
 #include "packet.h"
 #include "layer.h"
 #include "qmk_midi.h"
+#include "ws2812.h"
 
 /* USER CODE END Includes */
 
@@ -53,8 +53,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define rgb_start() HAL_TIM_PWM_Start_DMA(&htim1, TIM_CHANNEL_1, (uint32_t *)g_rgb_buffer, RGB_BUFFER_LENGTH);
-#define rgb_stop() HAL_TIM_PWM_Stop_DMA(&htim1, TIM_CHANNEL_1);
 
 #define DMA_BUF_LEN             10
 /* USER CODE END PD */
@@ -281,6 +279,7 @@ int main(void)
   sfud_device_init(&sfud_norflash0);
 
   HAL_GPIO_WritePin(INHIBIT_GPIO_Port, INHIBIT_Pin, GPIO_PIN_RESET);
+  ws2812_init();
   keyboard_init();
   for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
   {
@@ -291,7 +290,6 @@ int main(void)
   HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
   HAL_ADCEx_Calibration_Start(&hadc3, ADC_SINGLE_ENDED);
   HAL_ADCEx_Calibration_Start(&hadc4, ADC_SINGLE_ENDED);
-  rgb_start();
 
   HAL_ADC_Start_DMA(&hadc1, ADC_Buffer + DMA_BUF_LEN*0, DMA_BUF_LEN);
   HAL_ADC_Start_DMA(&hadc2, ADC_Buffer + DMA_BUF_LEN*1, DMA_BUF_LEN);
@@ -343,7 +341,7 @@ int main(void)
     if (low_latency_mode)
     {
       keyboard_task();
-      if(g_keyboard_led_state&BIT(1))
+      if(g_keyboard_led_state.caps_lock)
       {
         rgb_set(g_rgb_mapping[28],  0xff, 0xff, 0xff);
       }
@@ -351,7 +349,7 @@ int main(void)
       {
         rgb_set(g_rgb_mapping[28],  0, 0, 0);
       }
-      if(g_keyboard_led_state&BIT(2))
+      if(g_keyboard_led_state.scroll_lock)
       {
         rgb_set(g_rgb_mapping[26],  0xff, 0xff, 0xff);
       }
@@ -531,13 +529,13 @@ void rgb_update_callback()
     draw_snake(&g_snake);
     return;
   }
-	if(g_keyboard_led_state&BIT(1))
+	if(g_keyboard_led_state.caps_lock)
   {
 	  g_rgb_colors[g_rgb_mapping[28]].r = 0xff;
 	  g_rgb_colors[g_rgb_mapping[28]].g = 0xff;
 	  g_rgb_colors[g_rgb_mapping[28]].b = 0xff;//cap lock
 	}
-	if(g_keyboard_led_state&BIT(2))
+	if(g_keyboard_led_state.scroll_lock)
   {
 	  g_rgb_colors[g_rgb_mapping[26]].r = 0xff;
 	  g_rgb_colors[g_rgb_mapping[26]].g = 0xff;

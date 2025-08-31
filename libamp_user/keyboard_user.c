@@ -13,6 +13,7 @@
 #include "snake.h"
 #include "qmk_midi.h"
 #include "sfud.h"
+#include "ws2812.h"
 
 const Keycode g_default_keymap[LAYER_NUM][ADVANCED_KEY_NUM + KEY_NUM] = {
     {
@@ -1318,4 +1319,10 @@ int flash_write(uint32_t addr, uint32_t size, const uint8_t *data)
 int flash_erase(uint32_t addr, uint32_t size)
 {
     return sfud_erase(&sfud_norflash0, addr, size);
+}
+
+int led_set(uint16_t index, uint8_t r, uint8_t g, uint8_t b)
+{
+    ws2812_set(index, r, g, b);
+    return 0;
 }
