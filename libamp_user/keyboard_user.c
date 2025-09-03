@@ -1210,7 +1210,7 @@ void keyboard_user_event_handler(KeyboardEvent event)
     }
     extern bool beep_switch;
     extern bool em_switch;
-    switch (MODIFIER(event.keycode))
+    switch (KEYCODE_GET_SUB(event.keycode))
     {
     case USER_BEEP:
         beep_switch = !beep_switch;
@@ -1243,7 +1243,7 @@ void keyboard_user_event_handler(KeyboardEvent event)
     case USER_SNAKE_UP:
     case USER_SNAKE_RIGHT:
     case USER_SNAKE_DOWN:
-        snake_turn(&g_snake, MODIFIER(event.keycode)&0x07);
+        snake_turn(&g_snake, KEYCODE_GET_SUB(event.keycode)&0x07);
         break;
     case USER_TOGGLE_LOW_LATENCY_MODE:
         low_latency_mode = !low_latency_mode;
