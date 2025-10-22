@@ -17,6 +17,7 @@
 //#define CONTINOUS_DEBUG
 #define DEBUG_INTERVAL 1
 #define DYNAMICKEY_ENABLE
+#define MACRO_ENABLE
 #define SUSPEND_ENABLE
 
 /********************/
