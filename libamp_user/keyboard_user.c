@@ -53,74 +53,6 @@ const RGBLocation g_rgb_locations[RGB_NUM]={{0.625, 4},{1.875, 4},{3.125, 4},{6.
 
 volatile uint8_t low_latency_mode = 0;
 
-AdvancedKey g_keyboard_advanced_keys[ADVANCED_KEY_NUM] =
-{
-    {.key.id = 0},
-    {.key.id = 1},
-    {.key.id = 2},
-    {.key.id = 3},
-    {.key.id = 4},
-    {.key.id = 5},
-    {.key.id = 6},
-    {.key.id = 7},
-    {.key.id = 8},
-    {.key.id = 9},
-    {.key.id = 10},
-    {.key.id = 11},
-    {.key.id = 12},
-    {.key.id = 13},
-    {.key.id = 14},
-    {.key.id = 15},
-    {.key.id = 16},
-    {.key.id = 17},
-    {.key.id = 18},
-    {.key.id = 19},
-    {.key.id = 20},
-    {.key.id = 21},
-    {.key.id = 22},
-    {.key.id = 23},
-    {.key.id = 24},
-    {.key.id = 25},
-    {.key.id = 26},
-    {.key.id = 27},
-    {.key.id = 28},
-    {.key.id = 29},
-    {.key.id = 30},
-    {.key.id = 31},
-    {.key.id = 32},
-    {.key.id = 33},
-    {.key.id = 34},
-    {.key.id = 35},
-    {.key.id = 36},
-    {.key.id = 37},
-    {.key.id = 38},
-    {.key.id = 39},
-    {.key.id = 40},
-    {.key.id = 41},
-    {.key.id = 42},
-    {.key.id = 43},
-    {.key.id = 44},
-    {.key.id = 45},
-    {.key.id = 46},
-    {.key.id = 47},
-    {.key.id = 48},
-    {.key.id = 49},
-    {.key.id = 50},
-    {.key.id = 51},
-    {.key.id = 52},
-    {.key.id = 53},
-    {.key.id = 54},
-    {.key.id = 55},
-    {.key.id = 56},
-    {.key.id = 57},
-    {.key.id = 58},
-    {.key.id = 59},
-    {.key.id = 60},
-    {.key.id = 61},
-    {.key.id = 62},
-    {.key.id = 63},
-};
-
 #define L(row,col) ((row)*16+(col))
 const uint16_t g_analog_map[ADVANCED_KEY_NUM] =
 {
@@ -1253,9 +1185,9 @@ void keyboard_user_event_handler(KeyboardEvent event)
         beep_switch = false;
         em_switch = false;
         low_latency_mode = false;
-        g_keyboard_config.debug = false;
-        g_keyboard_config.winlock = false;
-        g_keyboard_config.nkro = true;
+        g_keyboard.config.debug = false;
+        g_keyboard.config.winlock = false;
+        g_keyboard.config.nkro = true;
         break;
     }
 }

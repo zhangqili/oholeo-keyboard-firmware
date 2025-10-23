@@ -117,12 +117,11 @@ void snake_launch(Snake *snake)
 {
     for (int i = 0; i < LAYER_NUM; i++)
     {
-        memcpy(g_keymap[i], snake_layer, sizeof(snake_layer));
+        memcpy(g_keyboard.keymap[i], snake_layer, sizeof(snake_layer));
         layer_reset(i);
     }
     layer_cache_refresh();
     snake_init(snake);
-
 }
 
 void snake_quit(Snake *snake)
