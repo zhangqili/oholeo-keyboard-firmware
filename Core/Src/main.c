@@ -283,7 +283,7 @@ int main(void)
   keyboard_init();
   for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
   {
-    key_attach(&g_keyboard.advanced_keys[i].key,KEY_EVENT_DOWN,key_down_cb);
+    key_attach(&g_keyboard_advanced_keys[i].key,KEY_EVENT_DOWN,key_down_cb);
   }
 
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
@@ -302,7 +302,7 @@ int main(void)
 
   analog_reset_range();
 
-  if (g_keyboard.advanced_keys[0].raw < 1400 || g_keyboard.advanced_keys[0].raw > (4096 - 1400))
+  if (g_keyboard_advanced_keys[0].raw < 1400 || g_keyboard_advanced_keys[0].raw > (4096 - 1400))
   {
     for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
     {
@@ -311,19 +311,19 @@ int main(void)
     HAL_Delay(2);
     JumpToBootloader();
   }
-  if (g_keyboard.advanced_keys[13].raw < 1400 || g_keyboard.advanced_keys[13].raw > (4096 - 1400))
+  if (g_keyboard_advanced_keys[13].raw < 1400 || g_keyboard_advanced_keys[13].raw > (4096 - 1400))
   {
     keyboard_reset_to_default();
     keyboard_save();
     keyboard_reboot();
   }
-  if (g_keyboard.advanced_keys[60].raw < 1400 || g_keyboard.advanced_keys[60].raw > (4096 - 1400))
+  if (g_keyboard_advanced_keys[60].raw < 1400 || g_keyboard_advanced_keys[60].raw > (4096 - 1400))
   {
     keyboard_factory_reset();
     keyboard_reboot();
   }
   usb_init();
-  g_keyboard.config.nkro = true;
+  g_keyboard_config.nkro = true;
   HAL_TIM_Base_Start_IT(&htim7);
 
   /* USER CODE END 2 */
@@ -341,7 +341,7 @@ int main(void)
     if (low_latency_mode)
     {
       keyboard_task();
-      if(g_keyboard.led_state.caps_lock)
+      if(g_keyboard_led_state.caps_lock)
       {
         rgb_set(g_rgb_mapping[28],  0xff, 0xff, 0xff);
       }
@@ -349,7 +349,7 @@ int main(void)
       {
         rgb_set(g_rgb_mapping[28],  0, 0, 0);
       }
-      if(g_keyboard.led_state.scroll_lock)
+      if(g_keyboard_led_state.scroll_lock)
       {
         rgb_set(g_rgb_mapping[26],  0xff, 0xff, 0xff);
       }
@@ -366,11 +366,11 @@ int main(void)
         rgb_set(g_rgb_mapping[4], 0, 0, 0);
         rgb_set(g_rgb_mapping[g_current_config_index+1], 0xff, 0xff, 0xff);
         rgb_set(g_rgb_mapping[37], 0xff, 0xff, 0xff);
-        if (g_keyboard.config.nkro)
+        if (g_keyboard_config.nkro)
           rgb_set(g_rgb_mapping[19], 0xff, 0xff, 0xff);
         else
           rgb_set(g_rgb_mapping[19], 0, 0, 0);
-        if (g_keyboard.config.debug)
+        if (g_keyboard_config.debug)
           rgb_set(g_rgb_mapping[31], 0xff, 0xff, 0xff);
         else
           rgb_set(g_rgb_mapping[31], 0, 0, 0);
@@ -382,7 +382,7 @@ int main(void)
           rgb_set(g_rgb_mapping[45], 0xff, 0xff, 0xff);
         else
           rgb_set(g_rgb_mapping[45], 0, 0, 0);
-        if (g_keyboard.config.winlock)
+        if (g_keyboard_config.winlock)
           rgb_set(g_rgb_mapping[56], 0xff, 0xff, 0xff);
         else
           rgb_set(g_rgb_mapping[56], 0, 0, 0);
@@ -529,13 +529,13 @@ void rgb_update_callback()
     draw_snake(&g_snake);
     return;
   }
-	if(g_keyboard.led_state.caps_lock)
+	if(g_keyboard_led_state.caps_lock)
   {
 	  g_rgb_colors[g_rgb_mapping[28]].r = 0xff;
 	  g_rgb_colors[g_rgb_mapping[28]].g = 0xff;
 	  g_rgb_colors[g_rgb_mapping[28]].b = 0xff;//cap lock
 	}
-	if(g_keyboard.led_state.scroll_lock)
+	if(g_keyboard_led_state.scroll_lock)
   {
 	  g_rgb_colors[g_rgb_mapping[26]].r = 0xff;
 	  g_rgb_colors[g_rgb_mapping[26]].g = 0xff;
@@ -561,13 +561,13 @@ void rgb_update_callback()
 	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].r = 0xff;
 	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].g = 0xff;
 	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].b = 0xff;
-    if (g_keyboard.config.nkro)
+    if (g_keyboard_config.nkro)
     {
       g_rgb_colors[g_rgb_mapping[19]].r = 0xff;
       g_rgb_colors[g_rgb_mapping[19]].g = 0xff;
       g_rgb_colors[g_rgb_mapping[19]].b = 0xff;
     }
-    if (g_keyboard.config.debug)
+    if (g_keyboard_config.debug)
     {
       g_rgb_colors[g_rgb_mapping[31]].r = 0xff;
       g_rgb_colors[g_rgb_mapping[31]].g = 0xff;
@@ -591,7 +591,7 @@ void rgb_update_callback()
       g_rgb_colors[g_rgb_mapping[37]].g = 0xff;
       g_rgb_colors[g_rgb_mapping[37]].b = 0xff;
     }
-    if (g_keyboard.config.winlock)
+    if (g_keyboard_config.winlock)
     {
       g_rgb_colors[g_rgb_mapping[56]].r = 0xff;
       g_rgb_colors[g_rgb_mapping[56]].g = 0xff;

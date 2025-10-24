@@ -1185,9 +1185,9 @@ void keyboard_user_event_handler(KeyboardEvent event)
         beep_switch = false;
         em_switch = false;
         low_latency_mode = false;
-        g_keyboard.config.debug = false;
-        g_keyboard.config.winlock = false;
-        g_keyboard.config.nkro = true;
+        g_keyboard_config.debug = false;
+        g_keyboard_config.winlock = false;
+        g_keyboard_config.nkro = true;
         break;
     }
 }
