@@ -10,7 +10,7 @@
       <TargetName>oholeo-keyboard-firmware</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
+      <pCCUsed>6220000::V6.22::ARMCLANG</pCCUsed>
       <uAC6>1</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F303xC,LFS_NO_ASSERT,LFS_NO_DEBUG,LFS_NO_ERROR,LFS_NO_WARN</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\libamp\src\;..\libamp\src\midi\;..\libamp\src\midi\bytequeue;..\libamp\littlefs\;..\libamp\usb\;..\libamp\usb\lufa;..\libamp_user\;..\sfud\inc\;..\usb\;..\CherryUSB\core;..\CherryUSB\common;..\CherryUSB\class\hid;..\CherryUSB\port\fsdev;..\snake</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\libamp\src\;..\libamp\src\midi\;..\libamp\src\midi\bytequeue;..\libamp\lib\littlefs\;..\libamp\usb\;..\libamp\lib\lufa;..\libamp_user\;..\sfud\inc\;..\usb\;..\CherryUSB\core;..\CherryUSB\common;..\CherryUSB\class\hid;..\CherryUSB\port\fsdev;..\snake;..\ws2812;..\libamp\src\lamp_array</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -655,16 +655,6 @@
               <FilePath>..\libamp\src\color.c</FilePath>
             </File>
             <File>
-              <FileName>command.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\libamp\src\command.c</FilePath>
-            </File>
-            <File>
-              <FileName>communication.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\libamp\src\communication.c</FilePath>
-            </File>
-            <File>
               <FileName>dynamic_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\libamp\src\dynamic_key.c</FilePath>
@@ -719,6 +709,26 @@
               <FileType>1</FileType>
               <FilePath>..\libamp\src\storage.c</FilePath>
             </File>
+            <File>
+              <FileName>driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\encoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>macro.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\macro.c</FilePath>
+            </File>
+            <File>
+              <FileName>packet.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\packet.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -762,17 +772,17 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libamp/littlefs</GroupName>
+          <GroupName>libamp/lib/littlefs</GroupName>
           <Files>
             <File>
               <FileName>lfs.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\libamp\littlefs\lfs.c</FilePath>
+              <FilePath>..\libamp\lib\littlefs\lfs.c</FilePath>
             </File>
             <File>
               <FileName>lfs_util.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\libamp\littlefs\lfs_util.c</FilePath>
+              <FilePath>..\libamp\lib\littlefs\lfs_util.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -784,10 +794,25 @@
               <FileType>1</FileType>
               <FilePath>..\libamp_user\keyboard_user.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>ws2812</GroupName>
+          <Files>
             <File>
-              <FileName>lfs_port.c</FileName>
+              <FileName>ws2812.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\libamp_user\lfs_port.c</FilePath>
+              <FilePath>..\ws2812\ws2812.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libamp/src/lamp_array</GroupName>
+          <Files>
+            <File>
+              <FileName>lamp_array.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\lamp_array\lamp_array.c</FilePath>
             </File>
           </Files>
         </Group>
