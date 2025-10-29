@@ -1121,7 +1121,7 @@ void keyboard_reboot()
 
 void analog_channel_select(uint8_t x)
 {
-    x=BCD_TO_GRAY(x);
+    //x=BCD_TO_GRAY(x);
     HAL_GPIO_WritePin(A_GPIO_Port, A_Pin, x&0x01);
     HAL_GPIO_WritePin(B_GPIO_Port, B_Pin, x&0x02);
     HAL_GPIO_WritePin(C_GPIO_Port, C_Pin, x&0x04);

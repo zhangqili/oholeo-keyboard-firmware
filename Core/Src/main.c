@@ -54,7 +54,8 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-#define DMA_BUF_LEN             10
+#define DMA_BUF_LEN             32
+#define DMA_BUF_NUM             2
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -75,8 +76,11 @@ sfud_flash sfud_norflash0 = {
 uint32_t pulse_counter = 0;
 bool beep_switch = 0;
 bool em_switch = 0;
+//uint32_t debug = 0;
+//uint32_t debug1 = 0;
 
-uint32_t ADC_Buffer[4*DMA_BUF_LEN];
+uint32_t ADC_Buffer[DMA_BUF_NUM][4][DMA_BUF_LEN];
+volatile uint32_t current_buffer_index = 0; 
 
 extern volatile uint8_t low_latency_mode;
 /* USER CODE END PV */
@@ -235,6 +239,51 @@ void usb_dc_low_level_init(void)
   HAL_NVIC_EnableIRQ(USB_LP_CAN_RX0_IRQn);
 }
 
+void switch_buffer(void)
+{
+  LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_1);
+  LL_DMA_DisableChannel(DMA2, LL_DMA_CHANNEL_1);
+  LL_DMA_DisableChannel(DMA2, LL_DMA_CHANNEL_5);
+  LL_DMA_DisableChannel(DMA2, LL_DMA_CHANNEL_2);
+
+  LL_DMA_ConfigAddresses(
+      DMA1,
+      LL_DMA_CHANNEL_1,
+      LL_ADC_DMA_GetRegAddr(ADC1, LL_ADC_DMA_REG_REGULAR_DATA),
+      (uint32_t)(ADC_Buffer[current_buffer_index][0]),
+      LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+  LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_1, DMA_BUF_LEN);
+
+  LL_DMA_ConfigAddresses(
+      DMA2,
+      LL_DMA_CHANNEL_1,
+      LL_ADC_DMA_GetRegAddr(ADC2, LL_ADC_DMA_REG_REGULAR_DATA),
+      (uint32_t)(ADC_Buffer[current_buffer_index][1]),
+      LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+  LL_DMA_SetDataLength(DMA2, LL_DMA_CHANNEL_1, DMA_BUF_LEN);
+
+  LL_DMA_ConfigAddresses(
+      DMA2,
+      LL_DMA_CHANNEL_5,
+      LL_ADC_DMA_GetRegAddr(ADC3, LL_ADC_DMA_REG_REGULAR_DATA),
+      (uint32_t)(ADC_Buffer[current_buffer_index][2]),
+      LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+  LL_DMA_SetDataLength(DMA2, LL_DMA_CHANNEL_5, DMA_BUF_LEN);
+
+  LL_DMA_ConfigAddresses(
+      DMA2,
+      LL_DMA_CHANNEL_2,
+      LL_ADC_DMA_GetRegAddr(ADC4, LL_ADC_DMA_REG_REGULAR_DATA),
+      (uint32_t)(ADC_Buffer[current_buffer_index][3]),
+      LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+  LL_DMA_SetDataLength(DMA2, LL_DMA_CHANNEL_2, DMA_BUF_LEN);
+
+  LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_1);
+  LL_DMA_EnableChannel(DMA2, LL_DMA_CHANNEL_1);
+  LL_DMA_EnableChannel(DMA2, LL_DMA_CHANNEL_5);
+  LL_DMA_EnableChannel(DMA2, LL_DMA_CHANNEL_2);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -314,7 +363,7 @@ int main(void)
       DMA1,
       LL_DMA_CHANNEL_1,
       LL_ADC_DMA_GetRegAddr(ADC1, LL_ADC_DMA_REG_REGULAR_DATA),
-      (uint32_t)(ADC_Buffer + DMA_BUF_LEN*0),
+      (uint32_t)(ADC_Buffer[current_buffer_index][0]),
       LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
   LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_1, DMA_BUF_LEN);
   LL_ADC_REG_SetDMATransfer(ADC1, LL_ADC_REG_DMA_TRANSFER_UNLIMITED);
@@ -326,7 +375,7 @@ int main(void)
       DMA2,
       LL_DMA_CHANNEL_1,
       LL_ADC_DMA_GetRegAddr(ADC2, LL_ADC_DMA_REG_REGULAR_DATA),
-      (uint32_t)(ADC_Buffer + DMA_BUF_LEN*1),
+      (uint32_t)(ADC_Buffer[current_buffer_index][1]),
       LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
   LL_DMA_SetDataLength(DMA2, LL_DMA_CHANNEL_1, DMA_BUF_LEN);
   LL_ADC_REG_SetDMATransfer(ADC2, LL_ADC_REG_DMA_TRANSFER_UNLIMITED);
@@ -338,7 +387,7 @@ int main(void)
       DMA2,
       LL_DMA_CHANNEL_5,
       LL_ADC_DMA_GetRegAddr(ADC3, LL_ADC_DMA_REG_REGULAR_DATA),
-      (uint32_t)(ADC_Buffer + DMA_BUF_LEN*2),
+      (uint32_t)(ADC_Buffer[current_buffer_index][2]),
       LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
   LL_DMA_SetDataLength(DMA2, LL_DMA_CHANNEL_5, DMA_BUF_LEN);
   LL_ADC_REG_SetDMATransfer(ADC3, LL_ADC_REG_DMA_TRANSFER_UNLIMITED);
@@ -350,7 +399,7 @@ int main(void)
       DMA2,
       LL_DMA_CHANNEL_2,
       LL_ADC_DMA_GetRegAddr(ADC4, LL_ADC_DMA_REG_REGULAR_DATA),
-      (uint32_t)(ADC_Buffer + DMA_BUF_LEN*3),
+      (uint32_t)(ADC_Buffer[current_buffer_index][3]),
       LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
   LL_DMA_SetDataLength(DMA2, LL_DMA_CHANNEL_2, DMA_BUF_LEN);
   LL_ADC_REG_SetDMATransfer(ADC4, LL_ADC_REG_DMA_TRANSFER_UNLIMITED);
@@ -527,6 +576,8 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 void main_task(void)
 {
+  //debug1 = debug;
+  //debug = 0;
   if (!low_latency_mode)
   {
     keyboard_task();
@@ -554,6 +605,17 @@ void main_task(void)
 
 void update_ringbuf(void)
 {
+  const uint32_t _current_buffer_index = current_buffer_index;
+  const uint32_t current_channel = g_analog_active_channel;
+  current_buffer_index = !current_buffer_index;
+  switch_buffer();
+  g_analog_active_channel++;
+  if (g_analog_active_channel >= 16)
+  {
+    g_analog_active_channel = 0;
+  }
+  analog_channel_select(g_analog_active_channel);
+  LL_TIM_EnableCounter(TIM2);
   uint32_t adc1 = 0;
   uint32_t adc2 = 0;
   uint32_t adc3 = 0;
@@ -561,26 +623,17 @@ void update_ringbuf(void)
 
   for (int i = 0; i < DMA_BUF_LEN; i++)
   {
-    adc1 += ADC_Buffer[DMA_BUF_LEN * 0 + i];
-    adc2 += ADC_Buffer[DMA_BUF_LEN * 1 + i];
-    adc3 += ADC_Buffer[DMA_BUF_LEN * 2 + i];
-    adc4 += ADC_Buffer[DMA_BUF_LEN * 3 + i];
+    adc1 += ADC_Buffer[_current_buffer_index][0][i];
+    adc2 += ADC_Buffer[_current_buffer_index][1][i];
+    adc3 += ADC_Buffer[_current_buffer_index][2][i];
+    adc4 += ADC_Buffer[_current_buffer_index][3][i];
   }
   
-  ringbuf_push(&g_adc_ringbufs[0 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc1 / (float)DMA_BUF_LEN);
-  ringbuf_push(&g_adc_ringbufs[1 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc2 / (float)DMA_BUF_LEN);
-  ringbuf_push(&g_adc_ringbufs[2 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc3 / (float)DMA_BUF_LEN);
-  ringbuf_push(&g_adc_ringbufs[3 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc4 / (float)DMA_BUF_LEN);
-  
-  if (LL_TIM_GetCounter(TIM2) < 700)
-  {
-    g_analog_active_channel++;
-    if (g_analog_active_channel >= 16)
-    {
-      g_analog_active_channel = 0;
-    }
-    analog_channel_select(g_analog_active_channel);
-  }
+  ringbuf_push(&g_adc_ringbufs[0 * 16 + (current_channel)], adc1 >> 5);
+  ringbuf_push(&g_adc_ringbufs[1 * 16 + (current_channel)], adc2 >> 5);
+  ringbuf_push(&g_adc_ringbufs[2 * 16 + (current_channel)], adc3 >> 5);
+  ringbuf_push(&g_adc_ringbufs[3 * 16 + (current_channel)], adc4 >> 5);
+  //debug++;
 }
 
 void rgb_update_callback()
@@ -660,6 +713,9 @@ void rgb_update_callback()
       g_rgb_colors[g_rgb_mapping[56]].b = 0xff;
     }
   }
+	//g_rgb_colors[g_rgb_mapping[debug]].r = 0xff;
+	//g_rgb_colors[g_rgb_mapping[debug]].g = 0xff;
+	//g_rgb_colors[g_rgb_mapping[debug]].b = 0xff;//cap lock
 }
 
 /* USER CODE END 4 */
