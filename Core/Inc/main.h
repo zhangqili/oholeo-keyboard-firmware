@@ -29,6 +29,20 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
 
+#include "stm32f3xx_ll_adc.h"
+#include "stm32f3xx_ll_dma.h"
+#include "stm32f3xx_ll_rcc.h"
+#include "stm32f3xx_ll_bus.h"
+#include "stm32f3xx_ll_system.h"
+#include "stm32f3xx_ll_exti.h"
+#include "stm32f3xx_ll_cortex.h"
+#include "stm32f3xx_ll_utils.h"
+#include "stm32f3xx_ll_pwr.h"
+#include "stm32f3xx_ll_spi.h"
+#include "stm32f3xx_ll_tim.h"
+#include "stm32f3xx_ll_usart.h"
+#include "stm32f3xx_ll_gpio.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -58,17 +72,17 @@ void DWT_Delay_us(volatile uint32_t au32_microseconds);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define SPI1_CS_Pin GPIO_PIN_4
+#define SPI1_CS_Pin LL_GPIO_PIN_4
 #define SPI1_CS_GPIO_Port GPIOA
-#define D_Pin GPIO_PIN_3
+#define D_Pin LL_GPIO_PIN_3
 #define D_GPIO_Port GPIOB
-#define C_Pin GPIO_PIN_4
+#define C_Pin LL_GPIO_PIN_4
 #define C_GPIO_Port GPIOB
-#define INHIBIT_Pin GPIO_PIN_5
+#define INHIBIT_Pin LL_GPIO_PIN_5
 #define INHIBIT_GPIO_Port GPIOB
-#define A_Pin GPIO_PIN_6
+#define A_Pin LL_GPIO_PIN_6
 #define A_GPIO_Port GPIOB
-#define B_Pin GPIO_PIN_7
+#define B_Pin LL_GPIO_PIN_7
 #define B_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */

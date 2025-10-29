@@ -43,43 +43,50 @@ static sfud_err spi_write_read(const sfud_spi *spi, const uint8_t *write_buf, si
         size_t read_size) {
     UNUSED(spi);
     sfud_err result = SFUD_SUCCESS;
+    uint8_t send_data, read_data;
+    if (write_size) {
+        SFUD_ASSERT(write_buf);
+    }
+    if (read_size) {
+        SFUD_ASSERT(read_buf);
+    }
     /**
      * add your spi write and read code
      */
 
-    HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_RESET);
-    if(write_size && read_size)
+    LL_GPIO_ResetOutputPin(SPI1_CS_GPIO_Port, SPI1_CS_Pin);
+    for (size_t i = 0, retry_times; i < write_size + read_size; i++)
     {
-        if(HAL_SPI_Transmit(&hspi1, (uint8_t *)write_buf, write_size, 1000)!=HAL_OK)
-        {
-            result = SFUD_ERR_WRITE;
+        if (i < write_size) {
+            send_data = *write_buf++;
+        } else {
+            send_data = SFUD_DUMMY_DATA;
         }
-       /* For simplicity reasons, this example is just waiting till the end of the
-       transfer, but application may perform other tasks while transfer operation
-       is ongoing. */
-        while (HAL_SPI_GetState(&hspi1) != HAL_SPI_STATE_READY);
-        if(HAL_SPI_Receive(&hspi1, (uint8_t *)read_buf, read_size, 1000)!=HAL_OK)
-        {
-            result = SFUD_ERR_READ;
+        retry_times = 1000;
+        while (!LL_SPI_IsActiveFlag_TXE(SPI1)) {
+            SFUD_RETRY_PROCESS(NULL, retry_times, result);
         }
-    }else if(write_size)
-    {
-        if(HAL_SPI_Transmit(&hspi1, (uint8_t *)write_buf, write_size, 1000)!=HAL_OK)
-        {
-            result = SFUD_ERR_WRITE;
+        if (result != SFUD_SUCCESS) {
+            goto exit;
         }
-    }else
-    {
-        if(HAL_SPI_Receive(&hspi1, (uint8_t *)read_buf, read_size, 1000)!=HAL_OK)
-        {
-            result = SFUD_ERR_READ;
+        LL_SPI_TransmitData8(SPI1,send_data);
+
+        retry_times = 1000;
+        while (!LL_SPI_IsActiveFlag_RXNE(SPI1)) {
+            SFUD_RETRY_PROCESS(NULL, retry_times, result);
+        }
+        if (result != SFUD_SUCCESS) {
+            goto exit;
+        }
+        read_data = LL_SPI_ReceiveData8(SPI1);
+        
+        if (i >= write_size) {
+            *read_buf++ = read_data;
         }
     }
-       /* For simplicity reasons, this example is just waiting till the end of the
-    transfer, but application may perform other tasks while transfer operation
-    is ongoing. */
-    while (HAL_SPI_GetState(&hspi1) != HAL_SPI_STATE_READY);
-    HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_SET);
+
+    exit:
+    LL_GPIO_SetOutputPin(SPI1_CS_GPIO_Port, SPI1_CS_Pin);
 
     return result;
 }
@@ -123,6 +130,7 @@ sfud_err sfud_spi_port_init(sfud_flash *flash) {
      *    flash->retry.delay = null;
      *    flash->retry.times = 10000; //Required
      */
+    LL_SPI_Enable(SPI1);
 
     switch (flash->index) {
     case SFUD_W25QXX_DEVICE_INDEX: {

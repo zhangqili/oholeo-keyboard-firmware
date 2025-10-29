@@ -104,9 +104,16 @@ int fputc(int ch, FILE *f)
 __attribute__((weak)) int _write(int file, char *ptr, int len)
 {
   UNUSED(file);
-  if (HAL_UART_Transmit(&huart1, (uint8_t*)ptr, len, 0xffff) != HAL_OK)
+  int i;
+  for (i = 0; i < len; i++)
   {
-    Error_Handler();
+    while (!LL_USART_IsActiveFlag_TXE(USART1))
+    {
+    }
+    LL_USART_TransmitData8(USART1, (uint8_t)ptr[i]);
+  }
+  while (!LL_USART_IsActiveFlag_TC(USART1))
+  {
   }
   return HAL_OK;
 }
@@ -273,12 +280,12 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   //!!!
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 0);
+  LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_15);
 
   DWT_Init();
   sfud_device_init(&sfud_norflash0);
 
-  HAL_GPIO_WritePin(INHIBIT_GPIO_Port, INHIBIT_Pin, GPIO_PIN_RESET);
+  LL_GPIO_ResetOutputPin(INHIBIT_GPIO_Port, INHIBIT_Pin);
   ws2812_init();
   keyboard_init();
   for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
@@ -286,17 +293,73 @@ int main(void)
     key_attach(&g_keyboard_advanced_keys[i].key,KEY_EVENT_DOWN,key_down_cb);
   }
 
-  HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
-  HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
-  HAL_ADCEx_Calibration_Start(&hadc3, ADC_SINGLE_ENDED);
-  HAL_ADCEx_Calibration_Start(&hadc4, ADC_SINGLE_ENDED);
+  LL_ADC_StartCalibration(ADC1, LL_ADC_SINGLE_ENDED);
+  LL_ADC_StartCalibration(ADC2, LL_ADC_SINGLE_ENDED);
+  LL_ADC_StartCalibration(ADC3, LL_ADC_SINGLE_ENDED);
+  LL_ADC_StartCalibration(ADC4, LL_ADC_SINGLE_ENDED);
+  while (LL_ADC_IsCalibrationOnGoing(ADC1));
+  while (LL_ADC_IsCalibrationOnGoing(ADC2));
+  while (LL_ADC_IsCalibrationOnGoing(ADC3));
+  while (LL_ADC_IsCalibrationOnGoing(ADC4));
+  LL_ADC_Enable(ADC1);
+  LL_ADC_Enable(ADC2);
+  LL_ADC_Enable(ADC3);
+  LL_ADC_Enable(ADC4);
+  //LL_ADC_SetCalibrationFactor(ADC1,LL_ADC_SINGLE_ENDED, LL_ADC_GetCalibrationFactor(ADC1,LL_ADC_SINGLE_ENDED));
+  //LL_ADC_SetCalibrationFactor(ADC1,LL_ADC_SINGLE_ENDED, LL_ADC_GetCalibrationFactor(ADC1,LL_ADC_SINGLE_ENDED));
+  //LL_ADC_SetCalibrationFactor(ADC1,LL_ADC_SINGLE_ENDED, LL_ADC_GetCalibrationFactor(ADC1,LL_ADC_SINGLE_ENDED));
+  //LL_ADC_SetCalibrationFactor(ADC1,LL_ADC_SINGLE_ENDED, LL_ADC_GetCalibrationFactor(ADC1,LL_ADC_SINGLE_ENDED));
 
-  HAL_ADC_Start_DMA(&hadc1, ADC_Buffer + DMA_BUF_LEN*0, DMA_BUF_LEN);
-  HAL_ADC_Start_DMA(&hadc2, ADC_Buffer + DMA_BUF_LEN*1, DMA_BUF_LEN);
-  HAL_ADC_Start_DMA(&hadc3, ADC_Buffer + DMA_BUF_LEN*2, DMA_BUF_LEN);
-  HAL_ADC_Start_DMA(&hadc4, ADC_Buffer + DMA_BUF_LEN*3, DMA_BUF_LEN);
+  LL_DMA_ConfigAddresses(
+      DMA1,
+      LL_DMA_CHANNEL_1,
+      LL_ADC_DMA_GetRegAddr(ADC1, LL_ADC_DMA_REG_REGULAR_DATA),
+      (uint32_t)(ADC_Buffer + DMA_BUF_LEN*0),
+      LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+  LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_1, DMA_BUF_LEN);
+  LL_ADC_REG_SetDMATransfer(ADC1, LL_ADC_REG_DMA_TRANSFER_UNLIMITED);
+  //LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_1);
+  LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_1);
+  LL_ADC_REG_StartConversion(ADC1);
 
-  HAL_TIM_Base_Start_IT(&htim2);
+  LL_DMA_ConfigAddresses(
+      DMA2,
+      LL_DMA_CHANNEL_1,
+      LL_ADC_DMA_GetRegAddr(ADC2, LL_ADC_DMA_REG_REGULAR_DATA),
+      (uint32_t)(ADC_Buffer + DMA_BUF_LEN*1),
+      LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+  LL_DMA_SetDataLength(DMA2, LL_DMA_CHANNEL_1, DMA_BUF_LEN);
+  LL_ADC_REG_SetDMATransfer(ADC2, LL_ADC_REG_DMA_TRANSFER_UNLIMITED);
+  //LL_DMA_EnableIT_TC(DMA2, LL_DMA_CHANNEL_1);
+  LL_DMA_EnableChannel(DMA2, LL_DMA_CHANNEL_1);
+  LL_ADC_REG_StartConversion(ADC2);
+
+  LL_DMA_ConfigAddresses(
+      DMA2,
+      LL_DMA_CHANNEL_5,
+      LL_ADC_DMA_GetRegAddr(ADC3, LL_ADC_DMA_REG_REGULAR_DATA),
+      (uint32_t)(ADC_Buffer + DMA_BUF_LEN*2),
+      LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+  LL_DMA_SetDataLength(DMA2, LL_DMA_CHANNEL_5, DMA_BUF_LEN);
+  LL_ADC_REG_SetDMATransfer(ADC3, LL_ADC_REG_DMA_TRANSFER_UNLIMITED);
+  //LL_DMA_EnableIT_TC(DMA2, LL_DMA_CHANNEL_5);
+  LL_DMA_EnableChannel(DMA2, LL_DMA_CHANNEL_5);
+  LL_ADC_REG_StartConversion(ADC3);
+
+  LL_DMA_ConfigAddresses(
+      DMA2,
+      LL_DMA_CHANNEL_2,
+      LL_ADC_DMA_GetRegAddr(ADC4, LL_ADC_DMA_REG_REGULAR_DATA),
+      (uint32_t)(ADC_Buffer + DMA_BUF_LEN*3),
+      LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+  LL_DMA_SetDataLength(DMA2, LL_DMA_CHANNEL_2, DMA_BUF_LEN);
+  LL_ADC_REG_SetDMATransfer(ADC4, LL_ADC_REG_DMA_TRANSFER_UNLIMITED);
+  //LL_DMA_EnableIT_TC(DMA2, LL_DMA_CHANNEL_2);
+  LL_DMA_EnableChannel(DMA2, LL_DMA_CHANNEL_2);
+  LL_ADC_REG_StartConversion(ADC4);
+
+  LL_TIM_EnableIT_UPDATE(TIM2);
+  LL_TIM_EnableCounter(TIM2);
 
   rgb_init_flash();
 
@@ -324,7 +387,8 @@ int main(void)
   }
   usb_init();
   g_keyboard_config.nkro = true;
-  HAL_TIM_Base_Start_IT(&htim7);
+  LL_TIM_EnableIT_UPDATE(TIM7);
+  LL_TIM_EnableCounter(TIM7);
 
   /* USER CODE END 2 */
 
@@ -419,105 +483,103 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+  LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
+  while(LL_FLASH_GetLatency()!= LL_FLASH_LATENCY_2)
+  {
+  }
+  LL_RCC_HSE_Enable();
 
-  /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+   /* Wait till HSE is ready */
+  while(LL_RCC_HSE_IsReady() != 1)
+  {
+
+  }
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE_DIV_1, LL_RCC_PLL_MUL_9);
+  LL_RCC_PLL_Enable();
+
+   /* Wait till PLL is ready */
+  while(LL_RCC_PLL_IsReady() != 1)
+  {
+
+  }
+  LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
+  LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_2);
+  LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);
+  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
+
+   /* Wait till System clock is ready */
+  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
+  {
+
+  }
+  LL_SetSystemCoreClock(72000000);
+
+   /* Update the time base */
+  if (HAL_InitTick (TICK_INT_PRIORITY) != HAL_OK)
   {
     Error_Handler();
   }
-
-  /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB|RCC_PERIPHCLK_USART1
-                              |RCC_PERIPHCLK_TIM1;
-  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
-  PeriphClkInit.USBClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
-  PeriphClkInit.Tim1ClockSelection = RCC_TIM1CLK_HCLK;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-  {
-    Error_Handler();
-  }
+  LL_RCC_SetUSARTClockSource(LL_RCC_USART1_CLKSOURCE_PCLK2);
+  LL_RCC_SetTIMClockSource(LL_RCC_TIM1_CLKSOURCE_PCLK2);
+  LL_RCC_SetUSBClockSource(LL_RCC_USB_CLKSOURCE_PLL_DIV_1_5);
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void main_task(void)
 {
-  if (htim->Instance == TIM7)
+  if (!low_latency_mode)
   {
-    if (!low_latency_mode)
+    keyboard_task();
+    if (pulse_counter)
     {
-      keyboard_task();
-      if (pulse_counter)
+      pulse_counter--;
+      if (beep_switch)
       {
-        pulse_counter--;
-        if (beep_switch)
-        {
-          HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
-        }
-        if (em_switch)
-        {
-          HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 1);
-        }
+        LL_TIM_CC_EnableChannel(TIM3, LL_TIM_CHANNEL_CH4);
+        LL_TIM_EnableCounter(TIM3);
       }
-      else
+      if (em_switch)
       {
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, 0);
-        HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
+        LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_15);
       }
+    }
+    else
+    {
+      LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_15);
+      LL_TIM_CC_DisableChannel(TIM3, LL_TIM_CHANNEL_CH4);
+      LL_TIM_DisableCounter(TIM3);
     }
   }
-  if (htim->Instance == TIM2)
+}
+
+void update_ringbuf(void)
+{
+  uint32_t adc1 = 0;
+  uint32_t adc2 = 0;
+  uint32_t adc3 = 0;
+  uint32_t adc4 = 0;
+
+  for (int i = 0; i < DMA_BUF_LEN; i++)
   {
-    uint32_t adc1 = 0;
-    uint32_t adc2 = 0;
-    uint32_t adc3 = 0;
-    uint32_t adc4 = 0;
-
-    for (int i = 0; i < DMA_BUF_LEN; i++)
+    adc1 += ADC_Buffer[DMA_BUF_LEN * 0 + i];
+    adc2 += ADC_Buffer[DMA_BUF_LEN * 1 + i];
+    adc3 += ADC_Buffer[DMA_BUF_LEN * 2 + i];
+    adc4 += ADC_Buffer[DMA_BUF_LEN * 3 + i];
+  }
+  
+  ringbuf_push(&g_adc_ringbufs[0 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc1 / (float)DMA_BUF_LEN);
+  ringbuf_push(&g_adc_ringbufs[1 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc2 / (float)DMA_BUF_LEN);
+  ringbuf_push(&g_adc_ringbufs[2 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc3 / (float)DMA_BUF_LEN);
+  ringbuf_push(&g_adc_ringbufs[3 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc4 / (float)DMA_BUF_LEN);
+  
+  if (LL_TIM_GetCounter(TIM2) < 700)
+  {
+    g_analog_active_channel++;
+    if (g_analog_active_channel >= 16)
     {
-      adc1 += ADC_Buffer[DMA_BUF_LEN * 0 + i];
-      adc2 += ADC_Buffer[DMA_BUF_LEN * 1 + i];
-      adc3 += ADC_Buffer[DMA_BUF_LEN * 2 + i];
-      adc4 += ADC_Buffer[DMA_BUF_LEN * 3 + i];
+      g_analog_active_channel = 0;
     }
-
-    ringbuf_push(&g_adc_ringbufs[0 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc1 / (float)DMA_BUF_LEN);
-    ringbuf_push(&g_adc_ringbufs[1 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc2 / (float)DMA_BUF_LEN);
-    ringbuf_push(&g_adc_ringbufs[2 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc3 / (float)DMA_BUF_LEN);
-    ringbuf_push(&g_adc_ringbufs[3 * 16 + BCD_TO_GRAY(g_analog_active_channel)], (float)adc4 / (float)DMA_BUF_LEN);
-
-    if (htim->Instance->CNT < 700)
-    {
-      g_analog_active_channel++;
-      if (g_analog_active_channel >= 16)
-      {
-        g_analog_active_channel = 0;
-      }
-      analog_channel_select(g_analog_active_channel);
-    }
+    analog_channel_select(g_analog_active_channel);
   }
 }
 
@@ -600,16 +662,6 @@ void rgb_update_callback()
   }
 }
 
-void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
-{
-  UNUSED(hadc);
-}
-
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
-{
-  UNUSED(hadc);
-}
-
 /* USER CODE END 4 */
 
 /**
@@ -626,8 +678,7 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
-
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.

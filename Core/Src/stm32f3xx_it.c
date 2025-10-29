@@ -57,8 +57,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim7;
+
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -222,9 +221,13 @@ void USB_LP_CAN_RX0_IRQHandler(void)
 void TIM2_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM2_IRQn 0 */
-
+  if(LL_TIM_IsActiveFlag_UPDATE(TIM2))
+  {
+    LL_TIM_ClearFlag_UPDATE(TIM2);
+    void update_ringbuf(void);
+    update_ringbuf();
+  }
   /* USER CODE END TIM2_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
 
   /* USER CODE END TIM2_IRQn 1 */
@@ -236,9 +239,14 @@ void TIM2_IRQHandler(void)
 void TIM7_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM7_IRQn 0 */
+  if(LL_TIM_IsActiveFlag_UPDATE(TIM7))
+  {
+    LL_TIM_ClearFlag_UPDATE(TIM7);
+    void main_task(void);
+    main_task();
+  }
 
   /* USER CODE END TIM7_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim7);
   /* USER CODE BEGIN TIM7_IRQn 1 */
 
   /* USER CODE END TIM7_IRQn 1 */
