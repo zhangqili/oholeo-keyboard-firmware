@@ -1119,13 +1119,22 @@ void keyboard_reboot()
     NVIC_SystemReset();
 }
 
+#define SEL_MASK  (A_Pin | B_Pin | C_Pin | D_Pin)
 void analog_channel_select(uint8_t x)
 {
     //x=BCD_TO_GRAY(x);
-    HAL_GPIO_WritePin(A_GPIO_Port, A_Pin, x&0x01);
-    HAL_GPIO_WritePin(B_GPIO_Port, B_Pin, x&0x02);
-    HAL_GPIO_WritePin(C_GPIO_Port, C_Pin, x&0x04);
-    HAL_GPIO_WritePin(D_GPIO_Port, D_Pin, x&0x08);
+    uint32_t set_mask = 0;
+
+    if (x & 0x01) set_mask |= A_Pin;  // A
+    if (x & 0x02) set_mask |= B_Pin;  // B
+    if (x & 0x04) set_mask |= C_Pin;  // C
+    if (x & 0x08) set_mask |= D_Pin;  // D
+
+    uint32_t rst_mask = SEL_MASK & ~set_mask;
+
+    LL_GPIO_SetOutputPin(INHIBIT_GPIO_Port, INHIBIT_Pin);
+    A_GPIO_Port->BSRR = (set_mask) | (rst_mask << 16);
+    LL_GPIO_ResetOutputPin(INHIBIT_GPIO_Port, INHIBIT_Pin);
 }
 
 void keyboard_jump_to_bootloader(void)

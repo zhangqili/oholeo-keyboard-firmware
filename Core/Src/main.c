@@ -190,7 +190,7 @@ void JumpToBootloader(void)
   SysTick->VAL = 0;
 
   /* 设置所有时钟到默认状态，使用HSI时钟 */
-  HAL_RCC_DeInit();
+  LL_RCC_DeInit();
 
   /* 关闭所有中断，清除所有中断挂起标志 */
   for (i = 0; i < 8; i++)
@@ -219,24 +219,23 @@ void JumpToBootloader(void)
 
 void usb_dc_low_level_init(void)
 {
-
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
-  __HAL_RCC_GPIOA_CLK_ENABLE();
+  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
   /**USB GPIO Configuration
   PA11     ------> USB_DM
   PA12     ------> USB_DP
   */
   GPIO_InitStruct.Pin = GPIO_PIN_11 | GPIO_PIN_12;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF14_USB;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  GPIO_InitStruct.Alternate = LL_GPIO_AF_14;
+  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
   /* Peripheral clock enable */
   __HAL_RCC_USB_CLK_ENABLE();
   /* USB interrupt Init */
   HAL_NVIC_SetPriority(USB_LP_CAN_RX0_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(USB_LP_CAN_RX0_IRQn);
+  NVIC_EnableIRQ(USB_LP_CAN_RX0_IRQn);
 }
 
 void switch_buffer(void)
