@@ -13,6 +13,10 @@ extern "C" {
 #include "usbd_core.h"
 #include "usbd_hid.h"
 
+#ifdef USB_CONFIG_POWER_MA
+#undef USB_CONFIG_POWER_MA
+#endif
+
 #define USBD_LANGID_STRING 1033
 
 enum
