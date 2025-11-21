@@ -19,6 +19,8 @@
 #define DYNAMICKEY_ENABLE
 #define MACRO_ENABLE
 #define SUSPEND_ENABLE
+#define OPTIMIZE_KEY_BITMAP
+#define OPTIMIZE_MOVING_AVERAGE_FOR_RINGBUF
 
 /********************/
 /* Keyboard Default */
@@ -75,6 +77,19 @@
 #define RGB_USE_LIST_EXPERIMENTAL
 #define RGB_GAMMA_ENABLE
 #define RGB_GAMMA               2.2f
+#define RGB_CUSTOM_INVERSE_MAPPING
+#define RGB_BASE_MODE_USE_RAINBOW           1
+#define RGB_BASE_MODE_USE_WAVE              1
+#define RGB_MODE_USE_STATIC                 1
+#define RGB_MODE_USE_CYCLE                  1
+#define RGB_MODE_USE_LINEAR                 1
+#define RGB_MODE_USE_TRIGGER                1
+#define RGB_MODE_USE_STRING                 1
+#define RGB_MODE_USE_FADING_STRING          1
+#define RGB_MODE_USE_DIAMOND_RIPPLE         1
+#define RGB_MODE_USE_FADING_DIAMOND_RIPPLE  1
+#define RGB_MODE_USE_JELLY                  1
+#define RGB_MODE_USE_BUBBLE                 1
 
 /************/
 /* Joystick */

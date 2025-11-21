@@ -455,63 +455,63 @@ int main(void)
       keyboard_task();
       if(g_keyboard_led_state.caps_lock)
       {
-        rgb_set(g_rgb_mapping[28],  0xff, 0xff, 0xff);
+        rgb_set(g_rgb_inverse_mapping[28],  0xff, 0xff, 0xff);
       }
       else
       {
-        rgb_set(g_rgb_mapping[28],  0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[28],  0, 0, 0);
       }
       if(g_keyboard_led_state.scroll_lock)
       {
-        rgb_set(g_rgb_mapping[26],  0xff, 0xff, 0xff);
+        rgb_set(g_rgb_inverse_mapping[26],  0xff, 0xff, 0xff);
       }
       else
       {
-        rgb_set(g_rgb_mapping[26],  0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[26],  0, 0, 0);
       }
       if (g_current_layer == 2)
       {
-        rgb_set(g_rgb_mapping[0], 0xff, 0, 0);
-        rgb_set(g_rgb_mapping[1], 0, 0, 0);
-        rgb_set(g_rgb_mapping[2], 0, 0, 0);
-        rgb_set(g_rgb_mapping[3], 0, 0, 0);
-        rgb_set(g_rgb_mapping[4], 0, 0, 0);
-        rgb_set(g_rgb_mapping[g_current_config_index+1], 0xff, 0xff, 0xff);
-        rgb_set(g_rgb_mapping[37], 0xff, 0xff, 0xff);
+        rgb_set(g_rgb_inverse_mapping[0], 0xff, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[1], 0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[2], 0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[3], 0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[4], 0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[g_current_config_index+1], 0xff, 0xff, 0xff);
+        rgb_set(g_rgb_inverse_mapping[37], 0xff, 0xff, 0xff);
         if (g_keyboard_config.nkro)
-          rgb_set(g_rgb_mapping[19], 0xff, 0xff, 0xff);
+          rgb_set(g_rgb_inverse_mapping[19], 0xff, 0xff, 0xff);
         else
-          rgb_set(g_rgb_mapping[19], 0, 0, 0);
+          rgb_set(g_rgb_inverse_mapping[19], 0, 0, 0);
         if (g_keyboard_config.debug)
-          rgb_set(g_rgb_mapping[31], 0xff, 0xff, 0xff);
+          rgb_set(g_rgb_inverse_mapping[31], 0xff, 0xff, 0xff);
         else
-          rgb_set(g_rgb_mapping[31], 0, 0, 0);
+          rgb_set(g_rgb_inverse_mapping[31], 0, 0, 0);
         if (beep_switch)
-          rgb_set(g_rgb_mapping[46], 0xff, 0xff, 0xff);
+          rgb_set(g_rgb_inverse_mapping[46], 0xff, 0xff, 0xff);
         else
-          rgb_set(g_rgb_mapping[46], 0, 0, 0);
+          rgb_set(g_rgb_inverse_mapping[46], 0, 0, 0);
         if (em_switch)
-          rgb_set(g_rgb_mapping[45], 0xff, 0xff, 0xff);
+          rgb_set(g_rgb_inverse_mapping[45], 0xff, 0xff, 0xff);
         else
-          rgb_set(g_rgb_mapping[45], 0, 0, 0);
+          rgb_set(g_rgb_inverse_mapping[45], 0, 0, 0);
         if (g_keyboard_config.winlock)
-          rgb_set(g_rgb_mapping[56], 0xff, 0xff, 0xff);
+          rgb_set(g_rgb_inverse_mapping[56], 0xff, 0xff, 0xff);
         else
-          rgb_set(g_rgb_mapping[56], 0, 0, 0);
+          rgb_set(g_rgb_inverse_mapping[56], 0, 0, 0);
       }
       else
       {
-        rgb_set(g_rgb_mapping[0], 0, 0, 0);
-        rgb_set(g_rgb_mapping[1], 0, 0, 0);
-        rgb_set(g_rgb_mapping[2], 0, 0, 0);
-        rgb_set(g_rgb_mapping[3], 0, 0, 0);
-        rgb_set(g_rgb_mapping[4], 0, 0, 0);
-        rgb_set(g_rgb_mapping[19], 0, 0, 0);
-        rgb_set(g_rgb_mapping[31], 0, 0, 0);
-        rgb_set(g_rgb_mapping[46], 0, 0, 0);
-        rgb_set(g_rgb_mapping[45], 0, 0, 0);
-        rgb_set(g_rgb_mapping[37], 0, 0, 0);
-        rgb_set(g_rgb_mapping[56], 0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[0], 0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[1], 0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[2], 0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[3], 0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[4], 0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[19], 0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[31], 0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[46], 0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[45], 0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[37], 0, 0, 0);
+        rgb_set(g_rgb_inverse_mapping[56], 0, 0, 0);
       }
     }
     else
@@ -645,76 +645,76 @@ void rgb_update_callback()
   }
 	if(g_keyboard_led_state.caps_lock)
   {
-	  g_rgb_colors[g_rgb_mapping[28]].r = 0xff;
-	  g_rgb_colors[g_rgb_mapping[28]].g = 0xff;
-	  g_rgb_colors[g_rgb_mapping[28]].b = 0xff;//cap lock
+	  g_rgb_colors[g_rgb_inverse_mapping[28]].r = 0xff;
+	  g_rgb_colors[g_rgb_inverse_mapping[28]].g = 0xff;
+	  g_rgb_colors[g_rgb_inverse_mapping[28]].b = 0xff;//cap lock
 	}
 	if(g_keyboard_led_state.scroll_lock)
   {
-	  g_rgb_colors[g_rgb_mapping[26]].r = 0xff;
-	  g_rgb_colors[g_rgb_mapping[26]].g = 0xff;
-	  g_rgb_colors[g_rgb_mapping[26]].b = 0xff;//cap lock
+	  g_rgb_colors[g_rgb_inverse_mapping[26]].r = 0xff;
+	  g_rgb_colors[g_rgb_inverse_mapping[26]].g = 0xff;
+	  g_rgb_colors[g_rgb_inverse_mapping[26]].b = 0xff;//cap lock
 	}
   if (g_current_layer == 2)
   {
-	  g_rgb_colors[g_rgb_mapping[0]].r = 0xff;
-	  g_rgb_colors[g_rgb_mapping[0]].g = 0;
-	  g_rgb_colors[g_rgb_mapping[0]].b = 0;
-	  g_rgb_colors[g_rgb_mapping[1]].r = 0;
-	  g_rgb_colors[g_rgb_mapping[1]].g = 0;
-	  g_rgb_colors[g_rgb_mapping[1]].b = 0;
-	  g_rgb_colors[g_rgb_mapping[2]].r = 0;
-	  g_rgb_colors[g_rgb_mapping[2]].g = 0;
-	  g_rgb_colors[g_rgb_mapping[2]].b = 0;
-	  g_rgb_colors[g_rgb_mapping[3]].r = 0;
-	  g_rgb_colors[g_rgb_mapping[3]].g = 0;
-	  g_rgb_colors[g_rgb_mapping[3]].b = 0;
-	  g_rgb_colors[g_rgb_mapping[4]].r = 0;
-	  g_rgb_colors[g_rgb_mapping[4]].g = 0;
-	  g_rgb_colors[g_rgb_mapping[4]].b = 0;
-	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].r = 0xff;
-	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].g = 0xff;
-	  g_rgb_colors[g_rgb_mapping[g_current_config_index+1]].b = 0xff;
+	  g_rgb_colors[g_rgb_inverse_mapping[0]].r = 0xff;
+	  g_rgb_colors[g_rgb_inverse_mapping[0]].g = 0;
+	  g_rgb_colors[g_rgb_inverse_mapping[0]].b = 0;
+	  g_rgb_colors[g_rgb_inverse_mapping[1]].r = 0;
+	  g_rgb_colors[g_rgb_inverse_mapping[1]].g = 0;
+	  g_rgb_colors[g_rgb_inverse_mapping[1]].b = 0;
+	  g_rgb_colors[g_rgb_inverse_mapping[2]].r = 0;
+	  g_rgb_colors[g_rgb_inverse_mapping[2]].g = 0;
+	  g_rgb_colors[g_rgb_inverse_mapping[2]].b = 0;
+	  g_rgb_colors[g_rgb_inverse_mapping[3]].r = 0;
+	  g_rgb_colors[g_rgb_inverse_mapping[3]].g = 0;
+	  g_rgb_colors[g_rgb_inverse_mapping[3]].b = 0;
+	  g_rgb_colors[g_rgb_inverse_mapping[4]].r = 0;
+	  g_rgb_colors[g_rgb_inverse_mapping[4]].g = 0;
+	  g_rgb_colors[g_rgb_inverse_mapping[4]].b = 0;
+	  g_rgb_colors[g_rgb_inverse_mapping[g_current_config_index+1]].r = 0xff;
+	  g_rgb_colors[g_rgb_inverse_mapping[g_current_config_index+1]].g = 0xff;
+	  g_rgb_colors[g_rgb_inverse_mapping[g_current_config_index+1]].b = 0xff;
     if (g_keyboard_config.nkro)
     {
-      g_rgb_colors[g_rgb_mapping[19]].r = 0xff;
-      g_rgb_colors[g_rgb_mapping[19]].g = 0xff;
-      g_rgb_colors[g_rgb_mapping[19]].b = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[19]].r = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[19]].g = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[19]].b = 0xff;
     }
     if (g_keyboard_config.debug)
     {
-      g_rgb_colors[g_rgb_mapping[31]].r = 0xff;
-      g_rgb_colors[g_rgb_mapping[31]].g = 0xff;
-      g_rgb_colors[g_rgb_mapping[31]].b = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[31]].r = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[31]].g = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[31]].b = 0xff;
     }
     if (beep_switch)
     {
-      g_rgb_colors[g_rgb_mapping[46]].r = 0xff;
-      g_rgb_colors[g_rgb_mapping[46]].g = 0xff;
-      g_rgb_colors[g_rgb_mapping[46]].b = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[46]].r = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[46]].g = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[46]].b = 0xff;
     }
     if (em_switch)
     {
-      g_rgb_colors[g_rgb_mapping[45]].r = 0xff;
-      g_rgb_colors[g_rgb_mapping[45]].g = 0xff;
-      g_rgb_colors[g_rgb_mapping[45]].b = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[45]].r = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[45]].g = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[45]].b = 0xff;
     }
     if (low_latency_mode)
     {
-      g_rgb_colors[g_rgb_mapping[37]].r = 0xff;
-      g_rgb_colors[g_rgb_mapping[37]].g = 0xff;
-      g_rgb_colors[g_rgb_mapping[37]].b = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[37]].r = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[37]].g = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[37]].b = 0xff;
     }
     if (g_keyboard_config.winlock)
     {
-      g_rgb_colors[g_rgb_mapping[56]].r = 0xff;
-      g_rgb_colors[g_rgb_mapping[56]].g = 0xff;
-      g_rgb_colors[g_rgb_mapping[56]].b = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[56]].r = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[56]].g = 0xff;
+      g_rgb_colors[g_rgb_inverse_mapping[56]].b = 0xff;
     }
   }
-	//g_rgb_colors[g_rgb_mapping[debug]].r = 0xff;
-	//g_rgb_colors[g_rgb_mapping[debug]].g = 0xff;
-	//g_rgb_colors[g_rgb_mapping[debug]].b = 0xff;//cap lock
+	//g_rgb_colors[g_rgb_inverse_mapping[debug]].r = 0xff;
+	//g_rgb_colors[g_rgb_inverse_mapping[debug]].g = 0xff;
+	//g_rgb_colors[g_rgb_inverse_mapping[debug]].b = 0xff;//cap lock
 }
 
 /* USER CODE END 4 */
