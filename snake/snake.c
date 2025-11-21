@@ -185,7 +185,7 @@ void snake_move(Snake *snake)
         snake->intensity = 1.0f - snake->intensity;
         return;
     }
-    snake->next_tick = g_keyboard_tick + snake->interval;
+    snake->next_tick = g_keyboard_tick + KEYBOARD_TIME_TO_TICK(snake->interval);
     SnakeNode t;
     SnakeNode head = snake->data[(snake->rear+snake->len-1)%snake->len];
     snake->direction = snake->next_direction;
