@@ -21,7 +21,10 @@
 #define SUSPEND_ENABLE
 #define OPTIMIZE_KEY_BITMAP
 #define OPTIMIZE_MOVING_AVERAGE_FOR_RINGBUF
-#define DEBOUNCE                0
+#define DEBOUNCE_PRESS          0
+#define DEBOUNCE_PRESS_EAGER    1
+#define DEBOUNCE_RELEASE        0
+#define DEBOUNCE_RELEASE_EAGER  1
 
 /********************/
 /* Keyboard Default */
