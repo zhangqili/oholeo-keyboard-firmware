@@ -94,7 +94,8 @@
 #define RGB_MODE_USE_FADING_DIAMOND_RIPPLE  1
 #define RGB_MODE_USE_JELLY                  1
 #define RGB_MODE_USE_BUBBLE                 1
-
+#define RGB_ARGUMENT_BUFFER_LENGTH          32
+#define RGB_ARGUMENT_LIST_BUFFER_LENGTH     256
 /************/
 /* Joystick */
 /************/
