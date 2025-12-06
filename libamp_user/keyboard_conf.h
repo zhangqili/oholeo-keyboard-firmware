@@ -159,6 +159,15 @@
 #define MIDI_ENABLE
 //#define LIGHTING_ENABLE
 
+/*********/
+/* Nexus */
+/*********/
+//#define NEXUS_ENABLE   1
+//#define NEXUS_SLAVE_CONFIG {{17*0,17},{17*1,17},{17*2,17},{17*3,17}}
+//#define NEXUS_SLAVE_NUM 4
+//#define NEXUS_IS_SLAVE 1
+//#define NEXUS_VALUE_MAX        4096
+
 /****************/
 /* User Defines */
 /****************/
