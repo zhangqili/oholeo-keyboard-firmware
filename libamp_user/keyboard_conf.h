@@ -110,8 +110,11 @@
 /**********/
 /* Filter */
 /**********/
-#define TOLERANCE               1
-#define FILTER_ENABLE
+//#define FILTER_ENABLE
+#define FILTER_HYSTERESIS_ENABLE
+#define FILTER_HYSTERESIS               2
+#define FILTER_TYPE FILTER_TYPE_LOW_PASS
+#define FILTER_DOMAIN FILTER_DOMAIN_RAW
 
 /**********/
 /* Record */

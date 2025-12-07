@@ -412,6 +412,7 @@ int main(void)
   rgb_init_flash();
 
   analog_reset_range();
+  analog_scan();
 
   if (g_keyboard_advanced_keys[0].raw < 1400 || g_keyboard_advanced_keys[0].raw > (4096 - 1400))
   {
