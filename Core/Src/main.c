@@ -411,6 +411,7 @@ int main(void)
 
   rgb_init_flash();
 
+  filter_reset();
   analog_reset_range();
   analog_scan();
 
