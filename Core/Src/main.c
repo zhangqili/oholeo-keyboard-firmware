@@ -83,6 +83,10 @@ uint32_t ADC_Buffer[DMA_BUF_NUM][4][DMA_BUF_LEN];
 volatile uint32_t current_buffer_index = 0; 
 
 extern volatile uint8_t low_latency_mode;
+
+//uint32_t sof_start = 0;
+//uint32_t sof_end = 0;
+//uint32_t exceed_count = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -438,7 +442,7 @@ int main(void)
   usb_init();
   g_keyboard_config.nkro = true;
   LL_TIM_EnableIT_UPDATE(TIM7);
-  LL_TIM_EnableCounter(TIM7);
+  //LL_TIM_EnableCounter(TIM7);
 
   /* USER CODE END 2 */
 
@@ -582,6 +586,8 @@ void main_task(void)
   if (!low_latency_mode)
   {
     keyboard_task();
+    //DWT->CYCCNT = 0;
+    //sof_end = DWT->CYCCNT / 12;
     if (pulse_counter)
     {
       pulse_counter--;
@@ -714,9 +720,23 @@ void rgb_update_callback()
       g_rgb_colors[g_rgb_inverse_mapping[56]].b = 0xff;
     }
   }
-	//g_rgb_colors[g_rgb_inverse_mapping[debug]].r = 0xff;
-	//g_rgb_colors[g_rgb_inverse_mapping[debug]].g = 0xff;
-	//g_rgb_colors[g_rgb_inverse_mapping[debug]].b = 0xff;//cap lock
+  //if (sof_end/72<RGB_NUM)
+  //{
+  //  g_rgb_colors[g_rgb_inverse_mapping[sof_end/72]] = (ColorRGB){0, 0, 0xff};
+  //}
+  //else if (sof_end/720<RGB_NUM)
+  //{
+  //  g_rgb_colors[g_rgb_inverse_mapping[sof_end/720]] = (ColorRGB){0, 0xff, 0};
+  //}
+  //else if (sof_end/7200<RGB_NUM)
+  //{
+  //  exceed_count++;
+  //  g_rgb_colors[g_rgb_inverse_mapping[sof_end/7200]] = (ColorRGB){0xff, 0, 0};
+  //}
+  //for (size_t i = 0; i < exceed_count && i < RGB_NUM; i++)
+  //{
+  //  g_rgb_colors[g_rgb_inverse_mapping[RGB_NUM-1 - i]] = (ColorRGB){0xff, 0, 0};
+  //}
 }
 
 /* USER CODE END 4 */

@@ -216,11 +216,12 @@ void MX_TIM7_Init(void)
   /* USER CODE BEGIN TIM7_Init 1 */
 
   /* USER CODE END TIM7_Init 1 */
-  TIM_InitStruct.Prescaler = 7200-1;
+  TIM_InitStruct.Prescaler = 3600-1;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
   TIM_InitStruct.Autoreload = 10-1;
   LL_TIM_Init(TIM7, &TIM_InitStruct);
   LL_TIM_DisableARRPreload(TIM7);
+  LL_TIM_SetOnePulseMode(TIM7, LL_TIM_ONEPULSEMODE_SINGLE);
   LL_TIM_SetTriggerOutput(TIM7, LL_TIM_TRGO_RESET);
   LL_TIM_DisableMasterSlaveMode(TIM7);
   /* USER CODE BEGIN TIM7_Init 2 */

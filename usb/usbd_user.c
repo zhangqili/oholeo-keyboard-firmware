@@ -326,6 +326,19 @@ static void usbd_event_handler(uint8_t busid, uint8_t event)
         break;
     case USBD_EVENT_CLR_REMOTE_WAKEUP:
         break;
+    case USBD_EVENT_SOF:
+        //extern uint32_t sof_start;
+        //extern uint32_t sof_end;
+        //sof_end = DWT->CYCCNT;
+        //DWT->CYCCNT = 0;
+        TIM7->CR1 |= TIM_CR1_CEN;
+        //if (g_keyboard_config.enable_report && g_keyboard_report_flags.raw)
+        //{
+        //    keyboard_clear_buffer();
+        //    keyboard_fill_buffer();
+        //    keyboard_send_report();
+        //}
+        break;
     default:
         break;
     }
@@ -464,6 +477,8 @@ int usb_send_midi(uint8_t *buffer, uint8_t size)
     midi_state = USB_STATE_BUSY;
     return 0;
 }
+
+
 
 //		0x05, 0x01,   //Usage Page (Generic Desktop)
 //		0x09, 0x05,   //Usage (Game Pad)
