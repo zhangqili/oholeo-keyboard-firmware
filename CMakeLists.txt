@@ -37,6 +37,10 @@ add_executable(${CMAKE_PROJECT_NAME})
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
+
+
+# Add libamp sources
+set(LIBAMP_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/libamp_user)
 add_subdirectory(libamp)
 
 # Link directories setup
@@ -74,10 +78,6 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ./Drivers/CMSIS/Device/ST/STM32F3xx/Include
     ./snake/
     ./ws2812/
-)
-target_include_directories(libamp PUBLIC
-    # Add user defined include paths
-    ./libamp_user/
 )
 
 # Add project symbols (macros)
