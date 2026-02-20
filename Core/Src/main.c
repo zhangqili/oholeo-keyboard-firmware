@@ -482,7 +482,7 @@ int main(void)
         rgb_set(g_rgb_inverse_mapping[2], 0, 0, 0);
         rgb_set(g_rgb_inverse_mapping[3], 0, 0, 0);
         rgb_set(g_rgb_inverse_mapping[4], 0, 0, 0);
-        rgb_set(g_rgb_inverse_mapping[g_current_config_index+1], 0xff, 0xff, 0xff);
+        rgb_set(g_rgb_inverse_mapping[g_current_profile_index+1], 0xff, 0xff, 0xff);
         rgb_set(g_rgb_inverse_mapping[37], 0xff, 0xff, 0xff);
         if (g_keyboard_config.nkro)
           rgb_set(g_rgb_inverse_mapping[19], 0xff, 0xff, 0xff);
@@ -680,9 +680,9 @@ void rgb_update_callback()
 	  g_rgb_colors[g_rgb_inverse_mapping[4]].r = 0;
 	  g_rgb_colors[g_rgb_inverse_mapping[4]].g = 0;
 	  g_rgb_colors[g_rgb_inverse_mapping[4]].b = 0;
-	  g_rgb_colors[g_rgb_inverse_mapping[g_current_config_index+1]].r = 0xff;
-	  g_rgb_colors[g_rgb_inverse_mapping[g_current_config_index+1]].g = 0xff;
-	  g_rgb_colors[g_rgb_inverse_mapping[g_current_config_index+1]].b = 0xff;
+	  g_rgb_colors[g_rgb_inverse_mapping[g_current_profile_index+1]].r = 0xff;
+	  g_rgb_colors[g_rgb_inverse_mapping[g_current_profile_index+1]].g = 0xff;
+	  g_rgb_colors[g_rgb_inverse_mapping[g_current_profile_index+1]].b = 0xff;
     if (g_keyboard_config.nkro)
     {
       g_rgb_colors[g_rgb_inverse_mapping[19]].r = 0xff;
