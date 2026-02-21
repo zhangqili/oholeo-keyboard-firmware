@@ -30,6 +30,7 @@
 ### 前置条件
 - CMake
 - Ninja
+- gcc(Windows参考<https://code.visualstudio.com/docs/cpp/config-mingw>搭建MinGW环境，需要将`C:\msys64\usr\bin`与`C:\msys64\ucrt64\bin`依次放置在系统Path环境变量的最上方)
 - 在ST官网上下载安装STM32Cube开发套件 <https://www.st.com.cn/zh/development-tools/stm32cubeclt.html>
 - 在ST官网上下载安装STM32CubeProgrammer <https://www.st.com.cn/zh/development-tools/stm32cubeprog.html>，安装STM32Bootloader驱动
 - 将该仓库克隆到本地并在该仓库文件夹打开命令行终端
@@ -68,7 +69,7 @@ Memory region         Used Size  Region Size  %age Used
 
 ### 使用Keil uVision(不推荐)
 
-使用Keil uVision打开`MDK-ARM/oholeo-keyboard-firmware.uvprojx`，工程默认使用ARM Compiler 6
+搭建MinGW环境后使用Keil uVision打开`MDK-ARM/oholeo-keyboard-firmware.uvprojx`，工程默认使用ARM Compiler 6
 
 ## 烧录
 
