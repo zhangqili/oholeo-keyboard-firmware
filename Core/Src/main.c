@@ -720,6 +720,7 @@ void rgb_update_callback()
       g_rgb_colors[g_rgb_inverse_mapping[56]].b = 0xff;
     }
   }
+  /*
   if (sof_end/72<RGB_NUM)
   {
     g_rgb_colors[g_rgb_inverse_mapping[sof_end/72]] = (ColorRGB){0, 0, 0xff};
@@ -737,6 +738,7 @@ void rgb_update_callback()
   {
     g_rgb_colors[g_rgb_inverse_mapping[RGB_NUM-1 - i]] = (ColorRGB){0xff, 0, 0};
   }
+  */
 }
 
 /* USER CODE END 4 */
