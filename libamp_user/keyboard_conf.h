@@ -171,6 +171,12 @@
 //#define NEXUS_IS_SLAVE 1
 //#define NEXUS_VALUE_MAX        4096
 
+/**********/
+/* Script */
+/**********/
+//#define SCRIPT_ENABLE
+//#define MQJS_MINIMAL
+
 /****************/
 /* User Defines */
 /****************/

@@ -216,7 +216,7 @@ void MX_TIM7_Init(void)
   /* USER CODE BEGIN TIM7_Init 1 */
 
   /* USER CODE END TIM7_Init 1 */
-  TIM_InitStruct.Prescaler = 3600-1;
+  TIM_InitStruct.Prescaler = 3200-1;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
   TIM_InitStruct.Autoreload = 10-1;
   LL_TIM_Init(TIM7, &TIM_InitStruct);

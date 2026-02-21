@@ -6,36 +6,39 @@
             "hidden": true,
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/${presetName}",
-		    "toolchainFile": "${sourceDir}/cmake/gcc-arm-none-eabi.cmake",
             "cacheVariables": {
             }
         },
         {
             "name": "Debug",
             "inherits": "default",
+		    "toolchainFile": "${sourceDir}/cmake/gcc-arm-none-eabi.cmake",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
-            "name": "RelWithDebInfo",
-            "inherits": "default",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
-            }
-        },
-        {
             "name": "Release",
             "inherits": "default",
+		    "toolchainFile": "${sourceDir}/cmake/gcc-arm-none-eabi.cmake",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
         },
         {
-            "name": "MinSizeRel",
+            "name": "ClangDebug",
             "inherits": "default",
+		    "toolchainFile": "${sourceDir}/cmake/starm-clang.cmake",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "MinSizeRel"
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "ClangRelease",
+            "inherits": "default",
+		    "toolchainFile": "${sourceDir}/cmake/starm-clang.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
             }
         }
     ],
@@ -45,16 +48,16 @@
             "configurePreset": "Debug"
         },
         {
-            "name": "RelWithDebInfo",
-            "configurePreset": "RelWithDebInfo"
-        },
-        {
             "name": "Release",
             "configurePreset": "Release"
         },
         {
-            "name": "MinSizeRel",
-            "configurePreset": "MinSizeRel"
-        }
+            "name": "ClangDebug",
+            "configurePreset": "ClangDebug"
+        },
+        {
+            "name": "ClangRelease",
+            "configurePreset": "ClangRelease"
+        }        
     ]
 }

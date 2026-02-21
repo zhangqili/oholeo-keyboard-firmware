@@ -84,9 +84,9 @@ volatile uint32_t current_buffer_index = 0;
 
 extern volatile uint8_t low_latency_mode;
 
-//uint32_t sof_start = 0;
-//uint32_t sof_end = 0;
-//uint32_t exceed_count = 0;
+uint32_t sof_start = 0;
+uint32_t sof_end = 0;
+uint32_t exceed_count = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -482,7 +482,7 @@ int main(void)
         rgb_set(g_rgb_inverse_mapping[2], 0, 0, 0);
         rgb_set(g_rgb_inverse_mapping[3], 0, 0, 0);
         rgb_set(g_rgb_inverse_mapping[4], 0, 0, 0);
-        rgb_set(g_rgb_inverse_mapping[g_current_config_index+1], 0xff, 0xff, 0xff);
+        rgb_set(g_rgb_inverse_mapping[g_current_profile_index+1], 0xff, 0xff, 0xff);
         rgb_set(g_rgb_inverse_mapping[37], 0xff, 0xff, 0xff);
         if (g_keyboard_config.nkro)
           rgb_set(g_rgb_inverse_mapping[19], 0xff, 0xff, 0xff);
@@ -586,7 +586,7 @@ void main_task(void)
   if (!low_latency_mode)
   {
     keyboard_task();
-    //DWT->CYCCNT = 0;
+    DWT->CYCCNT = 0;
     //sof_end = DWT->CYCCNT / 12;
     if (pulse_counter)
     {
@@ -680,9 +680,9 @@ void rgb_update_callback()
 	  g_rgb_colors[g_rgb_inverse_mapping[4]].r = 0;
 	  g_rgb_colors[g_rgb_inverse_mapping[4]].g = 0;
 	  g_rgb_colors[g_rgb_inverse_mapping[4]].b = 0;
-	  g_rgb_colors[g_rgb_inverse_mapping[g_current_config_index+1]].r = 0xff;
-	  g_rgb_colors[g_rgb_inverse_mapping[g_current_config_index+1]].g = 0xff;
-	  g_rgb_colors[g_rgb_inverse_mapping[g_current_config_index+1]].b = 0xff;
+	  g_rgb_colors[g_rgb_inverse_mapping[g_current_profile_index+1]].r = 0xff;
+	  g_rgb_colors[g_rgb_inverse_mapping[g_current_profile_index+1]].g = 0xff;
+	  g_rgb_colors[g_rgb_inverse_mapping[g_current_profile_index+1]].b = 0xff;
     if (g_keyboard_config.nkro)
     {
       g_rgb_colors[g_rgb_inverse_mapping[19]].r = 0xff;
@@ -720,23 +720,25 @@ void rgb_update_callback()
       g_rgb_colors[g_rgb_inverse_mapping[56]].b = 0xff;
     }
   }
-  //if (sof_end/72<RGB_NUM)
-  //{
-  //  g_rgb_colors[g_rgb_inverse_mapping[sof_end/72]] = (ColorRGB){0, 0, 0xff};
-  //}
-  //else if (sof_end/720<RGB_NUM)
-  //{
-  //  g_rgb_colors[g_rgb_inverse_mapping[sof_end/720]] = (ColorRGB){0, 0xff, 0};
-  //}
-  //else if (sof_end/7200<RGB_NUM)
-  //{
-  //  exceed_count++;
-  //  g_rgb_colors[g_rgb_inverse_mapping[sof_end/7200]] = (ColorRGB){0xff, 0, 0};
-  //}
-  //for (size_t i = 0; i < exceed_count && i < RGB_NUM; i++)
-  //{
-  //  g_rgb_colors[g_rgb_inverse_mapping[RGB_NUM-1 - i]] = (ColorRGB){0xff, 0, 0};
-  //}
+  /*
+  if (sof_end/72<RGB_NUM)
+  {
+    g_rgb_colors[g_rgb_inverse_mapping[sof_end/72]] = (ColorRGB){0, 0, 0xff};
+  }
+  else if (sof_end/720<RGB_NUM)
+  {
+    g_rgb_colors[g_rgb_inverse_mapping[sof_end/720]] = (ColorRGB){0, 0xff, 0};
+  }
+  else if (sof_end/7200<RGB_NUM)
+  {
+    exceed_count++;
+    g_rgb_colors[g_rgb_inverse_mapping[sof_end/7200]] = (ColorRGB){0xff, 0, 0};
+  }
+  for (size_t i = 0; i < exceed_count && i < RGB_NUM; i++)
+  {
+    g_rgb_colors[g_rgb_inverse_mapping[RGB_NUM-1 - i]] = (ColorRGB){0xff, 0, 0};
+  }
+  */
 }
 
 /* USER CODE END 4 */
