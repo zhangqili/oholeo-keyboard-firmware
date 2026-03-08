@@ -54,7 +54,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-#define DMA_BUF_LEN             32
+#define DMA_BUF_LEN             128
 #define DMA_BUF_NUM             2
 /* USER CODE END PD */
 
@@ -610,37 +610,95 @@ void main_task(void)
   }
 }
 
+#define ADC_MUX_DISCARD_COUNT_BEGIN  (2U) // 丢弃前几个由于 MUX 切换造成的不稳定采样点
 void update_ringbuf(void)
 {
-  const uint32_t _current_buffer_index = current_buffer_index;
-  const uint32_t current_channel = g_analog_active_channel;
-  current_buffer_index = !current_buffer_index;
-  switch_buffer();
-  g_analog_active_channel++;
-  if (g_analog_active_channel >= 16)
-  {
-    g_analog_active_channel = 0;
-  }
-  analog_channel_select(g_analog_active_channel);
-  LL_TIM_EnableCounter(TIM2);
-  uint32_t adc1 = 0;
-  uint32_t adc2 = 0;
-  uint32_t adc3 = 0;
-  uint32_t adc4 = 0;
-
-  for (int i = 0; i < DMA_BUF_LEN; i++)
-  {
-    adc1 += ADC_Buffer[_current_buffer_index][0][i];
-    adc2 += ADC_Buffer[_current_buffer_index][1][i];
-    adc3 += ADC_Buffer[_current_buffer_index][2][i];
-    adc4 += ADC_Buffer[_current_buffer_index][3][i];
-  }
+  // 记住当前正在处理的是哪一个 Buffer，因为马上 buffer_index 就要翻转了
+  uint32_t proc_index = current_buffer_index; 
+  // 硬件映射表 (方便用 for 循环批量操作)
+  static const struct {
+      DMA_TypeDef *dma;
+      uint32_t dma_channel;
+      ADC_TypeDef *adc;
+  } hw_map[4] = {
+      {DMA1, LL_DMA_CHANNEL_1, ADC1},
+      {DMA2, LL_DMA_CHANNEL_1, ADC2},
+      {DMA2, LL_DMA_CHANNEL_5, ADC3},
+      {DMA2, LL_DMA_CHANNEL_2, ADC4}
+  };
+  // =========================================================================
+  // 阶段 1：紧急停止当前采样，并准备下一轮的硬件配置
+  // =========================================================================
   
-  ringbuf_push(&g_adc_ringbufs[0 * 16 + (current_channel)], adc1 >> 5);
-  ringbuf_push(&g_adc_ringbufs[1 * 16 + (current_channel)], adc2 >> 5);
-  ringbuf_push(&g_adc_ringbufs[2 * 16 + (current_channel)], adc3 >> 5);
-  ringbuf_push(&g_adc_ringbufs[3 * 16 + (current_channel)], adc4 >> 5);
-  //debug++;
+  uint32_t valid_counts[4] = {0};
+  // A. 停止 DMA 并获取这轮到底写了多少数据
+  for (int i = 0; i < 4; i++) {
+      LL_DMA_DisableChannel(hw_map[i].dma, hw_map[i].dma_channel);
+      uint32_t remaining = LL_DMA_GetDataLength(hw_map[i].dma, hw_map[i].dma_channel);
+      valid_counts[i] = DMA_BUF_LEN - remaining;
+  }
+  // B. 预计算下一个通道，并翻转缓冲区指针
+  uint32_t next_channel = g_analog_active_channel + 1;
+  if (next_channel >= 16) {
+      next_channel = 0;
+  }
+  current_buffer_index = !current_buffer_index; // 0变1，1变0
+  // C. 配置 DMA 目标地址为全新的缓冲区，并重置传输长度
+  for (int i = 0; i < 4; i++) {
+      // LL 库修改 DMA 内存地址的函数
+      LL_DMA_SetMemoryAddress(hw_map[i].dma, hw_map[i].dma_channel, (uint32_t)ADC_Buffer[current_buffer_index][i]);
+      LL_DMA_SetDataLength(hw_map[i].dma, hw_map[i].dma_channel, DMA_BUF_LEN);
+  }
+  // D. 切换硬件 MUX 到下一个通道 (此时 DMA 是暂停的，绝对安全)
+  analog_channel_select(next_channel);
+  // E. 清除 OVR 标志并释放 DMA，ADC 将立即开始将新通道数据写入新的 Buffer！
+  // 【从执行完这个循环的瞬间，下一轮采样就已经在后台悄悄开始了】
+  for (int i = 0; i < 4; i++) {
+      LL_ADC_ClearFlag_OVR(hw_map[i].adc);
+      LL_DMA_EnableChannel(hw_map[i].dma, hw_map[i].dma_channel);
+  }
+  // F. 重启定时器 (如果 TIM2 是作为采样频率节拍器的话)
+  LL_TIM_SetCounter(TIM2, 0); 
+  LL_TIM_EnableCounter(TIM2);
+  // =========================================================================
+  // 阶段 2：处理上一轮的数据 (此时 DMA 已经在给 next_channel 收集数据了)
+  // =========================================================================
+  
+  // 此时 g_analog_active_channel 指向的仍然是刚才采完的那批数据的归属通道
+#if 0
+  for (int i = 0; i < 4; i++) {
+      uint32_t count = valid_counts[i];
+      
+      // 确保收集到的数据量大于要丢弃的头部毛刺量
+      if (count > ADC_MUX_DISCARD_COUNT_BEGIN) {
+          uint32_t sum = 0;
+          uint32_t actual_count = count - ADC_MUX_DISCARD_COUNT_BEGIN;
+          
+          // 从丢弃后的索引开始累加
+          for (uint32_t j = ADC_MUX_DISCARD_COUNT_BEGIN; j < count; j++) {
+              sum += ADC_Buffer[proc_index][i][j]; // 注意：使用 proc_index 提取刚才的数据
+          }
+          
+          // i 正好对应 0, 1, 2, 3，推入对应的 RingBuf 中
+          ringbuf_push(&g_adc_ringbufs[i * 16 + g_analog_active_channel], sum / actual_count);
+      }
+  }
+#endif
+  for (int i = 0; i < 4; i++) {
+      uint32_t count = valid_counts[i];
+
+      uint32_t sum = 0;
+      uint32_t actual_count = count - ADC_MUX_DISCARD_COUNT_BEGIN;
+      for (uint32_t j = 0; j < 32; j++) {
+          sum += ADC_Buffer[proc_index][i][j+ADC_MUX_DISCARD_COUNT_BEGIN]; // 注意：使用 proc_index 提取刚才的数据
+      }
+      
+      // 从丢弃后的索引开始累加
+      
+      // i 正好对应 0, 1, 2, 3，推入对应的 RingBuf 中
+      ringbuf_push(&g_adc_ringbufs[i * 16 + g_analog_active_channel], (sum >> 5));
+  }
+  g_analog_active_channel = next_channel;
 }
 
 void rgb_update_callback()
@@ -720,7 +778,7 @@ void rgb_update_callback()
       g_rgb_colors[g_rgb_inverse_mapping[56]].b = 0xff;
     }
   }
-  /*
+  
   if (sof_end/72<RGB_NUM)
   {
     g_rgb_colors[g_rgb_inverse_mapping[sof_end/72]] = (ColorRGB){0, 0, 0xff};
@@ -734,11 +792,11 @@ void rgb_update_callback()
     exceed_count++;
     g_rgb_colors[g_rgb_inverse_mapping[sof_end/7200]] = (ColorRGB){0xff, 0, 0};
   }
-  for (size_t i = 0; i < exceed_count && i < RGB_NUM; i++)
-  {
-    g_rgb_colors[g_rgb_inverse_mapping[RGB_NUM-1 - i]] = (ColorRGB){0xff, 0, 0};
-  }
-  */
+  //for (size_t i = 0; i < exceed_count && i < RGB_NUM; i++)
+  //{
+  //  g_rgb_colors[g_rgb_inverse_mapping[RGB_NUM-1 - i]] = (ColorRGB){0xff, 0, 0};
+  //}
+  
 }
 
 /* USER CODE END 4 */
