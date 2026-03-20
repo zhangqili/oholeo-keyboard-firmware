@@ -32,11 +32,9 @@
 #include "analog.h"
 #include "rgb.h"
 #include "keyboard.h"
-#include "keyboard_conf.h"
 #include "math.h"
 #include "lfs.h"
 #include "sfud.h"
-#include "keyboard_def.h"
 #include "usbd_user.h"
 #include "snake.h"
 #include "packet.h"
@@ -128,9 +126,9 @@ __attribute__((weak)) int _write(int file, char *ptr, int len)
 #endif
 // 重定向print end
 
-void key_down_cb(void * k)
+void keyboard_key_event_down_callback_user(Key*key)
 {
-  UNUSED(k);
+  UNUSED(key);
   pulse_counter=PULSE_LEN_MS;
 }
 /**
@@ -340,10 +338,6 @@ int main(void)
   LL_GPIO_ResetOutputPin(INHIBIT_GPIO_Port, INHIBIT_Pin);
   ws2812_init();
   keyboard_init();
-  for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
-  {
-    key_attach(&g_keyboard_advanced_keys[i].key,KEY_EVENT_DOWN,key_down_cb);
-  }
 
   LL_ADC_StartCalibration(ADC1, LL_ADC_SINGLE_ENDED);
   LL_ADC_StartCalibration(ADC2, LL_ADC_SINGLE_ENDED);
@@ -415,9 +409,7 @@ int main(void)
 
   rgb_init_flash();
 
-  filter_reset();
-  analog_reset_range();
-  analog_scan();
+  analog_calibrate();
 
   if (g_keyboard_advanced_keys[0].raw < 1400 || g_keyboard_advanced_keys[0].raw > (4096 - 1400))
   {
@@ -522,7 +514,7 @@ int main(void)
     }
     else
     {
-      rgb_update();
+      keyboard_process();
     }
     /* USER CODE END WHILE */
 

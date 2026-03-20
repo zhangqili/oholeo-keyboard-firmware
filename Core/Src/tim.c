@@ -21,7 +21,7 @@
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
-#include "keyboard_conf.h"
+#include "keyboard_config.h"
 
 /* USER CODE END 0 */
 
