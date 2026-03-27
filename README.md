@@ -66,6 +66,7 @@ Memory region         Used Size  Region Size  %age Used
           CCMRAM:          0 GB         8 KB      0.00%
            FLASH:       85936 B       128 KB     65.56%
 ```
+如果编译遇到问题，请去cmake/gcc-arm-none-eabi.cmake删除所有的-flto=auto
 
 ### 使用Keil uVision(不推荐)
 
