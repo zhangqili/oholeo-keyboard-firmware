@@ -431,7 +431,7 @@ int main(void)
     keyboard_factory_reset();
     keyboard_reboot();
   }
-  usb_init();
+  usb_init(0, USB_BASE);
   g_keyboard_config.nkro = true;
   LL_TIM_EnableIT_UPDATE(TIM7);
   //LL_TIM_EnableCounter(TIM7);
@@ -731,6 +731,37 @@ void rgb_update_callback()
     g_rgb_colors[g_rgb_inverse_mapping[RGB_NUM-1 - i]] = (ColorRGB){0xff, 0, 0};
   }
   */
+}
+
+void usbd_event_handler_user(uint8_t busid, uint8_t event)
+{
+    UNUSED(busid);
+    switch (event)
+    {
+    case USBD_EVENT_RESET:
+        break;
+    case USBD_EVENT_CONNECTED:
+        break;
+    case USBD_EVENT_DISCONNECTED:
+        break;
+    case USBD_EVENT_RESUME:
+        break;
+    case USBD_EVENT_SUSPEND:
+        break;
+    case USBD_EVENT_CONFIGURED:
+        break;
+    case USBD_EVENT_SET_REMOTE_WAKEUP:
+        break;
+    case USBD_EVENT_CLR_REMOTE_WAKEUP:
+        break;
+    case USBD_EVENT_SOF:
+        sof_end = DWT->CYCCNT;
+        DWT->CYCCNT = 0;
+        TIM7->CR1 |= TIM_CR1_CEN;
+        break;
+    default:
+        break;
+    }
 }
 
 /* USER CODE END 4 */

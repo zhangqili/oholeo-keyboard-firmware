@@ -56,7 +56,8 @@ file(GLOB_RECURSE MY_SOURCES
     "./CherryUSB/port/fsdev/usb_dc_fsdev.c"
     "./usb/*.c"
     "./snake/*.c"
-    "./ws2812/*.c")
+    "./ws2812/*.c"
+    "./libamp/usb/template/cherryusb/usbd_user.c")
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
@@ -77,6 +78,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ./Drivers/CMSIS/Device/ST/STM32F3xx/Include
     ./snake/
     ./ws2812/
+    ./libamp/usb/template/cherryusb
 )
 
 # Add project symbols (macros)
