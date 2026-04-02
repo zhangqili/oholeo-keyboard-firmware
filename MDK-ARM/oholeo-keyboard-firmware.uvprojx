@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F303xC,LFS_NO_ASSERT,LFS_NO_DEBUG,LFS_NO_ERROR,LFS_NO_WARN,USE_FULL_LL_DRIVER,CMSIS_device_header=\"stm32f3xx.h\"</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;../libamp/src/;../libamp/src/midi/;../libamp/src/midi/bytequeue;../libamp/lib/littlefs/;../libamp/usb/;../libamp/lib/lufa;../libamp_user/;../sfud/inc/;../usb/;../CherryUSB/core;../CherryUSB/common;../CherryUSB/class/hid;../CherryUSB/port/fsdev;../snake;../ws2812;../libamp/src/lamp_array;..\libamp\src\mquickjs;..\libamp\lib\mquickjs;..\MDK-ARM</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;../libamp/src/;../libamp/src/midi/;../libamp/src/midi/bytequeue;../libamp/lib/littlefs/;../libamp/usb/;../libamp/lib/lufa;../libamp_user/;../sfud/inc/;../usb/;../CherryUSB/core;../CherryUSB/common;../CherryUSB/class/hid;../CherryUSB/port/fsdev;../snake;../ws2812;../libamp/src/lamp_array;..\libamp\src\mquickjs;..\libamp\lib\mquickjs;..\MDK-ARM;..\libamp\usb\template\cherryusb;..\libamp\src\log</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -487,7 +487,7 @@
             <File>
               <FileName>usbd_user.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\usb\usbd_user.c</FilePath>
+              <FilePath>..\libamp\usb\template\cherryusb\usbd_user.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -608,6 +608,21 @@
               <FileName>large_packet.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\libamp\src\large_packet.c</FilePath>
+            </File>
+            <File>
+              <FileName>event_cache.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\event_cache.c</FilePath>
+            </File>
+            <File>
+              <FileName>file_stream.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\file_stream.c</FilePath>
+            </File>
+            <File>
+              <FileName>nexus.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\nexus.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2322,6 +2337,16 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libamp/liblog</GroupName>
+          <Files>
+            <File>
+              <FileName>log.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\log\log.c</FilePath>
             </File>
           </Files>
         </Group>
