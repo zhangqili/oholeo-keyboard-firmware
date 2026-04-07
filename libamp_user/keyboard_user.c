@@ -5,11 +5,10 @@
  */
 #include "keyboard.h"
 #include "rgb.h"
-#include "gpio.h"
+#include "main.h"
 #include "string.h"
 #include "usbd_user.h"
 #include "analog.h"
-#include "tim.h"
 #include "snake.h"
 #include "qmk_midi.h"
 #include "sfud.h"

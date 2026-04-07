@@ -29,8 +29,6 @@
 #include <sfud.h>
 #include <stdarg.h>
 #include "main.h"
-#include "spi.h"
-#include "gpio.h"
 
 static char log_buf[256];
 

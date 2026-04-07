@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 #include "ws2812.h"
-#include "tim.h"
+#include "main.h"
 
 static uint8_t ws2812_buffer[WS2812_BUFFER_LENGTH];
 
