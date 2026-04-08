@@ -12,8 +12,6 @@
 #define LAYER_NUM               5
 #define ADVANCED_KEY_NUM        64
 #define KEY_NUM                 0
-//#define FIXED_POINT_EXPERIMENTAL
-#define OPTIMIZE_FOR_FLOAT_DIVISION
 #define CONTINUOUS_DEBUG
 #define DEBUG_INTERVAL 0
 #define DYNAMICKEY_ENABLE
@@ -25,6 +23,7 @@
 #define DEBOUNCE_PRESS_EAGER    1
 #define DEBOUNCE_RELEASE        0
 #define DEBOUNCE_RELEASE_EAGER  1
+#define LUT_LENGTH              8192
 
 /********************/
 /* Keyboard Default */
@@ -70,7 +69,7 @@
 #define BUBBLE_DISTANCE         2.5f
 #define PORT_LOCATION           {1, -0.5}
 #define RGB_FLASH_MAX_DURATION  1000
-#define RGB_FLASH_RIPPLE_SPEED  0.03
+//#define RGB_FLASH_RIPPLE_SPEED  30
 #define RGB_DEFAULT_MODE        RGB_MODE_LINEAR
 #define RGB_DEFAULT_SPEED       0.03
 #define RGB_DEFAULT_COLOR_HSV   {273, 78, 99}
