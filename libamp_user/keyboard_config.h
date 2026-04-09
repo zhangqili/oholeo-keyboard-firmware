@@ -71,7 +71,7 @@
 #define RGB_FLASH_MAX_DURATION  1000
 //#define RGB_FLASH_RIPPLE_SPEED  30
 #define RGB_DEFAULT_MODE        RGB_MODE_LINEAR
-#define RGB_DEFAULT_SPEED       0.03
+#define RGB_DEFAULT_SPEED       20
 #define RGB_DEFAULT_COLOR_HSV   {273, 78, 99}
 #define RGB_LEFT                -0.5f
 #define RGB_TOP                 -0.5f
