@@ -400,36 +400,6 @@
               <FilePath>../Core/Src/main.c</FilePath>
             </File>
             <File>
-              <FileName>gpio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/gpio.c</FilePath>
-            </File>
-            <File>
-              <FileName>adc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/adc.c</FilePath>
-            </File>
-            <File>
-              <FileName>dma.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/dma.c</FilePath>
-            </File>
-            <File>
-              <FileName>spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/spi.c</FilePath>
-            </File>
-            <File>
-              <FileName>tim.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/tim.c</FilePath>
-            </File>
-            <File>
-              <FileName>usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/usart.c</FilePath>
-            </File>
-            <File>
               <FileName>stm32f3xx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f3xx_it.c</FilePath>
@@ -615,14 +585,19 @@
               <FilePath>..\libamp\src\event_cache.c</FilePath>
             </File>
             <File>
-              <FileName>file_stream.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\libamp\src\file_stream.c</FilePath>
-            </File>
-            <File>
               <FileName>nexus.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\libamp\src\nexus.c</FilePath>
+            </File>
+            <File>
+              <FileName>file_system.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\file_system.c</FilePath>
+            </File>
+            <File>
+              <FileName>gamepad.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libamp\src\gamepad.c</FilePath>
             </File>
           </Files>
         </Group>
