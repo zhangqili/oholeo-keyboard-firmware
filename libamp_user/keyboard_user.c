@@ -13,6 +13,7 @@
 #include "qmk_midi.h"
 #include "sfud.h"
 #include "ws2812.h"
+#include "gamepad.h"
 
 const Keycode g_default_keymap[LAYER_NUM][TOTAL_KEY_NUM] = {
     {
@@ -1020,51 +1021,6 @@ void keyboard_user_event_handler(KeyboardEvent event)
     }
 }
 
-int hid_send_shared_ep(uint8_t *report, uint16_t len)
-{
-    return usb_send_shared_ep(report, len);
-}
-
-int hid_send_keyboard(uint8_t *report, uint16_t len)
-{
-    return usb_send_keyboard(report, len);
-}
-
-int hid_send_nkro(uint8_t *report, uint16_t len)
-{
-    return usb_send_shared_ep(report, len);
-}
-
-int hid_send_extra_key(uint8_t*report,uint16_t len)
-{
-    return usb_send_shared_ep(report, len);
-}
-
-int hid_send_mouse(uint8_t*report,uint16_t len)
-{
-    return usb_send_shared_ep(report, len);
-}
-
-int hid_send_joystick(uint8_t*report,uint16_t len)
-{
-    return usb_send_shared_ep(report, len);
-}
-
-int hid_send_raw(uint8_t *report, uint16_t len)
-{
-    return usb_send_raw(report, len);
-}
-
-void send_midi(uint8_t *report, uint16_t len)
-{
-    usb_send_midi(report, len);
-}
-
-int send_remote_wakeup(void)
-{
-    return usbd_send_remote_wakeup(0);
-}
-
 extern sfud_flash sfud_norflash0;
 
 int flash_read(uint32_t addr, uint32_t size, uint8_t *data)
@@ -1086,4 +1042,16 @@ int led_set(uint16_t index, uint8_t r, uint8_t g, uint8_t b)
 {
     ws2812_set(index, r, g, b);
     return 0;
+}
+
+void gamepad_out_callback(GamepadOutReport* report)
+{
+    if (report->report_id == 0)
+    {
+        if (report->rumble_l || report->rumble_r)
+        {
+            extern uint32_t pulse_counter;
+            pulse_counter=KEYBOARD_TIME_TO_TICK(MAX(report->rumble_l, report->rumble_r));
+        }
+    }
 }

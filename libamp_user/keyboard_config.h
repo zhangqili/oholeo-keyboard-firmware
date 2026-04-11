@@ -159,6 +159,9 @@
 //#define DIGITIZER_SHARED_EP
 //#define PROGRAMMABLE_BUTTON_ENABLE
 #define MIDI_ENABLE
+#define MIDI_STREAM_EPSIZE 16
+#define MIDI_ENABLE
+#define GAMEPAD_ENABLE
 //#define LIGHTING_ENABLE
 
 /*********/
