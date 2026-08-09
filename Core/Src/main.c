@@ -33,7 +33,6 @@
 #include "snake.h"
 #include "packet.h"
 #include "layer.h"
-#include "qmk_midi.h"
 #include "ws2812.h"
 
 /* USER CODE END Includes */

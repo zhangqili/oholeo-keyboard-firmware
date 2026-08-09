@@ -10,7 +10,6 @@
 #include "usbd_user.h"
 #include "analog.h"
 #include "snake.h"
-#include "qmk_midi.h"
 #include "sfud.h"
 #include "ws2812.h"
 #include "gamepad.h"
